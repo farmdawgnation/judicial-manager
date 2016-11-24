@@ -32,13 +32,15 @@ case class PresidingJudge(
   id: UUID,
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalMatch]
+  matchHistory: Seq[HistoricalMatch],
+  roundsAvailable: Seq[Int]
 ) extends Judge
 case class ScoringJudge(
   id: UUID,
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalMatch]
+  matchHistory: Seq[HistoricalMatch],
+  roundsAvailable: Seq[Int]
 ) extends Judge
 
 case class CompetingTeam(
