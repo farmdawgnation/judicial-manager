@@ -39,7 +39,7 @@ object NotAPreviousOpponentPolicy extends MatchingPolicy {
   override def isAcceptableTeamMatch = {
     // In theory, we shouldn't need the "OR" here, but team names aren't really a unique identifier
     // yet... more to come in this area, I expect.
-    case (team1, team2) if team1.hasPlayed_?(team2.name) || team2.hasPlayed_?(team1.name) =>
+    case (team1, team2) if team1.hasPlayed_?(team2.id) || team2.hasPlayed_?(team1.id) =>
       false
   }
 }

@@ -15,46 +15,58 @@
 **/
 package frmr.scyig.models
 
+import java.util.UUID
+
 /**
  * Our representation for someone who is participating in the judicial conference.
  * This is the unifying type for all kinds of participant.
  */
 sealed trait Participant {
+  def id: UUID
+
   def name: ParticipantName
 
   def organization: Option[ParticipantOrganization]
 }
 
 sealed trait Judge extends Participant
-case class PresidingJudge(name: ParticipantName) extends Judge {
-  override val organization = None
-}
-case class ScoringJudge(name: ParticipantName, _organization: ParticipantOrganization) extends Judge {
-  override val organization = Some(_organization)
-}
+case class PresidingJudge(
+  id: UUID,
+  name: ParticipantName,
+  organization: Option[ParticipantOrganization]
+) extends Judge
+case class ScoringJudge(
+  id: UUID,
+  name: ParticipantName,
+  organization: Option[ParticipantOrganization]
+) extends Judge
 
 case class CompetingTeam(
+  id: UUID,
   name: ParticipantName,
-  _organization: ParticipantOrganization,
+  private val _organization: ParticipantOrganization,
   matchHistory: Seq[HistoricalMatch]
 ) extends Participant {
   override val organization = Some(_organization)
 
-  def hasPlayed_?(opponent: ParticipantName): Boolean = {
-    matchHistory.map(_.opponent).find(_ == opponent).isDefined
+  def hasPlayed_?(opponentIdentifier: UUID): Boolean = {
+    matchHistory.find(hmatch =>
+      hmatch.prosecutionIdentifier == opponentIdentifier ||
+      hmatch.defenseIdentifier == opponentIdentifier
+    ).isDefined
   }
 }
 
-case class ParticipantName(name: String)
-case class ParticipantOrganization(name: String)
+case class ParticipantName(value: String)
+case class ParticipantOrganization(value: String)
 
 sealed trait HistoricalRole
 case object Procescution extends HistoricalRole
 case object Defense extends HistoricalRole
 
 case class HistoricalMatch(
-  role: HistoricalRole,
-  opponent: ParticipantName,
-  presidingJudge: PresidingJudge,
-  scoringJudge: ScoringJudge
+  prosecutionIdentifier: UUID,
+  defenseIdentifier: UUID,
+  presidingJudgeIdentifier: UUID,
+  scoringJudgeIdentifier: UUID
 )
