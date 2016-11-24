@@ -59,14 +59,3 @@ case class CompetingTeam(
 
 case class ParticipantName(value: String)
 case class ParticipantOrganization(value: String)
-
-sealed trait HistoricalRole
-case object Procescution extends HistoricalRole
-case object Defense extends HistoricalRole
-
-case class HistoricalMatch(
-  prosecutionIdentifier: UUID,
-  defenseIdentifier: UUID,
-  presidingJudgeIdentifier: UUID,
-  scoringJudgeIdentifier: UUID
-)
