@@ -65,7 +65,7 @@ case class MatchedTeamsWithPresidingJudge(
   override val defense: CompetingTeam,
   presidingJudge: PresidingJudge
 ) extends PartialRoundMatch {
-  def withScoringJudge(scoringJudge: ScoringJudge): MatchedTeamsWithPresidingAndScoringJudge = {
+  def withScoringJudge(scoringJudge: Option[ScoringJudge]): MatchedTeamsWithPresidingAndScoringJudge = {
     MatchedTeamsWithPresidingAndScoringJudge(
       prosecution,
       defense,
@@ -82,7 +82,7 @@ case class MatchedTeamsWithPresidingAndScoringJudge(
   override val prosecution: CompetingTeam,
   override val defense: CompetingTeam,
   presidingJudge: PresidingJudge,
-  scoringJudge: ScoringJudge
+  scoringJudge: Option[ScoringJudge]
 ) extends PartialRoundMatch {
   def withRoom(roomNumber: Int): Trial = {
     Trial(
@@ -102,7 +102,7 @@ case class Trial(
   prosecution: CompetingTeam,
   defense: CompetingTeam,
   presidingJudge: PresidingJudge,
-  scoringJudge: ScoringJudge,
+  scoringJudge: Option[ScoringJudge],
   roomNumber: Int
 ) extends CompletedRoundMatch
 
