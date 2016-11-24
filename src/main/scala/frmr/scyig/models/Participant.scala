@@ -23,9 +23,7 @@ import java.util.UUID
  */
 sealed trait Participant {
   def id: UUID
-
   def name: ParticipantName
-
   def organization: Option[ParticipantOrganization]
 }
 
@@ -33,12 +31,14 @@ sealed trait Judge extends Participant
 case class PresidingJudge(
   id: UUID,
   name: ParticipantName,
-  organization: Option[ParticipantOrganization]
+  organization: Option[ParticipantOrganization],
+  matchHistory: Seq[HistoricalMatch]
 ) extends Judge
 case class ScoringJudge(
   id: UUID,
   name: ParticipantName,
-  organization: Option[ParticipantOrganization]
+  organization: Option[ParticipantOrganization],
+  matchHistory: Seq[HistoricalMatch]
 ) extends Judge
 
 case class CompetingTeam(
