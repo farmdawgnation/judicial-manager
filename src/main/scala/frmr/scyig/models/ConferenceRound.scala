@@ -17,9 +17,11 @@ package frmr.scyig.models
 
 import java.util.UUID
 
-type RoundScore = Map[UUID, Double]
+object ConferenceRoundTypes {
+  type RoundScore = Map[UUID, Double]
+}
 
 case class ConferenceRound(
   matches: Seq[RoundMatch],
-  scores: Seq[RoundScore]
+  scores: Seq[ConferenceRoundTypes.RoundScore]
 )

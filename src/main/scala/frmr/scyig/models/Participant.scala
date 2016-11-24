@@ -36,9 +36,13 @@ case class ScoringJudge(name: ParticipantName, _organization: ParticipantOrganiz
 case class CompetingTeam(
   name: ParticipantName,
   _organization: ParticipantOrganization,
-  roleHistory: Seq[HistoricalRole]
+  matchHistory: Seq[HistoricalMatch]
 ) extends Participant {
   override val organization = Some(_organization)
+
+  def hasPlayed_?(opponent: ParticipantName): Boolean = {
+    matchHistory.map(_.opponent).find(_ == opponent).isDefined
+  }
 }
 
 case class ParticipantName(name: String)
@@ -46,4 +50,11 @@ case class ParticipantOrganization(name: String)
 
 sealed trait HistoricalRole
 case object Procescution extends HistoricalRole
-case object Defense extends HisotricalRole
+case object Defense extends HistoricalRole
+
+case class HistoricalMatch(
+  role: HistoricalRole,
+  opponent: ParticipantName,
+  presidingJudge: PresidingJudge,
+  scoringJudge: ScoringJudge
+)
