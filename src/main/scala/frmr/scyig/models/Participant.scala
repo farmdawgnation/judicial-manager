@@ -61,7 +61,8 @@ case class CompetingTeam(
   id: UUID,
   name: ParticipantName,
   private val _organization: ParticipantOrganization,
-  matchHistory: Seq[HistoricalMatch]
+  matchHistory: Seq[HistoricalMatch],
+  scores: Seq[Int]
 ) extends Participant {
   override val organization = Some(_organization)
 
@@ -71,6 +72,9 @@ case class CompetingTeam(
       hmatch.defenseIdentifier == opponentIdentifier
     ).isDefined
   }
+
+  lazy val hasScores_? = scores.nonEmpty
+  lazy val averageScore: Double = scores.foldLeft(0D)(_ + _) / scores.length
 }
 
 case class ParticipantName(value: String)
