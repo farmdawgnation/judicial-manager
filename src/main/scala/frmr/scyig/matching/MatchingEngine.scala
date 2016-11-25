@@ -16,6 +16,7 @@
 package frmr.scyig.matching
 
 import frmr.scyig.models._
+import net.liftweb.actor._
 
 /**
  * The brains of this operation! The matching engine is responsible for generating fully realized
@@ -30,12 +31,9 @@ class MatchingEngine(
   participants: Seq[Participant],
   roundNumber: Int,
   numberOfRooms: Int,
-  matchingPolicies: Seq[MatchingPolicy],
-  suggester: ParticipantSuggester[_]
-) {
-  private var isReady: Boolean = true
-
-  def energize(): Seq[RoundMatch] = {
-    Seq
+  matchingPolicies: Seq[MatchingPolicy]
+) extends LiftActor {
+  def messageHandler = {
+    case _ =>
   }
 }
