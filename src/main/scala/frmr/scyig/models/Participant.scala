@@ -34,14 +34,28 @@ case class PresidingJudge(
   organization: Option[ParticipantOrganization],
   matchHistory: Seq[HistoricalMatch],
   roundsAvailable: Seq[Int]
-) extends Judge
+) extends Judge {
+  def hasJudged_?(teamIdentifier: UUID): Boolean = {
+    matchHistory.find(hmatch =>
+      hmatch.prosecutionIdentifier == teamIdentifier ||
+      hmatch.defenseIdentifier == teamIdentifier
+    ).isDefined
+  }
+}
 case class ScoringJudge(
   id: UUID,
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
   matchHistory: Seq[HistoricalMatch],
   roundsAvailable: Seq[Int]
-) extends Judge
+) extends Judge {
+  def hasJudged_?(teamIdentifier: UUID): Boolean = {
+    matchHistory.find(hmatch =>
+      hmatch.prosecutionIdentifier == teamIdentifier ||
+      hmatch.defenseIdentifier == teamIdentifier
+    ).isDefined
+  }
+}
 
 case class CompetingTeam(
   id: UUID,

@@ -22,16 +22,16 @@ package frmr.scyig.models
  */
 sealed trait RoundMatch
 
+
 /**
  * Parent trait for any kind of match that is incomplete and therefore not capable of being
  * scheduled.
  */
 sealed trait PartialRoundMatch extends RoundMatch {
-  def prosecution: CompetingTeam
-  def defense: CompetingTeam
+  def teams: Seq[CompetingTeam] = Seq()
 
   def toByes: Seq[Bye] = {
-    Seq(Bye(prosecution), Bye(defense))
+    teams.map(Bye.apply)
   }
 }
 
@@ -42,12 +42,24 @@ sealed trait PartialRoundMatch extends RoundMatch {
 sealed trait CompletedRoundMatch extends RoundMatch
 
 /**
+ * A seed for the matching algorithm that only consists of a single competing team without a role
+ * assigned.
+ */
+case class MatchSeed(
+  team: CompetingTeam
+) extends PartialRoundMatch {
+  override val teams = Seq(team)
+}
+
+/**
  * A partial match in which the teams have been matched.
  */
 case class MatchedTeams(
   prosecution: CompetingTeam,
   defense: CompetingTeam
 ) extends PartialRoundMatch {
+  override val teams = Seq(prosecution, defense)
+
   def withPresidingJudge(presidingJudge: PresidingJudge): MatchedTeamsWithPresidingJudge = {
     MatchedTeamsWithPresidingJudge(
       prosecution,
@@ -61,10 +73,12 @@ case class MatchedTeams(
  * A partial match in which the teams have a presiding judge.
  */
 case class MatchedTeamsWithPresidingJudge(
-  override val prosecution: CompetingTeam,
-  override val defense: CompetingTeam,
+  prosecution: CompetingTeam,
+  defense: CompetingTeam,
   presidingJudge: PresidingJudge
 ) extends PartialRoundMatch {
+  override val teams = Seq(prosecution, defense)
+
   def withScoringJudge(scoringJudge: Option[ScoringJudge]): MatchedTeamsWithPresidingAndScoringJudge = {
     MatchedTeamsWithPresidingAndScoringJudge(
       prosecution,
@@ -79,11 +93,13 @@ case class MatchedTeamsWithPresidingJudge(
  * A parital match in which the teams have a presiding judge and a scoring judge.
  */
 case class MatchedTeamsWithPresidingAndScoringJudge(
-  override val prosecution: CompetingTeam,
-  override val defense: CompetingTeam,
+  prosecution: CompetingTeam,
+  defense: CompetingTeam,
   presidingJudge: PresidingJudge,
   scoringJudge: Option[ScoringJudge]
 ) extends PartialRoundMatch {
+  override val teams = Seq(prosecution, defense)
+
   def withRoom(roomNumber: Int): Trial = {
     Trial(
       prosecution,

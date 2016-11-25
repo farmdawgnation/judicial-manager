@@ -17,29 +17,63 @@ package frmr.scyig.matching
 
 import frmr.scyig.models._
 
+/**
+ * Matching policies define the "hard rules" that exist at the judicial competition. Essentially,
+ * once the matching engine has a match that it would like to suggest, it needs to validate that
+ * potential match with the enabled matching policies.
+ */
 trait MatchingPolicy {
-  def isAcceptableTeamMatch: PartialFunction[(CompetingTeam, CompetingTeam), Boolean]
+  def isValid(partialMatch: PartialRoundMatch, proposedParticipant: Participant): Boolean
 }
 
-object DefaultPolicy extends MatchingPolicy {
-  override def isAcceptableTeamMatch = {
-    case _ =>
-      true
-  }
-}
-
+/**
+ * Ensures no participants in the potential match are from the same organization.
+ */
 object NotFromSameOrganizationPolicy extends MatchingPolicy {
-  override def isAcceptableTeamMatch = {
-    case (team1, team2) if team1.organization == team2.organization =>
-      false
+  override def isValid(partialMatch: PartialRoundMatch, proposedParticipant: Participant): Boolean = {
+    (partialMatch, proposedParticipant) match {
+      case (MatchSeed(team1), team2: CompetingTeam) =>
+        team1.organization != team2.organization
+
+      case (MatchedTeams(team1, team2), presidingJudge: PresidingJudge) =>
+        team1.organization != presidingJudge.organization &&
+        team2.organization != presidingJudge.organization
+
+      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: ScoringJudge) =>
+        team1.organization != scoringJudge.organization &&
+        team2.organization != scoringJudge.organization
+
+      case (_: MatchedTeamsWithPresidingAndScoringJudge, _) =>
+        true
+
+      case _ =>
+        false
+    }
   }
 }
 
-object NotAPreviousOpponentPolicy extends MatchingPolicy {
-  override def isAcceptableTeamMatch = {
-    // In theory, we shouldn't need the "OR" here, but team names aren't really a unique identifier
-    // yet... more to come in this area, I expect.
-    case (team1, team2) if team1.hasPlayed_?(team2.id) || team2.hasPlayed_?(team1.id) =>
-      false
+/**
+ * Ensure no participants in a match have seen each other before.
+ */
+object NotAPreviousPolicy extends MatchingPolicy {
+  override def isValid(partialMatch: PartialRoundMatch, proposedParticipant: Participant): Boolean = {
+    (partialMatch, proposedParticipant) match {
+      case (MatchSeed(team1), team2: CompetingTeam) =>
+        ! team1.hasPlayed_?(team2.id)
+
+      case (MatchedTeams(team1, team2), presidingJudge: PresidingJudge) =>
+        presidingJudge.hasJudged_?(team1.id) == false &&
+        presidingJudge.hasJudged_?(team2.id) == false
+
+      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: ScoringJudge) =>
+        scoringJudge.hasJudged_?(team1.id) == false &&
+        scoringJudge.hasJudged_?(team2.id) == false
+
+      case (_: MatchedTeamsWithPresidingAndScoringJudge, _) =>
+        true
+
+      case _ =>
+        false
+    }
   }
 }
