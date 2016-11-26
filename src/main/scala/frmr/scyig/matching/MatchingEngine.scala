@@ -38,7 +38,7 @@ class MatchingEngine(
   private[matching] val self = this
   private[matching] var finalState: Option[MatchingEngineState] = None
 
-  private[matching] def buildMatch(state: MatchingEngineState): Unit = {
+  private[matching] def buildMatch(state: MatchingEngineState): MatchingEngineEvent = {
     val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)
 
     (state.currentlyBuildingRound, suggestions) match {
@@ -50,21 +50,21 @@ class MatchingEngine(
               remainingParticipants = state.remainingParticipants.filterNot(_ == suggestions.head)
             )
 
-            self ! BuildMatch(updatedState)
+            BuildMatch(updatedState)
 
           case unexpected =>
-            self ! MatchingError(s"Unexpected suggestion from suggestion engine $unexpected")
+            MatchingError(s"Unexpected suggestion from suggestion engine $unexpected")
         }
 
       case (None, _) =>
-        self ! FinishMatching(state)
+        FinishMatching(state)
 
       case (Some(seed: MatchSeed), suggestions) if suggestions.nonEmpty =>
         val suggestedMember = suggestions.find(candidate => matchingPolicy.isValid(seed, candidate))
 
         suggestedMember match {
           case None =>
-            self ! BuildMatch(
+            BuildMatch(
               state.copy(
                 scheduledRounds = state.scheduledRounds ++ seed.toByes,
                 currentlyBuildingRound = None
@@ -72,14 +72,14 @@ class MatchingEngine(
             )
 
           case Some(nextTeam: CompetingTeam) =>
-            self ! BuildMatch(
+            BuildMatch(
               state.copy(
                 currentlyBuildingRound = Some(seed.withOtherTeam(nextTeam))
               ).withoutParticipant(nextTeam)
             )
 
           case Some(otherParticipant) =>
-            self ! MatchingError(s"Received an unexpected participant suggestion. Expected CompetingTeam. Got: $otherParticipant")
+            MatchingError(s"Received an unexpected participant suggestion. Expected CompetingTeam. Got: $otherParticipant")
         }
 
       case (Some(matchedTeams: MatchedTeams), suggestions) if suggestions.nonEmpty =>
@@ -87,7 +87,7 @@ class MatchingEngine(
 
         suggestedMember match {
           case None =>
-            self ! BuildMatch(
+            BuildMatch(
               state.copy(
                 scheduledRounds = state.scheduledRounds ++ matchedTeams.toByes,
                 currentlyBuildingRound = None
@@ -95,14 +95,14 @@ class MatchingEngine(
             )
 
           case Some(presidingJudge: PresidingJudge) =>
-            self ! BuildMatch(
+            BuildMatch(
               state.copy(
                 currentlyBuildingRound = Some(matchedTeams.withPresidingJudge(presidingJudge))
               ).withoutParticipant(presidingJudge)
             )
 
           case Some(otherParticipant) =>
-            self ! MatchingError(s"Received an unexpected participant suggestion. Expected PresidingJudge. Got: $otherParticipant")
+            MatchingError(s"Received an unexpected participant suggestion. Expected PresidingJudge. Got: $otherParticipant")
         }
 
       case (Some(teamsWithPresiding: MatchedTeamsWithPresidingJudge), suggestions) if suggestions.nonEmpty =>
@@ -110,7 +110,7 @@ class MatchingEngine(
 
         suggestedMember match {
           case None =>
-            self ! BuildMatch(
+            BuildMatch(
               state.copy(
                 fullyMatchedRounds = state.fullyMatchedRounds :+ teamsWithPresiding.withScoringJudge(None),
                 currentlyBuildingRound = None
@@ -118,7 +118,7 @@ class MatchingEngine(
             )
 
           case scoringJudgeOpt @ Some(scoringJudge: ScoringJudge) =>
-            self ! BuildMatch(
+            BuildMatch(
               state.copy(
                 fullyMatchedRounds = state.fullyMatchedRounds :+ teamsWithPresiding.withScoringJudge(
                   scoringJudgeOpt.asInstanceOf[Option[ScoringJudge]]
@@ -128,11 +128,11 @@ class MatchingEngine(
             )
 
           case Some(unexpected) =>
-            self ! MatchingError(s"Received an unexpected participant suggestion. Expected ScoringJudge. Got: $unexpected")
+            MatchingError(s"Received an unexpected participant suggestion. Expected ScoringJudge. Got: $unexpected")
         }
 
       case (Some(partialMatch: PartialRoundMatch), _) =>
-        self ! BuildMatch(
+        BuildMatch(
           state.copy(
             scheduledRounds = state.scheduledRounds ++ partialMatch.toByes,
             currentlyBuildingRound = None
@@ -141,22 +141,22 @@ class MatchingEngine(
     }
   }
 
-  private[matching] def startMatching(): Unit = {
+  private[matching] def startMatching(): MatchingEngineEvent = {
     val initialState = MatchingEngineState(
       remainingParticipants = initialParticipants,
       suggester = suggester(initialParticipants)
     )
-    self ! BuildMatch(initialState)
+    BuildMatch(initialState)
   }
 
   private[matching] def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
     matchingEvent match {
       case StartMatching =>
         logger.info("Starting matching.")
-        startMatching()
+        self ! startMatching()
 
       case BuildMatch(state) =>
-        buildMatch(state)
+        self ! buildMatch(state)
 
       case FinishMatching(state) =>
         logger.info("Matching finished.")
