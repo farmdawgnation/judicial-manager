@@ -29,11 +29,11 @@ sealed trait Participant {
 
 sealed trait Judge extends Participant
 case class PresidingJudge(
-  id: UUID,
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalMatch],
-  roundsAvailable: Seq[Int]
+  matchHistory: Seq[HistoricalMatch] = Seq.empty,
+  roundsAvailable: Seq[Int] = Seq.empty,
+  id: UUID = UUID.randomUUID()
 ) extends Judge {
   def hasJudged_?(teamIdentifier: UUID): Boolean = {
     matchHistory.find(hmatch =>
@@ -43,11 +43,11 @@ case class PresidingJudge(
   }
 }
 case class ScoringJudge(
-  id: UUID,
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalMatch],
-  roundsAvailable: Seq[Int]
+  matchHistory: Seq[HistoricalMatch] = Seq.empty,
+  roundsAvailable: Seq[Int] = Seq.empty,
+  id: UUID = UUID.randomUUID()
 ) extends Judge {
   def hasJudged_?(teamIdentifier: UUID): Boolean = {
     matchHistory.find(hmatch =>
@@ -58,11 +58,11 @@ case class ScoringJudge(
 }
 
 case class CompetingTeam(
-  id: UUID,
   name: ParticipantName,
   private val _organization: ParticipantOrganization,
-  matchHistory: Seq[HistoricalMatch],
-  scores: Seq[Int]
+  matchHistory: Seq[HistoricalMatch] = Seq.empty,
+  scores: Seq[Int] = Seq.empty,
+  id: UUID = UUID.randomUUID()
 ) extends Participant {
   override val organization = Some(_organization)
 
