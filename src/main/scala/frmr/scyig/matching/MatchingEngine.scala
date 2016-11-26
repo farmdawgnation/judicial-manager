@@ -35,10 +35,10 @@ class MatchingEngine(
   matchingPolicy: MatchingPolicy,
   suggester: (Seq[Participant])=>ParticipantSuggester = participants=>new RandomizedParticipantSuggester(participants)
 ) extends LiftActor with Loggable {
-  val self = this
-  var finalState: Option[MatchingEngineState] = None
+  private[matching] val self = this
+  private[matching] var finalState: Option[MatchingEngineState] = None
 
-  def buildMatch(state: MatchingEngineState): Unit = {
+  private[matching] def buildMatch(state: MatchingEngineState): Unit = {
     val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)
 
     (state.currentlyBuildingRound, suggestions) match {
@@ -141,7 +141,7 @@ class MatchingEngine(
     }
   }
 
-  def startMatching(): Unit = {
+  private[matching] def startMatching(): Unit = {
     val initialState = MatchingEngineState(
       remainingParticipants = initialParticipants,
       suggester = suggester(initialParticipants)
@@ -149,7 +149,7 @@ class MatchingEngine(
     self ! BuildMatch(initialState)
   }
 
-  def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
+  private[matching] def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
     matchingEvent match {
       case StartMatching =>
         logger.info("Starting matching.")
@@ -167,7 +167,7 @@ class MatchingEngine(
     }
   }
 
-  def handleMatchingQuery(matchingQuery: MatchingEngineQuery): Unit = {
+  private[matching] def handleMatchingQuery(matchingQuery: MatchingEngineQuery): Unit = {
     matchingQuery match {
       case QueryMatchingState =>
         reply(finalState)
