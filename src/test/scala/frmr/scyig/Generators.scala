@@ -15,6 +15,7 @@
 **/
 package frmr.scyig
 
+import frmr.scyig.matching._
 import frmr.scyig.models._
 import java.util.UUID
 import org.scalacheck._
@@ -44,5 +45,29 @@ object Generators {
     org <- Gen.option(participantOrgGen)
   } yield {
     ScoringJudge(name, org)
+  }
+
+  val participantGen: Gen[Participant] = for {
+    participant <- Gen.oneOf(teamGen, presidingJudgeGen, scoringJudgeGen)
+  } yield participant
+
+  val participantsGen: Gen[Seq[Participant]] = for {
+    participants <- Gen.listOf(participantGen)
+  } yield participants
+
+  val matchingEngineGen = for {
+    participants <- participantsGen
+    roundNumber <- arbitrary[Int]
+    numberOfRooms <- arbitrary[Int]
+    matchingPolicy = MatchingPolicy.default
+    suggester = (participants)=>new RandomizedParticipantSuggester(participants)
+  } yield {
+    new MatchingEngine(
+      participants,
+      roundNumber,
+      numberOfRooms,
+      matchingPolicy,
+      suggester
+    )
   }
 }

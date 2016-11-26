@@ -25,8 +25,11 @@ import frmr.scyig.models._
 trait MatchingPolicy {
   def isValid(partialMatch: PartialRoundMatch, proposedParticipant: Participant): Boolean
 }
+object MatchingPolicy {
+  val default = AndMatchingPolicy(NotFromSameOrganizationPolicy, NotAPreviousPolicy)
+}
 
-class AndMatchingPolicy(policy1: MatchingPolicy, policy2: MatchingPolicy) extends MatchingPolicy {
+case class AndMatchingPolicy(policy1: MatchingPolicy, policy2: MatchingPolicy) extends MatchingPolicy {
   override def isValid(partialMatch: PartialRoundMatch, proposedParticipant: Participant): Boolean = {
     policy1.isValid(partialMatch, proposedParticipant) &&
     policy2.isValid(partialMatch, proposedParticipant)
