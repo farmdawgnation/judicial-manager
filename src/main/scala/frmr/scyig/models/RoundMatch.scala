@@ -34,12 +34,19 @@ sealed trait PartialRoundMatch extends RoundMatch {
     teams.map(Bye.apply)
   }
 }
+sealed trait RequiredNextMember[T <: PartialRoundMatch] {
+  def withNextMember(next: Participant): T
+}
 
 /**
- * Parent trait for any completely scheduled match. This could be an actual [[Trial]] or it could be
- * a [[Bye]].
+ * A completely built match that hasn't been scheduled yet.
  */
 sealed trait CompletedRoundMatch extends RoundMatch
+
+/**
+ * A match that is completely scheduled with room and all.
+ */
+sealed trait ScheduledRoundMatch extends RoundMatch
 
 /**
  * A seed for the matching algorithm that only consists of a single competing team without a role
@@ -50,6 +57,14 @@ case class MatchSeed(
 ) extends PartialRoundMatch {
   override val teams = Seq(team)
 }
+object MatchSeed {
+  def apply(participant: Participant): MatchSeed = {
+    participant match {
+      case team: CompetingTeam => MatchSeed(team)
+      case _ => throw new RuntimeException("Invalid type for match seed.")
+    }
+  }
+}
 
 /**
  * A partial match in which the teams have been matched.
@@ -57,8 +72,15 @@ case class MatchSeed(
 case class MatchedTeams(
   prosecution: CompetingTeam,
   defense: CompetingTeam
-) extends PartialRoundMatch {
+) extends PartialRoundMatch with RequiredNextMember[MatchedTeamsWithPresidingJudge] {
   override val teams = Seq(prosecution, defense)
+
+  def withNextMember(participant: Participant): MatchedTeamsWithPresidingJudge = {
+    participant match {
+      case judge: PresidingJudge => withPresidingJudge(judge)
+      case unexpected => throw new RuntimeException(s"Got an unexpected next member: $unexpected")
+    }
+  }
 
   def withPresidingJudge(presidingJudge: PresidingJudge): MatchedTeamsWithPresidingJudge = {
     MatchedTeamsWithPresidingJudge(
@@ -79,8 +101,8 @@ case class MatchedTeamsWithPresidingJudge(
 ) extends PartialRoundMatch {
   override val teams = Seq(prosecution, defense)
 
-  def withScoringJudge(scoringJudge: Option[ScoringJudge]): MatchedTeamsWithPresidingAndScoringJudge = {
-    MatchedTeamsWithPresidingAndScoringJudge(
+  def withScoringJudge(scoringJudge: Option[ScoringJudge]): ScheduleableTrial = {
+    ScheduleableTrial(
       prosecution,
       defense,
       presidingJudge,
@@ -92,14 +114,12 @@ case class MatchedTeamsWithPresidingJudge(
 /**
  * A parital match in which the teams have a presiding judge and a scoring judge.
  */
-case class MatchedTeamsWithPresidingAndScoringJudge(
+case class ScheduleableTrial(
   prosecution: CompetingTeam,
   defense: CompetingTeam,
   presidingJudge: PresidingJudge,
   scoringJudge: Option[ScoringJudge]
-) extends PartialRoundMatch {
-  override val teams = Seq(prosecution, defense)
-
+) extends CompletedRoundMatch {
   def withRoom(roomNumber: Int): Trial = {
     Trial(
       prosecution,
@@ -120,11 +140,11 @@ case class Trial(
   presidingJudge: PresidingJudge,
   scoringJudge: Option[ScoringJudge],
   roomNumber: Int
-) extends CompletedRoundMatch
+) extends ScheduledRoundMatch
 
 /**
  * A Bye match, representing where a team is not playing another team.
  */
 case class Bye(
   team: CompetingTeam
-) extends CompletedRoundMatch
+) extends ScheduledRoundMatch

@@ -16,6 +16,7 @@
 package frmr.scyig.matching
 
 import frmr.scyig.models._
+import net.liftweb.common._
 import net.liftweb.actor._
 
 /**
@@ -28,12 +29,87 @@ import net.liftweb.actor._
  * @param suggester The suggester that should be used for suggesting possible members.
  */
 class MatchingEngine(
-  participants: Seq[Participant],
+  initialParticipants: Seq[Participant],
   roundNumber: Int,
   numberOfRooms: Int,
-  matchingPolicies: Seq[MatchingPolicy]
-) extends LiftActor {
+  matchingPolicy: MatchingPolicy,
+  suggester: (Seq[Participant])=>ParticipantSuggester[_] = participants=>new RandomizedParticipantSuggester(participants)
+) extends LiftActor with Loggable {
+  val self = this
+
+  def buildMatch(state: MatchingEngineState): Unit = {
+    val suggestions = suggester(state.remainingParticipants)
+      .suggestParticipants(state.currentlyBuildingRound)
+
+    (state.currentlyBuildingRound, suggestions) match {
+      case (None, suggestions) if suggestions.nonEmpty =>
+        val updatedState = state.copy(
+          currentlyBuildingRound = Some(MatchSeed(suggestions.head)),
+          remainingParticipants = state.remainingParticipants.filterNot(_ == suggestions.head)
+        )
+
+        self ! BuildMatch(updatedState)
+
+      case (Some(partialMatch: RequiredNextMember[_]), suggestions) if suggestions.nonEmpty =>
+        val updatedState = suggestions.find(candidate => matchingPolicy.isValid(partialMatch, candidate)).map { nextMember =>
+          state.copy(
+            currentlyBuildingRound = Some(partialMatch.withNextMember(nextMember)),
+            remainingParticipants = state.remainingParticipants.filterNot(_ == nextMember)
+          )
+        } getOrElse {
+          state.copy(
+            scheduledRounds = state.scheduledRounds ++ partialMatch.toByes,
+            currentlyBuildingRound = None
+          )
+        }
+
+        self ! BuildMatch(updatedState)
+
+      case _ =>
+        self ! FinishMatching
+    }
+  }
+
+  def startMatching(): Unit = {
+    val initialState = MatchingEngineState(remainingParticipants = initialParticipants)
+    self ! BuildMatch(initialState)
+  }
+
+  def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
+    matchingEvent match {
+      case StartMatching =>
+        startMatching()
+
+      case BuildMatch(state) =>
+        buildMatch(state)
+
+      case FinishMatching =>
+    }
+  }
+
   def messageHandler = {
-    case _ =>
+    case matchingEvent: MatchingEngineEvent =>
+      handleMatchingEvent(matchingEvent)
+    case unexpected =>
+      logger.error(s"Unexpected message sent to the Matching Engine: $unexpected")
   }
 }
+
+/**
+ * The full matching engine state.
+ */
+case class MatchingEngineState(
+  scheduledRounds: Seq[ScheduledRoundMatch] = Seq.empty,
+  fullyMatchedRounds: Seq[CompletedRoundMatch] = Seq.empty,
+  currentlyBuildingRound: Option[PartialRoundMatch] = None,
+  remainingParticipants: Seq[Participant] = Seq.empty,
+  eventAuditLog: Seq[MatchingEngineEvent] = Seq(StartMatching)
+)
+
+/**
+ * An event that the matching engine is expected to respond to.
+ */
+sealed trait MatchingEngineEvent
+case object StartMatching extends MatchingEngineEvent
+case object FinishMatching extends MatchingEngineEvent
+case class BuildMatch(state: MatchingEngineState) extends MatchingEngineEvent

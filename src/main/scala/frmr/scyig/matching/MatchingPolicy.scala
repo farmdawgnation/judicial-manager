@@ -43,7 +43,7 @@ object NotFromSameOrganizationPolicy extends MatchingPolicy {
         team1.organization != scoringJudge.organization &&
         team2.organization != scoringJudge.organization
 
-      case (_: MatchedTeamsWithPresidingAndScoringJudge, _) =>
+      case (_: ScheduleableTrial, _) =>
         true
 
       case _ =>
@@ -69,7 +69,7 @@ object NotAPreviousPolicy extends MatchingPolicy {
         scoringJudge.hasJudged_?(team1.id) == false &&
         scoringJudge.hasJudged_?(team2.id) == false
 
-      case (_: MatchedTeamsWithPresidingAndScoringJudge, _) =>
+      case (_: ScheduleableTrial, _) =>
         true
 
       case _ =>
