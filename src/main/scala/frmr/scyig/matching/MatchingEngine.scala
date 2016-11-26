@@ -193,7 +193,7 @@ case class MatchingEngineState(
   fullyMatchedRounds: Seq[CompletedRoundMatch] = Seq.empty,
   currentlyBuildingRound: Option[PartialRoundMatch] = None,
   remainingParticipants: Seq[Participant] = Seq.empty,
-  eventAuditLog: Seq[MatchingEngineEvent] = Seq(StartMatching)
+  eventAuditLog: Seq[MatchingEngineEventEntry] = Seq()
 ) {
   def withoutParticipant(participant: Participant): MatchingEngineState = {
     copy(
@@ -211,6 +211,8 @@ case object StartMatching extends MatchingEngineEvent
 case class FinishMatching(state: MatchingEngineState) extends MatchingEngineEvent
 case class BuildMatch(state: MatchingEngineState) extends MatchingEngineEvent
 case class MatchingError(error: String) extends MatchingEngineEvent
+
+case class MatchingEngineEventEntry(clazz: Class[_], message: String)
 
 sealed trait MatchingEngineQuery
 case object QueryMatchingState extends MatchingEngineQuery
