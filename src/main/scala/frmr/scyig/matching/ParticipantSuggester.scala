@@ -23,9 +23,9 @@ import scala.util.Random
  * Determines a list of participants that would be good to fill the next open
  * slot in the partial match.
  */
-trait ParticipantSuggester[T <: ParticipantSuggester[_]] {
+trait ParticipantSuggester {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant]
-  def withoutParticipant(participantId: UUID): T
+  def withoutParticipant(participantId: UUID): ParticipantSuggester
 
   val participants: Seq[Participant]
 
@@ -42,7 +42,7 @@ trait ParticipantSuggester[T <: ParticipantSuggester[_]] {
 
 class RandomizedParticipantSuggester(
   override val participants: Seq[Participant]
-) extends ParticipantSuggester[RandomizedParticipantSuggester] {
+) extends ParticipantSuggester {
   val randomizedTeams = Random.shuffle(teams)
 
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
@@ -61,7 +61,7 @@ class RandomizedParticipantSuggester(
     }
   }
 
-  def withoutParticipant(participantId: UUID): RandomizedParticipantSuggester = {
+  def withoutParticipant(participantId: UUID): ParticipantSuggester = {
     new RandomizedParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )
@@ -70,12 +70,12 @@ class RandomizedParticipantSuggester(
 
 class CompetitiveParticipantSuggester(
   override val participants: Seq[Participant]
-) extends ParticipantSuggester[CompetitiveParticipantSuggester] {
+) extends ParticipantSuggester {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     Seq()
   }
 
-  def withoutParticipant(participantId: UUID): CompetitiveParticipantSuggester = {
+  def withoutParticipant(participantId: UUID): ParticipantSuggester = {
     new CompetitiveParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )
@@ -84,12 +84,12 @@ class CompetitiveParticipantSuggester(
 
 class OpportunityParticipantSuggester(
   override val participants: Seq[Participant]
-) extends ParticipantSuggester[OpportunityParticipantSuggester] {
+) extends ParticipantSuggester {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     Seq()
   }
 
-  def withoutParticipant(participantId: UUID): OpportunityParticipantSuggester = {
+  def withoutParticipant(participantId: UUID): ParticipantSuggester = {
     new OpportunityParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )

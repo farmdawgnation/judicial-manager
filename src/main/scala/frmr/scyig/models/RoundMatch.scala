@@ -34,9 +34,6 @@ sealed trait PartialRoundMatch extends RoundMatch {
     teams.map(Bye.apply)
   }
 }
-sealed trait RequiredNextMember[T <: PartialRoundMatch] {
-  def withNextMember(next: Participant): T
-}
 
 /**
  * A completely built match that hasn't been scheduled yet.
@@ -56,12 +53,12 @@ case class MatchSeed(
   team: CompetingTeam
 ) extends PartialRoundMatch {
   override val teams = Seq(team)
-}
-object MatchSeed {
-  def apply(participant: Participant): MatchSeed = {
-    participant match {
-      case team: CompetingTeam => MatchSeed(team)
-      case _ => throw new RuntimeException("Invalid type for match seed.")
+
+  def withOtherTeam(otherTeam: CompetingTeam, otherTeamIsProsecution: Boolean = false) = {
+    if (otherTeamIsProsecution) {
+      MatchedTeams(otherTeam, team)
+    } else {
+      MatchedTeams(team, otherTeam)
     }
   }
 }
@@ -72,15 +69,8 @@ object MatchSeed {
 case class MatchedTeams(
   prosecution: CompetingTeam,
   defense: CompetingTeam
-) extends PartialRoundMatch with RequiredNextMember[MatchedTeamsWithPresidingJudge] {
+) extends PartialRoundMatch {
   override val teams = Seq(prosecution, defense)
-
-  def withNextMember(participant: Participant): MatchedTeamsWithPresidingJudge = {
-    participant match {
-      case judge: PresidingJudge => withPresidingJudge(judge)
-      case unexpected => throw new RuntimeException(s"Got an unexpected next member: $unexpected")
-    }
-  }
 
   def withPresidingJudge(presidingJudge: PresidingJudge): MatchedTeamsWithPresidingJudge = {
     MatchedTeamsWithPresidingJudge(

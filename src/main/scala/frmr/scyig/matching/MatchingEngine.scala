@@ -33,37 +33,50 @@ class MatchingEngine(
   roundNumber: Int,
   numberOfRooms: Int,
   matchingPolicy: MatchingPolicy,
-  suggester: (Seq[Participant])=>ParticipantSuggester[_] = participants=>new RandomizedParticipantSuggester(participants)
+  suggester: (Seq[Participant])=>ParticipantSuggester = participants=>new RandomizedParticipantSuggester(participants)
 ) extends LiftActor with Loggable {
   val self = this
 
   def buildMatch(state: MatchingEngineState): Unit = {
-    val suggestions = suggester(state.remainingParticipants)
-      .suggestParticipants(state.currentlyBuildingRound)
+    val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)
 
     (state.currentlyBuildingRound, suggestions) match {
       case (None, suggestions) if suggestions.nonEmpty =>
-        val updatedState = state.copy(
-          currentlyBuildingRound = Some(MatchSeed(suggestions.head)),
-          remainingParticipants = state.remainingParticipants.filterNot(_ == suggestions.head)
-        )
+        suggestions.headOption match {
+          case Some(team: CompetingTeam) =>
+            val updatedState = state.copy(
+              currentlyBuildingRound = Some(MatchSeed(team)),
+              remainingParticipants = state.remainingParticipants.filterNot(_ == suggestions.head)
+            )
 
-        self ! BuildMatch(updatedState)
+            self ! BuildMatch(updatedState)
 
-      case (Some(partialMatch: RequiredNextMember[_]), suggestions) if suggestions.nonEmpty =>
-        val updatedState = suggestions.find(candidate => matchingPolicy.isValid(partialMatch, candidate)).map { nextMember =>
-          state.copy(
-            currentlyBuildingRound = Some(partialMatch.withNextMember(nextMember)),
-            remainingParticipants = state.remainingParticipants.filterNot(_ == nextMember)
-          )
-        } getOrElse {
-          state.copy(
-            scheduledRounds = state.scheduledRounds ++ partialMatch.toByes,
-            currentlyBuildingRound = None
-          )
+          case unexpected =>
+            logger.error(s"Unexpected suggestion from suggestion engine $unexpected")
         }
 
-        self ! BuildMatch(updatedState)
+      case (Some(seed: MatchSeed), suggestions) if suggestions.nonEmpty =>
+        val suggestedMember = suggestions.find(candidate => matchingPolicy.isValid(seed, candidate))
+
+        suggestedMember match {
+          case None =>
+            self ! BuildMatch(
+              state.copy(
+                scheduledRounds = state.scheduledRounds ++ seed.toByes,
+                currentlyBuildingRound = None
+              ).withoutParticipant(seed.team)
+            )
+
+          case Some(nextTeam: CompetingTeam) =>
+            self ! BuildMatch(
+              state.copy(
+                currentlyBuildingRound = Some(seed.withOtherTeam(nextTeam))
+              ).withoutParticipant(nextTeam)
+            )
+
+          case Some(otherParticipant) =>
+            self ! MatchingError(s"Received an unexpected participant suggestion. Expected CompetingTeam. Got: $otherParticipant")
+        }
 
       case _ =>
         self ! FinishMatching
@@ -71,7 +84,10 @@ class MatchingEngine(
   }
 
   def startMatching(): Unit = {
-    val initialState = MatchingEngineState(remainingParticipants = initialParticipants)
+    val initialState = MatchingEngineState(
+      remainingParticipants = initialParticipants,
+      suggester = suggester(initialParticipants)
+    )
     self ! BuildMatch(initialState)
   }
 
@@ -84,6 +100,8 @@ class MatchingEngine(
         buildMatch(state)
 
       case FinishMatching =>
+
+      case MatchingError(error) =>
     }
   }
 
@@ -99,12 +117,20 @@ class MatchingEngine(
  * The full matching engine state.
  */
 case class MatchingEngineState(
+  suggester: ParticipantSuggester,
   scheduledRounds: Seq[ScheduledRoundMatch] = Seq.empty,
   fullyMatchedRounds: Seq[CompletedRoundMatch] = Seq.empty,
   currentlyBuildingRound: Option[PartialRoundMatch] = None,
   remainingParticipants: Seq[Participant] = Seq.empty,
   eventAuditLog: Seq[MatchingEngineEvent] = Seq(StartMatching)
-)
+) {
+  def withoutParticipant(participant: Participant): MatchingEngineState = {
+    copy(
+      suggester = suggester.withoutParticipant(participant.id),
+      remainingParticipants = remainingParticipants.filterNot(_ == participant)
+    )
+  }
+}
 
 /**
  * An event that the matching engine is expected to respond to.
@@ -113,3 +139,4 @@ sealed trait MatchingEngineEvent
 case object StartMatching extends MatchingEngineEvent
 case object FinishMatching extends MatchingEngineEvent
 case class BuildMatch(state: MatchingEngineState) extends MatchingEngineEvent
+case class MatchingError(error: String) extends MatchingEngineEvent
