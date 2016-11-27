@@ -51,7 +51,7 @@ class MatchingEngine(
             val updatedState = state.copy(
               currentlyBuildingRound = Some(MatchSeed(team)),
               remainingParticipants = state.remainingParticipants.filterNot(_ == suggestions.head)
-            )
+            ).withoutParticipant(team)
 
             BuildMatch(updatedState)
 
