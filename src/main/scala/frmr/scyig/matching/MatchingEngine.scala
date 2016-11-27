@@ -39,6 +39,7 @@ class MatchingEngine(
   private[matching] var finalState: Option[MatchingEngineState] = None
 
   val getNumberOfRooms = numberOfRooms
+  val getInitialParticipants = initialParticipants
 
   private[matching] def buildMatch(state: MatchingEngineState): MatchingEngineEvent = {
     val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)

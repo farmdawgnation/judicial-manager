@@ -42,7 +42,35 @@ class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks wit
           case team: CompetingTeam => team
         } should equal(Seq())
         matchingEngine.finalState.get.currentlyBuildingRound should equal(None)
+        assertEachTeamIsSeenOnce(matchingEngine.finalState.get, matchingEngine)
       }
+    }
+  }
+
+  def assertEachTeamIsSeenOnce(finalState: MatchingEngineState, engine: MatchingEngine) = {
+    var participantsSet = engine.getInitialParticipants.map(_.id).toSet
+
+    val participants = finalState.scheduledRounds.flatMap { round =>
+      round match {
+        case Trial(team1, team2, presidingJudge, Some(schedulingJudge), _) =>
+          Seq(team1, team2, presidingJudge, schedulingJudge)
+
+        case Trial(team1, team2, presidingJudge, _, _) =>
+          Seq(team1, team2, presidingJudge)
+
+        case Bye(team) =>
+          Seq(team)
+      }
+    }
+
+    participants.groupBy(_.id).foreach {
+      case (id, matchingEntries) =>
+        withClue("Found a participant multiple times:") {
+          matchingEntries.length should equal(1)
+        }
+        withClue("Found a participant not in initial set: ") {
+          participantsSet.contains(id) should equal(true)
+        }
     }
   }
 }
