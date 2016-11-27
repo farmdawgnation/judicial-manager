@@ -18,7 +18,31 @@ package matching
 
 import org.scalatest._
 import org.scalatest.prop._
-import Generators._
+import frmr.scyig.models._
+import frmr.scyig.Generators._
+import net.liftweb.actor._
 
-class MatchingEngineSpec extends PropSpec with GeneratorDrivenPropertyChecks {
+import scala.concurrent._
+
+class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks with Matchers {
+  LAScheduler.onSameThread = true
+
+  "The Matching Engine" should {
+    "end with a fully scheduled final state" in {
+      forAll(matchingEngineGen) { matchingEngine =>
+        matchingEngine ! StartMatching
+
+        matchingEngine.finalState.isDefined should equal(true)
+
+        matchingEngine.finalState.get.scheduledRounds.collect {
+          case trial: Trial => trial
+        }.length should be <= matchingEngine.getNumberOfRooms
+        matchingEngine.finalState.get.fullyMatchedRounds should equal(Seq())
+        matchingEngine.finalState.get.remainingParticipants.collect {
+          case team: CompetingTeam => team
+        } should equal(Seq())
+        matchingEngine.finalState.get.currentlyBuildingRound should equal(None)
+      }
+    }
+  }
 }

@@ -38,7 +38,14 @@ sealed trait PartialRoundMatch extends RoundMatch {
 /**
  * A completely built match that hasn't been scheduled yet.
  */
-sealed trait CompletedRoundMatch extends RoundMatch
+sealed trait CompletedRoundMatch extends RoundMatch {
+  def withRoom(roomNumber: Int): Trial
+  def teams: Seq[CompetingTeam] = Seq()
+
+  def toByes: Seq[Bye] = {
+    teams.map(Bye.apply)
+  }
+}
 
 /**
  * A match that is completely scheduled with room and all.

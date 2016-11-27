@@ -23,8 +23,8 @@ import org.scalacheck.Gen._
 import org.scalacheck.Arbitrary.arbitrary
 
 object Generators {
-  val participantNameGen = for (name <- arbitrary[String]) yield ParticipantName(name)
-  val participantOrgGen = for (name <- arbitrary[String]) yield ParticipantOrganization(name)
+  val participantNameGen = for (name <- Gen.alphaStr) yield ParticipantName(name)
+  val participantOrgGen = for (name <- Gen.alphaStr) yield ParticipantOrganization(name)
 
   val teamGen = for {
     name <- participantNameGen
@@ -57,8 +57,8 @@ object Generators {
 
   val matchingEngineGen = for {
     participants <- participantsGen
-    roundNumber <- arbitrary[Int]
-    numberOfRooms <- arbitrary[Int]
+    roundNumber <- Gen.choose[Int](1, 10)
+    numberOfRooms <- Gen.choose[Int](1, 100)
     matchingPolicy = MatchingPolicy.default
     suggester = (participants)=>new RandomizedParticipantSuggester(participants)
   } yield {

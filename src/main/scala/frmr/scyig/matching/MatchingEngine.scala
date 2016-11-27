@@ -38,6 +38,8 @@ class MatchingEngine(
   private[matching] val self = this
   private[matching] var finalState: Option[MatchingEngineState] = None
 
+  val getNumberOfRooms = numberOfRooms
+
   private[matching] def buildMatch(state: MatchingEngineState): MatchingEngineEvent = {
     val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)
 
@@ -149,6 +151,26 @@ class MatchingEngine(
     BuildMatch(initialState)
   }
 
+  private[matching] def finishMatching(state: MatchingEngineState): MatchingEngineEvent = {
+    val updatedState = Range(0, numberOfRooms).foldLeft(state) { (latestState, roomNumber) =>
+      latestState.fullyMatchedRounds.headOption.map { roundNeedingRoom =>
+        latestState.copy(
+          scheduledRounds = latestState.scheduledRounds :+ roundNeedingRoom.withRoom(roomNumber+1),
+          fullyMatchedRounds = latestState.fullyMatchedRounds.tail
+        )
+      } getOrElse {
+        latestState
+      }
+    }
+
+    val byedState = updatedState.copy(
+      fullyMatchedRounds = Seq.empty,
+      scheduledRounds = updatedState.scheduledRounds ++ updatedState.fullyMatchedRounds.map(_.toByes).flatten
+    )
+
+    RecordFinalState(byedState)
+  }
+
   private[matching] def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
     matchingEvent match {
       case StartMatching =>
@@ -160,6 +182,9 @@ class MatchingEngine(
 
       case FinishMatching(state) =>
         logger.info("Matching finished.")
+        self ! finishMatching(state)
+
+      case RecordFinalState(state) =>
         finalState = Some(state)
 
       case MatchingError(error) =>
@@ -209,6 +234,7 @@ case class MatchingEngineState(
 sealed trait MatchingEngineEvent
 case object StartMatching extends MatchingEngineEvent
 case class FinishMatching(state: MatchingEngineState) extends MatchingEngineEvent
+case class RecordFinalState(state: MatchingEngineState) extends MatchingEngineEvent
 case class BuildMatch(state: MatchingEngineState) extends MatchingEngineEvent
 case class MatchingError(error: String) extends MatchingEngineEvent
 
