@@ -63,7 +63,10 @@ class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks wit
       }
     }
 
-    participants.groupBy(_.id).foreach {
+    val keyedParticipants = participants.groupBy(_.id)
+    val scheduledParticipants = keyedParticipants.keySet
+
+    keyedParticipants.foreach {
       case (id, matchingEntries) =>
         withClue("Found a participant multiple times:") {
           matchingEntries.length should equal(1)
@@ -72,5 +75,10 @@ class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks wit
           participantsSet.contains(id) should equal(true)
         }
     }
+
+    val unscheduledParticipants = participantsSet -- scheduledParticipants
+    val remainingParticipantsIds = finalState.remainingParticipants.map(_.id).toSet
+
+    remainingParticipantsIds == unscheduledParticipants
   }
 }
