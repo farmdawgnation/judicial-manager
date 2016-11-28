@@ -29,10 +29,14 @@ object MatchingPolicy {
   val default = AndMatchingPolicy(NotFromSameOrganizationPolicy, NotAPreviousPolicy)
 }
 
-case class AndMatchingPolicy(policy1: MatchingPolicy, policy2: MatchingPolicy) extends MatchingPolicy {
+/**
+ * A matching policy that unifies two or more other matching policies.
+ */
+case class AndMatchingPolicy(policy1: MatchingPolicy, policy2: MatchingPolicy, policyn: MatchingPolicy*) extends MatchingPolicy {
   override def isValid(partialMatch: PartialRoundMatch, proposedParticipant: Participant): Boolean = {
-    policy1.isValid(partialMatch, proposedParticipant) &&
-    policy2.isValid(partialMatch, proposedParticipant)
+    val allPolicies = Seq(policy1, policy2) ++ policyn
+
+    allPolicies.foldLeft(true)(_ && _.isValid(partialMatch, proposedParticipant))
   }
 }
 
