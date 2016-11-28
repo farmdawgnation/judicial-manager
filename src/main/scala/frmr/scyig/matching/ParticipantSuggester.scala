@@ -58,7 +58,7 @@ trait ParticipantSuggester {
  * Suggests teams in a randomized fashion. Presiding and scoring judges are suggested in the order
  * they appeared in the original participants sequence.
  */
-class RandomizedParticipantSuggester(
+case class RandomizedParticipantSuggester(
   override val participants: Seq[Participant]
 ) extends ParticipantSuggester {
   val randomizedTeams = Random.shuffle(teams)
@@ -84,7 +84,7 @@ class RandomizedParticipantSuggester(
  * Suggests teams in the order of least absolute value difference in overall score. Presiding and
  * scoring judges are suggested in the order they appeared in the original participants sequence.
  */
-class CompetitiveParticipantSuggester(
+case class CompetitiveParticipantSuggester(
   override val participants: Seq[Participant]
 ) extends ParticipantSuggester {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
@@ -116,7 +116,7 @@ class CompetitiveParticipantSuggester(
  * then the list of other teams is split in half into two tiers. It will then guess which tier the
  * seed team is in. It will then suggest all the members of the *other* tier first.
  */
-class OpportunityParticipantSuggester(
+case class OpportunityParticipantSuggester(
   override val participants: Seq[Participant]
 ) extends ParticipantSuggester {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
@@ -156,5 +156,26 @@ class OpportunityParticipantSuggester(
     new OpportunityParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )
+  }
+}
+
+/**
+ * A suggester that takes in another suggester as its sole argument. When starting a new matching
+ * round, the ByePrioritizingParticipantSuggester will initially suggest teams who have a bye count
+ * higher than the mean of all the bye counts of all the competing teams.
+ */
+case class ByePrioritizingParticipantSuggester[T <: ParticipantSuggester](
+  innerSuggester: T
+)(mf: Manifest[T]) extends ParticipantSuggester {
+  override val participants = innerSuggester.participants
+
+  def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
+    //TODO!
+    innerSuggester.suggestParticipants(partialMatch)
+  }
+
+  def withoutParticipant(participantId: UUID): ParticipantSuggester = {
+    // TODO!
+    ???
   }
 }
