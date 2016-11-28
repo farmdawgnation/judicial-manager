@@ -90,11 +90,10 @@ class CompetitiveParticipantSuggester(
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     partialMatch match {
       case None =>
-        teams
+        teams.sortBy(_.averageScore).reverse
 
       case Some(MatchSeed(initialTeam)) =>
-        val otherTeams = teams.filterNot(_.id == initialTeam.id)
-        otherTeams.sortBy { team =>
+        teams.sortBy { team =>
           abs(team.averageScore - initialTeam.averageScore)
         }
 
@@ -110,11 +109,47 @@ class CompetitiveParticipantSuggester(
   }
 }
 
+/**
+ * Suggests teams using an "opportunity power match" algorithm. For a new round of matching, teams
+ * with the lowest scores are attempted to be scheduled first. If the seed team lacks a score, the
+ * algorithm will suggest all other teams lacking a score first. If the seed team does have a score,
+ * then the list of other teams is split in half into two tiers. It will then guess which tier the
+ * seed team is in. It will then suggest all the members of the *other* tier first.
+ */
 class OpportunityParticipantSuggester(
   override val participants: Seq[Participant]
 ) extends ParticipantSuggester {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
-    Seq()
+    partialMatch match {
+      case None =>
+        teams.sortBy(_.averageScore)
+
+      case Some(MatchSeed(initialTeam)) if ! initialTeam.hasScores_? =>
+        teams.sortBy(_.hasScores_?)
+
+      case Some(MatchSeed(initialTeam)) =>
+        val sortedByScore = teams.sortBy(_.averageScore)
+        val listLength = sortedByScore.length
+
+        val tier1 = sortedByScore.slice(0, listLength/2)
+        val tier2 = sortedByScore.slice(listLength/2, listLength)
+
+        val initialTeamWasLikelyTier1 = tier2
+          .headOption
+          .map(_.averageScore < initialTeam.averageScore)
+          .getOrElse(false)
+
+        if (initialTeamWasLikelyTier1) {
+          tier2 ++
+          tier1
+        } else {
+          tier1 ++
+          tier2
+        }
+
+      case _ =>
+        suggestJudges(partialMatch)
+    }
   }
 
   def withoutParticipant(participantId: UUID): ParticipantSuggester = {
