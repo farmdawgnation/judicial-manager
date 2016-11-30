@@ -172,8 +172,14 @@ case class ByePrioritizingParticipantSuggester(
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     partialMatch match {
       case None =>
-        //TODO
-        teams
+        val byeBuckets = teams.groupBy(_.byeCount)
+        val byeCounts = byeBuckets.keySet.toSeq
+
+        if (byeCounts.length > 1) {
+          teams.sortBy(_.byeCount).reverse
+        } else {
+          innerSuggester.suggestParticipants(None)
+        }
 
       case other =>
         innerSuggester.suggestParticipants(other)

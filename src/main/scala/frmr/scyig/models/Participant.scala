@@ -79,6 +79,7 @@ case class CompetingTeam(
 
   lazy val hasScores_? = scores.nonEmpty
   lazy val averageScore: Double = scores.foldLeft(0D)(_ + _) / scores.length
+  lazy val byeCount = matchHistory.count(_ == HistoricalBye)
 }
 
 case class ParticipantName(value: String)
