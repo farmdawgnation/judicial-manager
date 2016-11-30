@@ -15,6 +15,8 @@
 **/
 package frmr.scyig.models
 
+import java.util.UUID
+
 /**
  * Representation of a kind of match in a round at the Judicial conference. Matches may be partial
  * or complete. Partial matches are largely used during the matching algorithm to progressively
@@ -136,7 +138,8 @@ case class Trial(
   defense: CompetingTeam,
   presidingJudge: PresidingJudge,
   scoringJudge: Option[ScoringJudge],
-  roomNumber: Int
+  roomNumber: Int,
+  id: UUID = UUID.randomUUID()
 ) extends ScheduledRoundMatch
 
 /**
