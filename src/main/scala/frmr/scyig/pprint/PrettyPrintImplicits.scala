@@ -18,6 +18,17 @@ package frmr.scyig
 import frmr.scyig.models._
 
 package object pprint {
+  implicit class ParticipantRenderer(participant: Participant) {
+    def asStr = {
+      participant.organization match {
+        case Some(org) =>
+          s"${participant.name.value} from ${org.value}"
+        case None =>
+          s"${participant.name.value}"
+      }
+    }
+  }
+
   implicit class SchedulePrettyPrinter(schedule: Seq[ScheduledRoundMatch]) {
     def pprint = {
       val trials = schedule.collect {
@@ -28,23 +39,25 @@ package object pprint {
         case bye: Bye => bye
       }
 
-      println("=== SCHEDULE ===\n")
+      println("=== BEGIN SCHEDULE ===\n")
 
       for ((trial, index) <- trials.zipWithIndex) {
         val number = index + 1
-        println(s"$number.\t${trial.prosecution.name.value} from ${trial.prosecution.organization.map(_.value).getOrElse("none")}")
+        println(s"$number.\t${trial.prosecution.asStr}")
         println("\tvs")
-        println(s"\t${trial.defense.name.value} from ${trial.defense.organization.map(_.value).getOrElse("none")}")
-        println(s"\tPresiding Judge: ${trial.presidingJudge.name.value} from ${trial.presidingJudge.organization.map(_.value).getOrElse("none")}")
+        println(s"\t${trial.defense.asStr}")
+        println(s"\tPresiding Judge: ${trial.presidingJudge.asStr}")
         if (trial.scoringJudge.isDefined) {
-          println(s"\tScoring Judge: ${trial.scoringJudge.get.name.value} from ${trial.scoringJudge.get.organization.map(_.value).getOrElse("none")}")
+          println(s"\tScoring Judge: ${trial.scoringJudge.get.asStr}")
         }
         println("")
       }
 
       println("=== BYES ===\n")
 
-      println(byes.mkString(","))
+      println(byes.map(_.team.asStr).mkString("\n"))
+
+      println("=== END SCHEDULE ===")
     }
   }
 }
