@@ -80,7 +80,7 @@ class MatchingPolicySpec extends WordSpec with Matchers {
     val presidingJudgeUuid = UUID.randomUUID()
     val scoringJudgeUuid = UUID.randomUUID()
 
-    val historicalMatch = HistoricalMatch(
+    val historicalMatch = HistoricalTrial(
       team1Uuid,
       team2Uuid,
       presidingJudgeUuid,

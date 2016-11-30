@@ -17,9 +17,13 @@ package frmr.scyig.models
 
 import java.util.UUID
 
-case class HistoricalMatch(
+sealed trait HistoricalMatch
+
+case class HistoricalTrial(
   prosecutionIdentifier: UUID,
   defenseIdentifier: UUID,
   presidingJudgeIdentifier: UUID,
   scoringJudgeIdentifier: UUID
-)
+) extends HistoricalMatch
+
+case object HistoricalBye extends HistoricalMatch

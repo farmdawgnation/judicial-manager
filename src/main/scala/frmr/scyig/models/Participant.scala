@@ -31,7 +31,7 @@ sealed trait Judge extends Participant
 case class PresidingJudge(
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalMatch] = Seq.empty,
+  matchHistory: Seq[HistoricalTrial] = Seq.empty,
   roundsAvailable: Seq[Int] = Seq.empty,
   id: UUID = UUID.randomUUID()
 ) extends Judge {
@@ -45,7 +45,7 @@ case class PresidingJudge(
 case class ScoringJudge(
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalMatch] = Seq.empty,
+  matchHistory: Seq[HistoricalTrial] = Seq.empty,
   roundsAvailable: Seq[Int] = Seq.empty,
   id: UUID = UUID.randomUUID()
 ) extends Judge {
@@ -67,7 +67,11 @@ case class CompetingTeam(
   override val organization = Some(_organization)
 
   def hasPlayed_?(opponentIdentifier: UUID): Boolean = {
-    matchHistory.find(hmatch =>
+    val playedMatches = matchHistory.collect {
+      case trial: HistoricalTrial => trial
+    }
+
+    playedMatches.find(hmatch =>
       hmatch.prosecutionIdentifier == opponentIdentifier ||
       hmatch.defenseIdentifier == opponentIdentifier
     ).isDefined
