@@ -164,18 +164,25 @@ case class OpportunityParticipantSuggester(
  * round, the ByePrioritizingParticipantSuggester will initially suggest teams who have a bye count
  * higher than the mean of all the bye counts of all the competing teams.
  */
-case class ByePrioritizingParticipantSuggester[T <: ParticipantSuggester](
-  innerSuggester: T
-)(mf: Manifest[T]) extends ParticipantSuggester {
+case class ByePrioritizingParticipantSuggester(
+  innerSuggester: ParticipantSuggester
+) extends ParticipantSuggester {
   override val participants = innerSuggester.participants
 
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
-    //TODO!
-    innerSuggester.suggestParticipants(partialMatch)
+    partialMatch match {
+      case None =>
+        //TODO
+        teams
+
+      case other =>
+        innerSuggester.suggestParticipants(other)
+    }
   }
 
   def withoutParticipant(participantId: UUID): ParticipantSuggester = {
-    // TODO!
-    ???
+    new ByePrioritizingParticipantSuggester(
+      innerSuggester.withoutParticipant(participantId)
+    )
   }
 }
