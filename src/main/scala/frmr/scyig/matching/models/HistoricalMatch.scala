@@ -13,15 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 **/
-package frmr.scyig.models
+package frmr.scyig.matching.models
 
 import java.util.UUID
 
-object ConferenceRoundTypes {
-  type RoundScore = Map[UUID, Double]
+sealed trait HistoricalMatch
+
+case class HistoricalTrial(
+  prosecutionIdentifier: UUID,
+  prosecutionScore: Int,
+  defenseIdentifier: UUID,
+  defenseScore: Int,
+  presidingJudgeIdentifier: UUID,
+  scoringJudgeIdentifier: Option[UUID]
+) extends HistoricalMatch {
+  def scoreFor(identifier: UUID): Int = {
+    if (prosecutionIdentifier == identifier) {
+      prosecutionScore
+    } else if (defenseIdentifier == identifier) {
+      defenseScore
+    } else {
+      0
+    }
+  }
 }
 
-case class ConferenceRound(
-  matches: Seq[RoundMatch],
-  scores: Seq[ConferenceRoundTypes.RoundScore]
-)
+case object HistoricalBye extends HistoricalMatch

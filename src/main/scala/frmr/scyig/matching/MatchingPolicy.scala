@@ -15,7 +15,7 @@
 **/
 package frmr.scyig.matching
 
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 
 /**
  * Matching policies define the "hard rules" that exist at the judicial competition. Essentially,

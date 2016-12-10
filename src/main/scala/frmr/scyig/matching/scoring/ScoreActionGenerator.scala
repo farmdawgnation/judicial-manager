@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 **/
-package frmr.scyig.scoring
+package frmr.scyig.matching.scoring
 
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 import java.util.UUID
 import net.liftweb.common._
 

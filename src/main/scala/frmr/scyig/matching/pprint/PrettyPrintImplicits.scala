@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 **/
-package frmr.scyig
+package frmr.scyig.matching
 
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 
 package object pprint {
   implicit class ParticipantRenderer(participant: Participant) {

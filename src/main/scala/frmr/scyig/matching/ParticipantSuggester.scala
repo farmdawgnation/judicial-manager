@@ -15,7 +15,7 @@
 **/
 package frmr.scyig.matching
 
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 import java.util.UUID
 import scala.math._
 import scala.util.Random

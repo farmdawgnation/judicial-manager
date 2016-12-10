@@ -15,7 +15,7 @@
 **/
 package frmr.scyig.matching
 
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 import net.liftweb.common._
 import net.liftweb.actor._
 

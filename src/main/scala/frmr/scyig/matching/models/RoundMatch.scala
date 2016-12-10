@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 **/
-package frmr.scyig.models
+package frmr.scyig.matching.models
 
 import java.util.UUID
 
