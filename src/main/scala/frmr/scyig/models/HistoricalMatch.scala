@@ -25,7 +25,7 @@ case class HistoricalTrial(
   defenseIdentifier: UUID,
   defenseScore: Int,
   presidingJudgeIdentifier: UUID,
-  scoringJudgeIdentifier: UUID
+  scoringJudgeIdentifier: Option[UUID]
 ) extends HistoricalMatch {
   def scoreFor(identifier: UUID): Int = {
     if (prosecutionIdentifier == identifier) {
