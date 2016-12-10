@@ -18,7 +18,7 @@ package matching
 
 import org.scalatest._
 import org.scalatest.prop._
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 import frmr.scyig.Generators._
 import net.liftweb.actor._
 
@@ -52,10 +52,10 @@ class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks wit
 
     val participants = finalState.scheduledRounds.flatMap { round =>
       round match {
-        case Trial(team1, team2, presidingJudge, Some(schedulingJudge), _) =>
+        case Trial(team1, team2, presidingJudge, Some(schedulingJudge), _, _) =>
           Seq(team1, team2, presidingJudge, schedulingJudge)
 
-        case Trial(team1, team2, presidingJudge, _, _) =>
+        case Trial(team1, team2, presidingJudge, _, _, _) =>
           Seq(team1, team2, presidingJudge)
 
         case Bye(team) =>

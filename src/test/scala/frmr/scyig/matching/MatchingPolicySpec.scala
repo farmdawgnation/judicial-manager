@@ -16,7 +16,7 @@
 package frmr.scyig.matching
 
 import frmr.scyig.Generators._
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 import java.util.UUID
 import org.scalacheck._
 import org.scalacheck.rng._
@@ -82,9 +82,11 @@ class MatchingPolicySpec extends WordSpec with Matchers {
 
     val historicalMatch = HistoricalTrial(
       team1Uuid,
+      10,
       team2Uuid,
+      20,
       presidingJudgeUuid,
-      scoringJudgeUuid
+      Some(scoringJudgeUuid)
     )
 
     val team1 = CompetingTeam(

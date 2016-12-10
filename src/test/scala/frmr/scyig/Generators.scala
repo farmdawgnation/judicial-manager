@@ -16,7 +16,7 @@
 package frmr.scyig
 
 import frmr.scyig.matching._
-import frmr.scyig.models._
+import frmr.scyig.matching.models._
 import java.util.UUID
 import org.scalacheck._
 import org.scalacheck.Gen._
@@ -68,6 +68,26 @@ object Generators {
       numberOfRooms,
       matchingPolicy,
       suggester
+    )
+  }
+
+  val byeGen = for (team <- teamGen) yield {
+    Bye(team)
+  }
+
+  val trialGen = for {
+    prosecution <- teamGen
+    defense <- teamGen
+    presidingJudge <- presidingJudgeGen
+    scoringJudge <- Gen.option(scoringJudgeGen)
+    roomNumber <- Gen.choose(1, 100)
+  } yield {
+    Trial(
+      prosecution,
+      defense,
+      presidingJudge,
+      scoringJudge,
+      roomNumber
     )
   }
 }
