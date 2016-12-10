@@ -19,6 +19,9 @@ import frmr.scyig.models._
 import java.util.UUID
 import net.liftweb.common._
 
+/**
+ * Scoring actions that could be taken on a trial.
+ */
 sealed trait ScoringActions
 case class DenoteScoringError(error: String) extends ScoringActions
 case class RecordHistoricalTrial(historicalTrial: HistoricalTrial) extends ScoringActions
@@ -26,13 +29,15 @@ case class RecordHistoricalBye(teamId: UUID) extends ScoringActions
 
 case class ScoreByTeam(prosecution: Int, defense: Int)
 
-trait ScoreRecorder {
-  type ErrorType = String
-  type ScoreSummary = Map[UUID, ScoreByTeam]
+/**
+ * Generates scoring actions based on the activites of a round. These actions are expected to be
+ * processed as instructions by whatever persistence layer is in effect.
+ */
+class ScoreActionGenerator(getMatches: ()=>Box[Seq[ScheduledRoundMatch]]) {
+  type TrialIdentifier = UUID
+  type ScoreSummary = Map[TrialIdentifier, ScoreByTeam]
 
-  def getMatches(): Box[Seq[ScheduledRoundMatch]]
-
-  def recordScores(scores: ScoreSummary): Box[Seq[ScoringActions]] = {
+  def generateScoringActions(scores: ScoreSummary): Box[Seq[ScoringActions]] = {
     for (scheduledMatches <- getMatches()) yield {
       for (scheduledMatch <- scheduledMatches) yield {
         scheduledMatch match {
