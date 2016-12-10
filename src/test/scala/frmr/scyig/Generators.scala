@@ -90,4 +90,8 @@ object Generators {
       roomNumber
     )
   }
+
+  val scheduledRoundMatchGen = Gen.oneOf(trialGen, byeGen)
+
+  val multipleScheduledRoundMatchesGen = Gen.listOf(scheduledRoundMatchGen)
 }
