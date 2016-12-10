@@ -21,9 +21,21 @@ sealed trait HistoricalMatch
 
 case class HistoricalTrial(
   prosecutionIdentifier: UUID,
+  prosecutionScore: Int,
   defenseIdentifier: UUID,
+  defenseScore: Int,
   presidingJudgeIdentifier: UUID,
   scoringJudgeIdentifier: UUID
-) extends HistoricalMatch
+) extends HistoricalMatch {
+  def scoreFor(identifier: UUID): Int = {
+    if (prosecutionIdentifier == identifier) {
+      prosecutionScore
+    } else if (defenseIdentifier == identifier) {
+      defenseScore
+    } else {
+      0
+    }
+  }
+}
 
 case object HistoricalBye extends HistoricalMatch

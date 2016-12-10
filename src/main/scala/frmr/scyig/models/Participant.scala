@@ -61,24 +61,23 @@ case class CompetingTeam(
   name: ParticipantName,
   private val _organization: ParticipantOrganization,
   matchHistory: Seq[HistoricalMatch] = Seq.empty,
-  scores: Seq[Int] = Seq.empty,
   id: UUID = UUID.randomUUID()
 ) extends Participant {
   override val organization = Some(_organization)
 
-  def hasPlayed_?(opponentIdentifier: UUID): Boolean = {
-    val playedMatches = matchHistory.collect {
-      case trial: HistoricalTrial => trial
-    }
+  lazy val playedMatches = matchHistory.collect {
+    case trial: HistoricalTrial => trial
+  }
 
+  def hasPlayed_?(opponentIdentifier: UUID): Boolean = {
     playedMatches.find(hmatch =>
       hmatch.prosecutionIdentifier == opponentIdentifier ||
       hmatch.defenseIdentifier == opponentIdentifier
     ).isDefined
   }
 
-  lazy val hasScores_? = scores.nonEmpty
-  lazy val averageScore: Double = scores.foldLeft(0D)(_ + _) / scores.length
+  lazy val hasScores_? = playedMatches.nonEmpty
+  lazy val averageScore: Double = playedMatches.map(_.scoreFor(id)).foldLeft(0D)(_ + _) / playedMatches.length
   lazy val byeCount = matchHistory.count(_ == HistoricalBye)
 }
 
