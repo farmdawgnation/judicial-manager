@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/style.css">
+  </head>
+  <body>
+    <div class="container" data-lift="surround?with=default&at=container">
+      <nav class="navbar navbar-light bg-faded">
+        <a class="navbar-brand" href="../index.html">Judicial Scheduler</a>
+
+        <span class="navbar-text float-xs-right text-muted">
+          Katie Farmer <a href="#">(log out)</a>
+        </span>
+      </nav>
+
+      <div class="scyig-header row">
+        <div class="col-xs-12">
+          <h1>2017 SC YIG Judicial</h1>
+
+          <div class="navigation row competition-tabs">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">Current Round</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="#">Next Round</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="#">Past Rounds</a>
+              </li>
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Manage</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#">Manage Teams</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#">Manage Judges</a>
+                  <a class="dropdown-item" href="#">New Judge</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <h3>Current Round: Round 3</h3>
+
+          <h4>Active Trials</h4>
+
+          <p>
+            There are 5 active trials in this round. There are 3 trials awaiting scores.
+          </p>
+
+          <table class="table table-striped">
+            <thead>
+              <th>Prosecution</th>
+              <th>Defense</th>
+              <th>Presiding</th>
+              <th>Scoring</th>
+              <th>Room</th>
+              <th>&nbsp;</th>
+            </thead>
+
+            <tr>
+              <td>
+                Eastside 1
+                <small class="affiliation">(Eastside)</small>
+              </td>
+              <td>
+                Westside 1
+                <small class="affiliation">(Westside)</small>
+              </td>
+              <td>
+                Joe Barnes
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                Walter Cronkite
+                <small class="affiliation">(N/A)</small>
+              </td>
+              <td>
+                123
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#scoring-modal">Enter Scores</button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                Eastside 1
+                <small class="affiliation">(Eastside)</small>
+              </td>
+              <td>
+                Westside 1
+                <small class="affiliation">(Westside)</small>
+              </td>
+              <td>
+                Joe Barnes
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                Walter Cronkite
+                <small class="affiliation">(N/A)</small>
+              </td>
+              <td>
+                123
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm">Enter Scores</button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                Eastside 1
+                <small class="affiliation">(Eastside)</small>
+              </td>
+              <td>
+                Westside 1
+                <small class="affiliation">(Westside)</small>
+              </td>
+              <td>
+                Joe Barnes
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                Walter Cronkite
+                <small class="affiliation">(N/A)</small>
+              </td>
+              <td>
+                123
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm">Enter Scores</button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                Eastside 1 (43)
+                <small class="affiliation">(Eastside)</small>
+              </td>
+              <td>
+                Westside 1 (22)
+                <small class="affiliation">(Westside)</small>
+              </td>
+              <td>
+                Joe Barnes
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                Walter Cronkite
+                <small class="affiliation">(N/A)</small>
+              </td>
+              <td>
+                123
+              </td>
+              <td>
+                <button type="button" class="btn btn-outline-primary btn-sm">Change Scores</button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                Eastside 1 (43)
+                <small class="affiliation">(Eastside)</small>
+              </td>
+              <td>
+                Westside 1 (22)
+                <small class="affiliation">(Westside)</small>
+              </td>
+              <td>
+                Joe Barnes
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                Walter Cronkite
+                <small class="affiliation">(N/A)</small>
+              </td>
+              <td>
+                123
+              </td>
+              <td>
+                <button type="button" class="btn btn-outline-primary btn-sm">Change Scores</button>
+              </td>
+            </tr>
+          </table>
+
+          <h4>Byes</h4>
+
+          <p>There are two teams on a bye this round.</p>
+
+          <table class="table table-striped">
+            <thead>
+              <th>Team</th>
+              <th>Bye Reason</th>
+              <th>Last Round Played</th>
+            </thead>
+
+            <tr>
+              <td>
+                Central 1
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                No available room.
+              </td>
+              <td>
+                2
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Central 2
+                <small class="affiliation">(Central)</small>
+              </td>
+              <td>
+                Previous score not available at scheduling.
+              </td>
+              <td>
+                2
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+
+    <div id="scoring-modal" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">Enter Score</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="prosecution-score">Eastside 1 (Prosecution) Score:</label>
+              <input type="number" class="form-control" id="prosecution-score">
+            </div>
+
+            <div class="form-group">
+              <label for="defense-score">Westside 1 (Defense) Score:</label>
+              <input type="number" class="form-control" id="defense-score">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
