@@ -13,7 +13,6 @@ libraryDependencies ++= {
 
   Seq(
     "net.liftweb" %% "lift-webkit" % liftVersion,
-    "net.liftweb" %% "lift-squeryl-record"  % liftVersion,
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "org.scalatest" %% "scalatest" % "3.0.1" % "test",
     "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
