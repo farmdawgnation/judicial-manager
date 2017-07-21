@@ -25,11 +25,11 @@ class Matches(tag: Tag) extends Table[Match](tag, "matches") {
 
   def * = (id.?, competitionId, prosecutionTeamId, defenseTeamId, presidingJudgeId, scoringJudgeId, round, order) <> (Match.tupled, Match.unapply)
 
-  def cidFK = foreignKey("competition_id_fk", competitionId, Competitions)(_.id, onDelete = ForeignKeyAction.Cascade)
-  def ptidFK = foreignKey("prosecution_team_id_fk", prosecutionTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
-  def dtidFK = foreignKey("defense_team_id_fk", defenseTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
-  def pjidFK = foreignKey("presiding_judge_id_fk", presidingJudgeId, Judges)(_.id, onDelete = ForeignKeyAction.Restrict)
-  def sjidFK = foreignKey("scoring_judge_id_fk", scoringJudgeId, Judges)(_.id.?, onDelete = ForeignKeyAction.Restrict)
+  def cidFK = foreignKey("m_competition_id_fk", competitionId, Competitions)(_.id, onDelete = ForeignKeyAction.Cascade)
+  def ptidFK = foreignKey("m_prosecution_team_id_fk", prosecutionTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
+  def dtidFK = foreignKey("m_defense_team_id_fk", defenseTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
+  def pjidFK = foreignKey("m_presiding_judge_id_fk", presidingJudgeId, Judges)(_.id, onDelete = ForeignKeyAction.Restrict)
+  def sjidFK = foreignKey("m_scoring_judge_id_fk", scoringJudgeId, Judges)(_.id.?, onDelete = ForeignKeyAction.Restrict)
 }
 
 object Matches extends TableQuery[Matches](new Matches(_))

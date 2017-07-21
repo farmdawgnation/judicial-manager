@@ -17,7 +17,7 @@ class Teams(tag: Tag) extends Table[Team](tag, "teams") {
 
   def * = (id.?, competitionId, name, organization) <> (Team.tupled, Team.unapply)
 
-  def cidFK = foreignKey("competition_id_fk", competitionId, Competitions)(_.id, onDelete = ForeignKeyAction.Cascade)
+  def cidFK = foreignKey("t_competition_id_fk", competitionId, Competitions)(_.id, onDelete = ForeignKeyAction.Cascade)
 }
 
 object Teams extends TableQuery[Teams](new Teams(_))

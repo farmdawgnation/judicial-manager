@@ -19,7 +19,7 @@ class Competitions(tag: Tag) extends Table[Competition](tag, "competitions") {
 
   def * = (id.?, name, sponsorId, dates, description) <> (Competition.tupled, Competition.unapply)
 
-  def sidFK = foreignKey("sponsor_id_fk", sponsorId, Sponsors)(_.id, onDelete = ForeignKeyAction.Cascade)
+  def sidFK = foreignKey("c_sponsor_id_fk", sponsorId, Sponsors)(_.id, onDelete = ForeignKeyAction.Cascade)
 }
 
 object Competitions extends TableQuery[Competitions](new Competitions(_))
