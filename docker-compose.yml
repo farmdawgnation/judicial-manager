@@ -1,8 +1,11 @@
-version: '2'
+version: '3'
 services:
-  postgresql:
-    image: "postgres:9.6-alpine"
+  db:
+    image: "mysql:8.0.2"
     ports:
-      - "5432:5432"
+      - "3306:3306"
     environment:
-      - "POSTGRES_PASSWORD=yigisgreat"
+      MYSQL_ROOT_PASSWORD: scyigisawesome
+      MYSQL_DATABASE: scyig
+      MYSQL_USER: scyig
+      MYSQL_PASSWORD: scyig
