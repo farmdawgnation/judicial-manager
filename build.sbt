@@ -6,7 +6,7 @@ version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.12.2"
 
-scalacOptions in Compile ++= Seq("-feature")
+scalacOptions in Compile ++= Seq("-feature", "-deprecation")
 
 libraryDependencies ++= {
   val liftVersion = "3.1.0"
