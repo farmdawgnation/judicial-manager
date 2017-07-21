@@ -1,6 +1,6 @@
 package frmr.scyig.db
 
-import slick.jdbc.H2Profile.api._
+import slick.jdbc.MySQLProfile.api._
 
 class UsersSponsors(tag: Tag) extends Table[(String, Int, Int)](tag, "users_sponsors") {
   def role = column[String]("role")

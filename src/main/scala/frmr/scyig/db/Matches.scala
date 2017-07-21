@@ -1,6 +1,6 @@
 package frmr.scyig.db
 
-import slick.jdbc.H2Profile.api._
+import slick.jdbc.MySQLProfile.api._
 
 case class Match(
   id: Option[Int],
