@@ -28,6 +28,25 @@ class Boot {
     // Base package for the webapp
     LiftRules.addToPackages("frmr.scyig.httpd")
 
+    // Set security rules
+    LiftRules.securityRules = () => {
+      SecurityRules(
+        content = Some(ContentSecurityPolicy(
+          styleSources = List(
+            ContentSourceRestriction.Self,
+            ContentSourceRestriction.Host("https://*.bootstrapcdn.com")
+          ),
+          scriptSources = List(
+            ContentSourceRestriction.Self,
+            ContentSourceRestriction.Host("https://*.bootstrapcdn.com"),
+            ContentSourceRestriction.Host("https://*.cloudflare.com"),
+            ContentSourceRestriction.Host("https://*.googleapis.com"),
+            ContentSourceRestriction.Host("https://code.jquery.com")
+          )
+        ))
+      )
+    }
+
     // Ensure schema is created
     DB.createSchema()
   }
