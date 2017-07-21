@@ -12,3 +12,5 @@ class UsersSponsors(tag: Tag) extends Table[(String, Int, Int)](tag, "users_spon
   def uidFK = foreignKey("user_id_fk", userId, Users)(_.id, onDelete = ForeignKeyAction.Cascade)
   def sidFK = foreignKey("sponsor_id_fk", sponsorId, Sponsors)(_.id, onDelete = ForeignKeyAction.Cascade)
 }
+
+object UsersSponsors extends TableQuery[UsersSponsors](new UsersSponsors(_))
