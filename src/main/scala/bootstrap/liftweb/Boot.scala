@@ -18,6 +18,7 @@ package bootstrap.liftweb
 import java.sql._
 import net.liftweb.http._
 import net.liftweb.util._
+import frmr.scyig.db.DB
 
 class Boot {
   def boot(): Unit = {
@@ -26,5 +27,8 @@ class Boot {
 
     // Base package for the webapp
     LiftRules.addToPackages("frmr.scyig.httpd")
+
+    // Ensure schema is created
+    DB.createSchema()
   }
 }
