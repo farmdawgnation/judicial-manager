@@ -1,6 +1,9 @@
 @import "bourbon/bourbon";
 @import "neat/neat";
 
-h1 {
-  @include linear-gradient(to top, red, orange);
-}
+// We define a 16 column grid system. At a container size of 1280px w/ 20px gutter
+// this will compute to 16 60px columns.
+$neat-grid: (
+  columns: 16,
+  gutter: 20px,
+);
