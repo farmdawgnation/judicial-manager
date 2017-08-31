@@ -41,7 +41,7 @@ webappPostProcess := { webappDir: File =>
             extension,
             handler
           )
-        } else {
+        } else if (! file.getName.startsWith("_")) {
           streams.value.log.info(s"Processing ${file.getPath}...")
           handler(
             rootDir.toString,
