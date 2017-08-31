@@ -3,6 +3,8 @@ $competition-manager-menu-grid: (
   gutter: 5px
 );
 
+$manager-icon-color: #0089CF;
+
 .competition-manager-page {
   .competition-status-value {
     color: #0089CF;
@@ -13,17 +15,61 @@ $competition-manager-menu-grid: (
       display: inline-block;
       @include grid-column(1, $competition-manager-menu-grid);
       padding-left: 11%;
+      padding-right: 5%;
       padding-top: 3.375rem;
       margin-bottom: 5px;
       box-sizing: border-box;
       height: 11.25rem;
       background: white;
+      position: relative;
+
+      &:before {
+        @include fa-icon();
+        font-size: 2.81rem;
+        content: $fa-var-calculator;
+        position: absolute;
+        top: 3.375rem;
+        left: 65px;
+        color: $manager-icon-color;
+      }
+
+      &.advance-round-entry:before {
+        content: $fa-var-share;
+      }
+
+      &.edit-round-entry:before {
+        content: $fa-var-pencil-square-o;
+      }
+
+      &.print-scorecard-entry:before {
+        content: $fa-var-print;
+      }
+
+      &.print-calendar-entry:before {
+        content: $fa-var-calendar;
+      }
+
+      &.export-scorecard-entry:before {
+        content: $fa-var-file-excel-o;
+      }
+
+      &.finish-competition-entry:before {
+        content: $fa-var-flag-checkered;
+      }
+
+      &.view-teams-entry:before {
+        content: $fa-var-users;
+      }
+
+      &.manage-judges-entry:before {
+        content: $fa-var-gavel;
+      }
 
       &.finish-competition-entry {
         @include grid-column(3, $competition-manager-menu-grid);
       }
 
-      &.view-teams-entry, &.manage-judges {
+      &.view-teams-entry, &.manage-judges-entry {
         @include grid-column(1.5, $competition-manager-menu-grid);
       }
 
