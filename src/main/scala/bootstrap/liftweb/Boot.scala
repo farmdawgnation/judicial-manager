@@ -48,6 +48,6 @@ class Boot {
     }
 
     // Ensure schema is created
-    DB.createSchema()
+    //DB.createSchema()
   }
 }
