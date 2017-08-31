@@ -24,8 +24,19 @@ body.login-page {
     @include grid-push(5);
 
     margin-top: 6.75rem;
+    margin-bottom: 6.75rem;
     padding: 3.13rem 4.06rem 3.75rem 4.06rem;
     background: white;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.26);
+
+    > .login-form {
+      > button[type=submit] {
+        width: 10.44rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2.5rem;
+      }
+    }
   }
 }
