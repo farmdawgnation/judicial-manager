@@ -8,3 +8,23 @@ $neat-grid: (
   columns: 16,
   gutter: 20px,
 );
+
+body.login-page {
+  background: url('/images/courthouse-large.jpg');
+  background-size: cover;
+  background-position: top center;
+}
+
+.page-wrapper {
+  @include grid-container;
+
+  > .narrow-form-container {
+    @include grid-column(6);
+    @include grid-push(5);
+
+    margin-top: 6.75rem;
+    padding: 3.13rem 4.06rem 3.75rem 4.06rem;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.26);
+  }
+}
