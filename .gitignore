@@ -17,3 +17,5 @@ project/plugins/project/
 .worksheet
 
 .DS_Store
+
+.sass-cache

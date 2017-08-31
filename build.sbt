@@ -29,21 +29,34 @@ webappPostProcess := { webappDir: File =>
       streams.value.log.error(s"$rootDir and $targetDir must both be directories")
     } else {
       for {
-        file <- rootDir.listFiles if file.getName.endsWith(extension)
+        file <- rootDir.listFiles if file.getName.endsWith(extension) || file.isDirectory
       } {
-        streams.value.log.info(s"Processing ${file.getPath}...")
-        handler(
-          rootDir.toString,
-          file.getName,
-          targetDir.toString
-        )
+        if (file.isDirectory) {
+          if (! (targetDir / file.getName).isDirectory)
+            (targetDir / file.getName).mkdir
+
+          recurseFiles(
+            rootDir / file.getName,
+            targetDir / file.getName,
+            extension,
+            handler
+          )
+        } else {
+          streams.value.log.info(s"Processing ${file.getPath}...")
+          handler(
+            rootDir.toString,
+            file.getName,
+            targetDir.toString
+          )
+        }
       }
     }
   }
 
+  val scssLibPath = webappDir / "scss-lib-hidden"
   def compileScss(inputDir: String, inputFile: String, outputDir: String): Unit = {
     val outputFilename = inputFile.replace(".scss", ".css")
-    s"scss $inputDir/$inputFile $outputDir/$outputFilename" ! streams.value.log
+    s"scss -q -I $scssLibPath $inputDir/$inputFile $outputDir/$outputFilename" ! streams.value.log
   }
 
   recurseFiles(
