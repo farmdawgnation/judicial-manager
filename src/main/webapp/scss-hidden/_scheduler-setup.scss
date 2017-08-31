@@ -1,0 +1,19 @@
+#scheduler-setup-container {
+  @include grid-column(8);
+}
+
+#number-of-rooms {
+  width: 97px;
+}
+
+.scheduler-setup-form {
+  background: white;
+  padding: 2.5rem 1.25rem;
+
+  footer {
+    background: #E5E5E5;
+    padding: 2.5rem 1.25rem;
+    margin: 0 -1.25rem -2.5rem;
+    text-align: right;
+  }
+}

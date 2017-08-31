@@ -8,18 +8,30 @@ fieldset {
   padding: 0;
 }
 
+/*
 legend {
   font-weight: 600;
   margin-bottom: $small-spacing / 2;
   padding: 0;
-}
+}*/
 
-label {
+label, legend {
   font-size: 1.125rem;
   color: $form-label-gray;
   display: block;
   font-weight: 600;
   margin-bottom: $small-spacing / 4;
+}
+
+input[type=radio] + label {
+  color: $typography-black;
+  font-weight: normal;
+  font-size: 1rem;
+  display: inline;
+
+  & + p.description {
+    padding-left: 30px;
+  }
 }
 
 input,

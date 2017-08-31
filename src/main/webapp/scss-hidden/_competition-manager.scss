@@ -6,6 +6,10 @@ $competition-manager-menu-grid: (
 $manager-icon-color: #0089CF;
 
 .competition-manager-page {
+  .competition-status {
+    margin-bottom: 2.187rem;
+  }
+
   .competition-status-value {
     color: #0089CF;
   }

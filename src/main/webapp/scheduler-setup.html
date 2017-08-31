@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie-edge">
+
+  <!-- Saira font -->
+  <link href="https://fonts.googleapis.com/css?family=Saira:400,600" rel="stylesheet">
+
+  <!-- application level css -->
+  <link rel="stylesheet" href="css/application.css">
+
+  <title>Scheduler Setup | Judicial Manager</title>
+</head>
+
+<body class="competition-manager-page">
+  <div id="header-bar-wrapper">
+    <nav id="header-bar">
+      <h1>Judicial Manager</h1>
+
+      <section class="user-section">
+        <span class="user-name">Johnny Karate</span>
+        <a href="#" id="logout">Log Out</a>
+      </section>
+    </nav>
+  </div>
+
+  <div class="page-wrapper">
+    <section class="full-width-container" id="scheduler-setup-container">
+      <h2 class="competition-name">SC Judicial 2017</h2>
+
+      <p class="competition-status">
+        Status: <span class="competition-status-value">In Progress</span> • Round <span class="competition-round-numeral">1</span>
+      </p>
+
+      <h3>Scheduler Setup</h3>
+
+      <form class="scheduler-setup-form">
+        <label for="number-of-rooms">Number of rooms</label>
+        <input type="text" id="number-of-rooms">
+
+        <fieldset>
+          <legend>Matching Algorithm</legend>
+
+          <input type="radio" name="matching-algorithm" id="randomized-matching">
+          <label for="randomized-matching">Randomized</label>
+          <p class="description">Randomly match teams.</p>
+
+          <input type="radio" name="matching-algorithm" id="opportunity-matching">
+          <label for="opportunity-matching">Opportunity</label>
+          <p class="description">Match underdocs with overdogs.</p>
+
+          <input type="radio" name="matching-algorithm" id="challenge-matching">
+          <label for="challenge-matching">Challenge</label>
+          <p class="description">Match teams of a similar strength.</p>
+        </fieldset>
+
+        <footer>
+          <button type="submit">Next</button>
+        </footer>
+      </form>
+
+  </div>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+</body>
+
+</html>
