@@ -1,0 +1,6 @@
+@import "bourbon/bourbon";
+@import "neat/neat";
+
+h1 {
+  @include linear-gradient(to top, red, orange);
+}
