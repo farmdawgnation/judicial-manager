@@ -9,7 +9,7 @@ scalaVersion := "2.12.2"
 scalacOptions in Compile ++= Seq("-feature", "-deprecation")
 
 libraryDependencies ++= {
-  val liftVersion = "3.1.0"
+  val liftVersion = "3.2.0-M1"
 
   Seq(
     "net.liftweb"                   %% "lift-webkit"          % liftVersion,
