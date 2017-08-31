@@ -1,0 +1,45 @@
+$competition-manager-menu-grid: (
+  columns: 3,
+  gutter: 5px
+);
+
+.competition-manager-page {
+  .competition-status-value {
+    color: #0089CF;
+  }
+
+  .competition-management-menu {
+    > li {
+      display: inline-block;
+      @include grid-column(1, $competition-manager-menu-grid);
+      padding-left: 11%;
+      padding-top: 3.375rem;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+      height: 11.25rem;
+      background: white;
+
+      &.finish-competition-entry {
+        @include grid-column(3, $competition-manager-menu-grid);
+      }
+
+      &.view-teams-entry, &.manage-judges {
+        @include grid-column(1.5, $competition-manager-menu-grid);
+      }
+
+      > .menu-selection-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #717073;
+        text-decoration: none;
+
+        &:after {
+          @include fa-icon;
+          content: $fa-var-chevron-right;
+          font-size: 0.875rem;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+  }
+}
