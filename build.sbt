@@ -22,3 +22,34 @@ libraryDependencies ++= {
 }
 
 enablePlugins(JettyPlugin)
+
+webappPostProcess := { webappDir: File =>
+  def recurseFiles(rootDir: File, targetDir: File, extension: String, handler: (String, String, String)=>Unit): Unit = {
+    if (! rootDir.isDirectory || ! targetDir.isDirectory) {
+      streams.value.log.error(s"$rootDir and $targetDir must both be directories")
+    } else {
+      for {
+        file <- rootDir.listFiles if file.getName.endsWith(extension)
+      } {
+        streams.value.log.info(s"Processing ${file.getPath}...")
+        handler(
+          rootDir.toString,
+          file.getName,
+          targetDir.toString
+        )
+      }
+    }
+  }
+
+  def compileScss(inputDir: String, inputFile: String, outputDir: String): Unit = {
+    val outputFilename = inputFile.replace(".scss", ".css")
+    s"scss $inputDir/$inputFile $outputDir/$outputFilename" ! streams.value.log
+  }
+
+  recurseFiles(
+    webappDir / "scss-hidden",
+    webappDir / "css",
+    ".scss",
+    compileScss _
+  )
+}
