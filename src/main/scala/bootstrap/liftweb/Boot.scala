@@ -34,14 +34,19 @@ class Boot {
         content = Some(ContentSecurityPolicy(
           styleSources = List(
             ContentSourceRestriction.Self,
-            ContentSourceRestriction.Host("https://*.bootstrapcdn.com")
+            ContentSourceRestriction.Host("https://*.bootstrapcdn.com"),
+            ContentSourceRestriction.Host("https://fonts.googleapis.com")
           ),
           scriptSources = List(
             ContentSourceRestriction.Self,
             ContentSourceRestriction.Host("https://*.bootstrapcdn.com"),
             ContentSourceRestriction.Host("https://*.cloudflare.com"),
-            ContentSourceRestriction.Host("https://*.googleapis.com"),
             ContentSourceRestriction.Host("https://code.jquery.com")
+          ),
+          fontSources = List(
+            ContentSourceRestriction.Self,
+            ContentSourceRestriction.Host("https://fonts.gstatic.com"),
+            ContentSourceRestriction.Host("https://fonts.googleapis.com")
           )
         ))
       )
