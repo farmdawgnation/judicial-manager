@@ -1,26 +1,30 @@
 // Typography
-$base-font-family: $font-stack-system;
-$heading-font-family: $base-font-family;
+$base-font-family: 'Saira', 'Veranda', sans-serif;
+$heading-font-family: 'Saira', 'Veranda', sans-serif;
 
 // Line height
 $base-line-height: 1.5;
 $heading-line-height: 1.2;
 
 // Other Sizes
-$base-border-radius: 3px;
+$base-border-radius: 4px;
+$button-border-radius: 100px;
 $base-spacing: 1.5em;
-$small-spacing: $base-spacing / 2;
+$small-spacing: 1rem;
 $base-z-index: 0;
 
 // Colors
+$typography-black: #231F20;
+$action-purple: #91278F;
+$form-label-gray: #717073;
 $blue: #1565c0;
 $dark-gray: #333;
 $medium-gray: #999;
 $light-gray: #ddd;
 
 // Font Colors
-$base-font-color: $dark-gray;
-$action-color: $blue;
+$base-font-color: $typography-black;
+$action-color: $action-purple;
 
 // Border
 $base-border-color: $light-gray;

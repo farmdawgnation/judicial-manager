@@ -15,9 +15,11 @@ legend {
 }
 
 label {
+  font-size: 1.125rem;
+  color: $form-label-gray;
   display: block;
   font-weight: 600;
-  margin-bottom: $small-spacing / 2;
+  margin-bottom: $small-spacing / 4;
 }
 
 input,
