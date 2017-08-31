@@ -8,7 +8,7 @@ import net.liftweb.common._
 import net.liftweb.util._
 
 object DB extends Loggable {
-  val database = {
+  lazy val database = {
     for {
       url <- Props.get("database.url") ?~! "No database url"
       username <- Props.get("database.username") ?~! "No database username"
