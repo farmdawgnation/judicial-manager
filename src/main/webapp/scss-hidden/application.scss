@@ -18,11 +18,13 @@ $neat-grid: (
 
 #header-bar-wrapper {
   box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
+  margin-bottom: 3.75rem;
 }
 
 #header-bar {
   @include grid-container;
   @include grid-constraints;
+  position: relative;
 
   > h1 {
     @include grid-column(8);
@@ -33,6 +35,25 @@ $neat-grid: (
 
   > .user-section {
     @include grid-column(8);
+
+    text-align: right;
+    color: $typography-dark-gray;
+    margin-top: 1.44rem;
+
+    > .user-name {
+      display: inline-block;
+      margin-right: 1.88rem;
+    }
+
+    > a {
+      &:link, &:visited {
+        color: $typography-dark-gray;
+      }
+
+      &:hover {
+        color: $action-color;
+      }
+    }
   }
 }
 
