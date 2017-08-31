@@ -14,11 +14,16 @@ h6 {
   font-family: $heading-font-family;
   font-size: modular-scale(1);
   line-height: $heading-line-height;
-  margin: 0 0 $small-spacing;
+  margin: 0 0 $smaller-spacing;
 }
 
 h1 {
   font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5625rem;
+  font-weight: normal;
 }
 
 p {
