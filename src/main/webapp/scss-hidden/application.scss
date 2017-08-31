@@ -22,6 +22,7 @@ $neat-grid: (
 }
 
 #header-bar-wrapper {
+  background: white;
   box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
   margin-bottom: 3.75rem;
 }
@@ -60,6 +61,10 @@ $neat-grid: (
       }
     }
   }
+}
+
+body {
+  background: #F8F8F8;
 }
 
 body.login-page {
