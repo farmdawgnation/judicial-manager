@@ -40,6 +40,12 @@ class CompDashboard(competition: Competition) {
   def render = {
     ClearClearable andThen
     ".in-progress-group" #> hideIfNotInProgress &
-    ".view-teams-entry" #> hideIfNotInProgress
+    ".view-teams-entry" #> hideIfNotInProgress andThen
+    ".view-teams-entry" #> {
+      "a [href]" #> TeamList.menu.toLoc.calcHref(competition)
+    } &
+    ".manage-teams-entry" #> {
+      "a [href]" #> TeamList.menu.toLoc.calcHref(competition)
+    }
   }
 }

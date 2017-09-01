@@ -116,6 +116,14 @@ body.login-page {
   }
 }
 
+.resource-table {
+  background: white;
+
+  th, td {
+    padding: 1.25rem;
+  }
+}
+
 @import "select-competition";
 @import "competition-manager";
 @import "scheduler-setup";
