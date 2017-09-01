@@ -26,7 +26,7 @@ class Boot {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
     // Base package for the webapp
-    LiftRules.addToPackages("frmr.scyig.httpd")
+    LiftRules.addToPackages("frmr.scyig.webapp")
 
     // Set security rules
     LiftRules.securityRules = () => {
