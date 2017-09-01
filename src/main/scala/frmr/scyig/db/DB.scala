@@ -28,7 +28,14 @@ object DB extends Loggable {
     )
   }
 
-  def runMigrations(): Unit = {
+  def run[T](action: DBIOAction[T, NoStream, _]): Future[T] = {
+    database.run(action)
+  }
+
+  /**
+   * Execute the flyway migrations against the database.
+   */
+  def migrate(): Unit = {
     logger.info("Invoking flyway migrations")
 
     withConnectionInfo { (url, username, password) =>

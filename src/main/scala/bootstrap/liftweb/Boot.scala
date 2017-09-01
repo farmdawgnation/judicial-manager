@@ -19,6 +19,9 @@ import java.sql._
 import net.liftweb.http._
 import net.liftweb.util._
 import frmr.scyig.db.DB
+import slick.dbio._
+import slick.jdbc.MySQLProfile.api._
+import slick.jdbc.meta._
 
 class Boot {
   def boot(): Unit = {
@@ -53,6 +56,6 @@ class Boot {
     }
 
     // Run our migrations
-    DB.runMigrations()
+    DB.migrate()
   }
 }
