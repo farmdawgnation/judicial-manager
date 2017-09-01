@@ -4,12 +4,16 @@ import frmr.scyig.webapp.auth._
 import net.liftweb.http._
 import net.liftweb.http.js._
 import net.liftweb.http.js.JsCmds._
+import net.liftweb.sitemap._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+object Login {
+  val menu = Menu.i("Login") / "login"
+}
 class Login {
   private[this] var email: String = ""
   private[this] var password: String = ""

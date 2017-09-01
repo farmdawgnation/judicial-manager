@@ -6,6 +6,7 @@ import slick.jdbc.meta._
 import slick.jdbc.MySQLProfile.api._
 import net.liftweb.common._
 import net.liftweb.util._
+import net.liftweb.util.Helpers.tryo
 import org.flywaydb.core.Flyway
 
 object DB extends Loggable {
@@ -30,6 +31,10 @@ object DB extends Loggable {
 
   def run[T](action: DBIOAction[T, NoStream, _]): Future[T] = {
     database.run(action)
+  }
+
+  def runAwait[T](action: DBIOAction[T, NoStream, _], timeout: Duration = 10.seconds): Box[T] = {
+    tryo(Await.result(run(action), timeout))
   }
 
   /**
