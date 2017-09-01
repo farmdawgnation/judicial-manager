@@ -104,6 +104,18 @@ body.login-page {
   }
 }
 
+@mixin snazzy-form {
+  background: white;
+  padding: 2.5rem 1.25rem;
+
+  footer {
+    background: #E5E5E5;
+    padding: 1.25rem 2.5rem;
+    margin: 0 -1.25rem -2.5rem;
+    text-align: right;
+  }
+}
+
 @import "select-competition";
 @import "competition-manager";
 @import "scheduler-setup";
