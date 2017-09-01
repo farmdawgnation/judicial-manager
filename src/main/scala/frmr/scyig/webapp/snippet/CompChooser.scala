@@ -29,7 +29,7 @@ object CompChooser {
     ClearClearable andThen
     ".competition-entry" #> listCompetitions.openOr(Nil).map { competition =>
       ".competition-selection-title *" #> competition.name &
-      ".competition-selection-location *" #> competition.description &
+      ".competition-selection-location *" #> competition.location &
       ".competition-selection-date *" #> competition.dates &
       ".select-competition [href]" #> CompDashboard.menu.toLoc.calcHref(competition)
     }

@@ -1,57 +1,65 @@
-<div class="page-wrapper" data-lift="surround?with=default&at=content">
-  <section class="full-width-container" id="select-competition-container">
-    <h2 class="competition-name">SC Judicial 2017</h2>
+<div class="page-wrapper competition-manager-page" data-lift="surround?with=default&at=content">
+  <section class="full-width-container" id="select-competition-container" data-lift="CompDashboard.render">
+    <h2 class="competition-name" data-lift="CompMeta.name">SC Judicial 2017</h2>
 
-    <p class="competition-status">
+    <p class="competition-status" data-lift="CompMeta.status">
       Status: <span class="competition-status-value">In Progress</span> •
       Round <span class="competition-round-numeral">1</span>
     </p>
 
-    <h3>Competition</h3>
+    <div class="in-progress-group">
+      <h3>Competition</h3>
 
-    <ul class="competition-management-menu">
-      <li class="enter-scores-entry">
-        <a href="#" class="menu-selection-title">Enter Scores</a>
-        <p>Enter scores for the current round.</p>
-      </li>
+      <ul class="competition-management-menu">
+        <li class="enter-scores-entry">
+          <a href="#" class="menu-selection-title">Enter Scores</a>
+          <p>Enter scores for the current round.</p>
+        </li>
 
-      <li class="advance-round-entry">
-        <a href="#" class="menu-selection-title">Advance Round</a>
-        <p>Lock in the scores and proceed to the next round</p>
-      </li>
+        <li class="advance-round-entry">
+          <a href="#" class="menu-selection-title">Advance Round</a>
+          <p>Lock in the scores and proceed to the next round</p>
+        </li>
 
-      <li class="edit-round-entry">
-        <a href="#" class="menu-selection-title">Edit Round</a>
-        <p>Make changes to the current round</p>
-      </li>
+        <li class="edit-round-entry">
+          <a href="#" class="menu-selection-title">Edit Round</a>
+          <p>Make changes to the current round</p>
+        </li>
 
-      <li class="print-scorecard-entry">
-        <a href="#" class="menu-selection-title">Print Scorecard</a>
-        <p>Print the scorecard so far.</p>
-      </li>
+        <li class="print-scorecard-entry">
+          <a href="#" class="menu-selection-title">Print Scorecard</a>
+          <p>Print the scorecard so far.</p>
+        </li>
 
-      <li class="export-scorecard-entry">
-        <a href="#" class="menu-selection-title">Export Scorecard</a>
-        <p>Export the scorecard to CSV</p>
-      </li>
+        <li class="export-scorecard-entry">
+          <a href="#" class="menu-selection-title">Export Scorecard</a>
+          <p>Export the scorecard to CSV</p>
+        </li>
 
-      <li class="print-calendar-entry">
-        <a href="#" class="menu-selection-title">Print Calendar</a>
-        <p>Print current round schedule</p>
-      </li>
+        <li class="print-calendar-entry">
+          <a href="#" class="menu-selection-title">Print Calendar</a>
+          <p>Print current round schedule</p>
+        </li>
 
-      <li class="finish-competition-entry">
-        <a href="#" class="menu-selection-title">Finish Competition</a>
-        <p>Finalize all the scores and finish the competition.</p>
-      </li>
-    </ul>
+        <li class="finish-competition-entry">
+          <a href="#" class="menu-selection-title">Finish Competition</a>
+          <p>Finalize all the scores and finish the competition.</p>
+        </li>
+      </ul>
+    </div>
 
     <h3>Participants</h3>
 
     <ul class="competition-management-menu">
+      <!-- begin only one of these will appear -->
       <li class="view-teams-entry">
         <a href="#" class="menu-selection-title">View Teams</a>
         <p>View the current teams.</p>
+      </li>
+
+      <li class="manage-teams-entry">
+        <a href="#" class="menu-selection-title">Manage Teams</a>
+        <p>Manage the current teams.</p>
       </li>
 
       <li class="manage-judges-entry">

@@ -61,7 +61,7 @@ $manager-icon-color: #0089CF;
         content: $fa-var-flag-checkered;
       }
 
-      &.view-teams-entry:before {
+      &.view-teams-entry:before, &.manage-teams-entry:before {
         content: $fa-var-users;
       }
 
@@ -73,7 +73,7 @@ $manager-icon-color: #0089CF;
         @include grid-column(3, $competition-manager-menu-grid);
       }
 
-      &.view-teams-entry, &.manage-judges-entry {
+      &.view-teams-entry, &.manage-teams-entry, &.manage-judges-entry {
         @include grid-column(1.5, $competition-manager-menu-grid);
       }
 
