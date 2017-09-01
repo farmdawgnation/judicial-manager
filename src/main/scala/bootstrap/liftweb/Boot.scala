@@ -16,14 +16,15 @@
 package bootstrap.liftweb
 
 import java.sql._
+import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.util._
-import frmr.scyig.db.DB
-import slick.dbio._
+import frmr.scyig.db._
+import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.MySQLProfile.api._
 import slick.jdbc.meta._
 
-class Boot {
+class Boot extends Loggable {
   def boot(): Unit = {
     // Force the request to be UTF-8
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
@@ -57,5 +58,23 @@ class Boot {
 
     // Run our migrations
     DB.migrate()
+
+    // Create admin user if it doesn't already exist
+    DB.run(Users.size.result).map { userCount =>
+      if (userCount == 0) {
+        logger.info("No users found in db. Attempting admin user creation.")
+        val userCreation = DB.run(DBIO.seq(
+          Users += User(
+            None,
+            "admin@admin.com",
+            Users.hashpw("admin"),
+            "Admin",
+            true
+          )
+        ))
+
+        userCreation.map { _ => logger.info("Admin user successfully created.") }
+      }
+    }
   }
 }
