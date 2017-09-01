@@ -9,9 +9,9 @@ object CompSchedule {
   import SnippetHelpers._
 
   val menu = Menu.param[Competition](
-    "Competition Dashboard",
-    "Dashboard",
+    "Schedule",
+    "Schedule",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competitions" / * / "schedule" >> validateCompetitionAccess
+  ) / "competition" / * / "schedule" >> validateCompetitionAccess
 }

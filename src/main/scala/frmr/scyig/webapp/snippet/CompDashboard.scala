@@ -16,5 +16,5 @@ object CompDashboard {
     "Dashboard",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competitions" / * >> validateCompetitionAccess
+  ) / "competition" / * / "dashboard" >> validateCompetitionAccess
 }

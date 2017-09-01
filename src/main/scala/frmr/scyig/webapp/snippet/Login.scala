@@ -19,17 +19,15 @@ class Login {
   private[this] var password: String = ""
 
   private[this] def authenticate = {
-    val authFuture = AuthenticationHelpers.login_!(email, password)
-
-    Await.result(authFuture, DurationInt(30).seconds) match {
+    AuthenticationHelpers.login_!(email, password) match {
       case AuthenticationFailure =>
         Alert("Invalid username or password")
 
       case AuthenticationInternalError =>
         Alert("An internal error occurred while attempting to authenticate. Try again later.")
 
-      case AuthenticationSuccess =>
-        Alert("You successfully authenticated!")
+      case AuthenticationSuccess(_) =>
+        RedirectTo(CompChooser.menu.loc.calcDefaultHref)
     }
   }
 

@@ -18,9 +18,12 @@ package bootstrap.liftweb
 import java.sql._
 import net.liftweb.common._
 import net.liftweb.http._
+import net.liftweb.sitemap._
+import net.liftweb.sitemap.Loc._
 import net.liftweb.util._
 import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
+import frmr.scyig.webapp.snippet._
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.MySQLProfile.api._
 import slick.jdbc.meta._
@@ -35,8 +38,19 @@ class Boot extends Loggable {
 
     // Know how to check logged in status
     LiftRules.loggedInTest = Full( () => {
-      currentUser.isDefined
+      currentUserId.is > 0
     })
+
+    // Define our site map
+    LiftRules.setSiteMap(SiteMap(
+      Menu.i("root") / "index" >>
+        EarlyResponse(() => Full(RedirectResponse(CompChooser.menu.loc.calcDefaultHref))),
+      Login.menu,
+      CompChooser.menu,
+      CompDashboard.menu,
+      CompScoreEntry.menu,
+      CompSchedulerSetup.menu
+    ))
 
     // Set security rules
     LiftRules.securityRules = () => {

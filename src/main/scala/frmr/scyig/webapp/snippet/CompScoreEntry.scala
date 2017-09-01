@@ -9,8 +9,8 @@ object CompScoreEntry {
   import SnippetHelpers._
 
   val menu = Menu.param[Competition](
-    "Competition Dashboard",
-    "Dashboard",
+    "Scores",
+    "Scores",
     idToCompetition,
     _.id.getOrElse("").toString
   ) / "competitions" / * / "scores" >> validateCompetitionAccess

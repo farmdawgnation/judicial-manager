@@ -5,6 +5,7 @@ import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.http.ContainerSerializer._
 import scala.concurrent._
+import scala.concurrent.duration._
 import slick.jdbc.MySQLProfile.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure => TryFailure, _}
@@ -15,7 +16,7 @@ import scala.util.{Failure => TryFailure, _}
  * of a request and sticking the user id in the container session.
  */
 object AuthenticationHelpers extends Loggable {
-  object currentUserId extends ContainerVar[Int](0)
+  object currentUserId extends SessionVar[Int](0)
 
   private[this] def retrieveUser: Option[User] = {
     for {
@@ -28,12 +29,11 @@ object AuthenticationHelpers extends Loggable {
 
   object currentUser extends RequestVar[Option[User]](retrieveUser)
 
-  def login_!(email: String, password: String): Future[AuthenticationResult] = {
-    DB.run(Users.filter(_.email === email).result.head).transform {
+  def login_!(email: String, password: String): AuthenticationResult = {
+    val authFuture = DB.run(Users.filter(_.email === email).result.head).transform {
       case Success(user) if user.id.isDefined && user.checkpw(password) =>
-        currentUserId(user.id.getOrElse(0))
         logger.trace(s"Authentication for $email successful")
-        Success(AuthenticationSuccess)
+        Success(AuthenticationSuccess(user.id.getOrElse(-1)))
 
       case Success(user) if user.id.isEmpty =>
         logger.error(s"Auth attempt for $email yielded a user without an id.")
@@ -50,6 +50,15 @@ object AuthenticationHelpers extends Loggable {
         logger.error(s"Unexpected exception during authentication", ex)
         Success(AuthenticationInternalError)
     }
+
+    Await.result(authFuture, 30.seconds) match {
+      case succ @ AuthenticationSuccess(userId) =>
+        currentUserId(userId)
+        succ
+
+      case other =>
+        other
+    }
   }
 
   def logout_!(): Unit = {
@@ -58,6 +67,6 @@ object AuthenticationHelpers extends Loggable {
 }
 
 sealed trait AuthenticationResult
-case object AuthenticationSuccess extends AuthenticationResult
+case class AuthenticationSuccess(userId: Int) extends AuthenticationResult
 case object AuthenticationFailure extends AuthenticationResult
 case object AuthenticationInternalError extends AuthenticationResult
