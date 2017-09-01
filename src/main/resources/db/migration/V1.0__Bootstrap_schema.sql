@@ -1,0 +1,18 @@
+create table `competitions` (`id` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,`name` TEXT NOT NULL,`sponsor_id` INTEGER NOT NULL,`dates` TEXT NOT NULL,`description` TEXT NOT NULL);
+create table `judges` (`id` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,`competition_id` INTEGER NOT NULL,`name` TEXT NOT NULL,`organization` TEXT NOT NULL);
+create table `matches` (`id` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,`competition_id` INTEGER NOT NULL,`prosecution_team_id` INTEGER NOT NULL,`defense_team_id` INTEGER NOT NULL,`presiding_judge_id` INTEGER NOT NULL,`scoring_judge_id` INTEGER,`round` INTEGER NOT NULL,`order` INTEGER NOT NULL);
+create table `scores` (`match_id` INTEGER NOT NULL,`scorer_id` INTEGER NOT NULL,`score` INTEGER NOT NULL);
+create table `sponsors` (`id` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,`name` TEXT NOT NULL,`location` TEXT NOT NULL);
+create table `teams` (`id` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,`competition_id` INTEGER NOT NULL,`name` TEXT NOT NULL,`organization` TEXT NOT NULL);
+create table `users` (`id` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,`email` VARCHAR(255) NOT NULL UNIQUE,`password_hash` TEXT NOT NULL,`name` TEXT NOT NULL,`superuser` BOOLEAN NOT NULL);
+create table `users_sponsors` (`role` TEXT NOT NULL,`user_id` INTEGER NOT NULL,`sponsor_id` INTEGER NOT NULL);
+alter table `competitions` add constraint `c_sponsor_id_fk` foreign key(`sponsor_id`) references `sponsors`(`id`) on update NO ACTION on delete CASCADE;
+alter table `judges` add constraint `j_competition_id_fk` foreign key(`competition_id`) references `judges`(`id`) on update NO ACTION on delete CASCADE;
+alter table `matches` add constraint `m_competition_id_fk` foreign key(`competition_id`) references `competitions`(`id`) on update NO ACTION on delete CASCADE;
+alter table `matches` add constraint `m_defense_team_id_fk` foreign key(`defense_team_id`) references `teams`(`id`) on update NO ACTION on delete RESTRICT;
+alter table `matches` add constraint `m_presiding_judge_id_fk` foreign key(`presiding_judge_id`) references `judges`(`id`) on update NO ACTION on delete RESTRICT;
+alter table `matches` add constraint `m_prosecution_team_id_fk` foreign key(`prosecution_team_id`) references `teams`(`id`) on update NO ACTION on delete RESTRICT;
+alter table `matches` add constraint `m_scoring_judge_id_fk` foreign key(`scoring_judge_id`) references `judges`(`id`) on update NO ACTION on delete RESTRICT;
+alter table `teams` add constraint `t_competition_id_fk` foreign key(`competition_id`) references `competitions`(`id`) on update NO ACTION on delete CASCADE;
+alter table `users_sponsors` add constraint `us_sponsor_id_fk` foreign key(`sponsor_id`) references `sponsors`(`id`) on update NO ACTION on delete CASCADE;
+alter table `users_sponsors` add constraint `us_user_id_fk` foreign key(`user_id`) references `users`(`id`) on update NO ACTION on delete CASCADE;

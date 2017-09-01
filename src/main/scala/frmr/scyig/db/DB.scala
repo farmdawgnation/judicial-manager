@@ -6,37 +6,41 @@ import slick.jdbc.meta._
 import slick.jdbc.MySQLProfile.api._
 import net.liftweb.common._
 import net.liftweb.util._
+import org.flywaydb.core.Flyway
 
 object DB extends Loggable {
-  lazy val database = {
+  def withConnectionInfo[T](handler: (String, String, String)=>T): T = {
     for {
       url <- Props.get("database.url") ?~! "No database url"
       username <- Props.get("database.username") ?~! "No database username"
       password <- Props.get("database.password") ?~! "No database password"
     } yield {
-      Database.forURL(
-        url,
-        username,
-        password,
-        driver = "com.mysql.cj.jdbc.Driver"
-      )
+      handler(url, username, password)
     }
   } openOrThrowException("Database information is required.")
 
-  def createSchema(): Unit = {
-    val tables: Vector[MTable] = Await.result(database.run(MTable.getTables("%")), Duration(30, SECONDS))
+  lazy val database = withConnectionInfo { (url, username, password) =>
+    Database.forURL(
+      url,
+      username,
+      password,
+      driver = "com.mysql.cj.jdbc.Driver"
+    )
+  }
 
-    if (tables.length == 0) {
-      logger.info("Tables do not already exist. Creating schemas.")
-      val setup = DBIO.seq(
-        (Competitions.schema ++ Judges.schema ++ Matches.schema ++ Scores.schema ++ Sponsors.schema ++
-          Teams.schema ++ Users.schema ++ UsersSponsors.schema).create
+  def runMigrations(): Unit = {
+    logger.info("Invoking flyway migrations")
+
+    withConnectionInfo { (url, username, password) =>
+      val flyway = new Flyway()
+      flyway.setDataSource(
+        url,
+        username,
+        password
       )
-
-      val schemaFuture = database.run(setup)
-      Await.result(schemaFuture, Duration(30, SECONDS))
-    } else {
-      logger.info("Tables already exist. Not creating schemas.")
+      flyway.migrate()
     }
+
+    logger.info("Flyway migrations complete")
   }
 }

@@ -52,7 +52,7 @@ class Boot {
       )
     }
 
-    // Ensure schema is created
-    //DB.createSchema()
+    // Run our migrations
+    DB.runMigrations()
   }
 }
