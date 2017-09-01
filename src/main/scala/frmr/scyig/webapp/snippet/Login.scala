@@ -6,13 +6,27 @@ import net.liftweb.http.js._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Login {
   private[this] var email: String = ""
   private[this] var password: String = ""
 
   private[this] def authenticate = {
-    Alert("bacon")
+    val authFuture = AuthenticationHelpers.login_!(email, password)
+
+    Await.result(authFuture, DurationInt(30).seconds) match {
+      case AuthenticationFailure =>
+        Alert("Invalid username or password")
+
+      case AuthenticationInternalError =>
+        Alert("An internal error occurred while attempting to authenticate. Try again later.")
+
+      case AuthenticationSuccess =>
+        Alert("You successfully authenticated!")
+    }
   }
 
   def loginForm = {

@@ -28,6 +28,7 @@ object AuthenticationHelpers extends Loggable {
   def login_!(email: String, password: String): Future[AuthenticationResult] = {
     DB.run(Users.filter(_.email === email).result.head).transform {
       case Success(user) if user.id.isDefined && user.checkpw(password) =>
+        currentUserId(user.id.getOrElse(0))
         logger.trace(s"Authentication for $email successful")
         Success(AuthenticationSuccess)
 
@@ -35,13 +36,16 @@ object AuthenticationHelpers extends Loggable {
         logger.error(s"Auth attempt for $email yielded a user without an id.")
         Success(AuthenticationInternalError)
 
-      case TryFailure(ex) if ex.isInstanceOf[SlickException] =>
-        logger.debug(s"Slick exeception during authentication", ex)
+      case Success(_) | TryFailure(_: NoSuchElementException) =>
         Success(AuthenticationFailure)
 
+      case TryFailure(ex) if ex.isInstanceOf[SlickException] =>
+        logger.debug(s"Slick exeception during authentication", ex)
+        Success(AuthenticationInternalError)
+
       case TryFailure(ex) =>
-        logger.error(s"Unexpected exception", ex)
-        TryFailure(ex)
+        logger.error(s"Unexpected exception during authentication", ex)
+        Success(AuthenticationInternalError)
     }
   }
 
