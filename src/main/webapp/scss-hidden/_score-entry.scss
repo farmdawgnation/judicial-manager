@@ -5,6 +5,14 @@
     > table {
       margin: 0;
 
+      th {
+        color: $typography-dark-gray;
+      }
+
+      td:first-child {
+        padding: 1.25rem;
+      }
+
       .scoring-cell {
         width: 200px;
       }
@@ -13,6 +21,19 @@
 }
 
 #schedule-configuration-container {
+  h4 {
+    margin-top: 2.5rem;
+    margin-left: 2.5rem;
+    color: $typography-dark-gray;
+    float: left;
+  }
+
+  ul.bye-teams {
+    margin-left: 10.125rem;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
   .schedule-configuration-form {
     @include snazzy-form;
 
@@ -38,8 +59,16 @@
     > table {
       margin: 0;
 
+      td {
+        padding: 1.25rem;
+      }
+
+      tr:first-child > td {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+      }
+
       .schedule-actions {
-        width: 30px;
+        width: 6%;
       }
     }
 
