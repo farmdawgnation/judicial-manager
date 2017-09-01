@@ -1,109 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container" id="schedule-configuration-container">
+    <h2 class="competition-name">SC Judicial 2017</h2>
 
-<head>
-  <!-- required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie-edge">
+    <p class="competition-status">
+      Status: <span class="competition-status-value">In Progress</span> • Round <span class="competition-round-numeral">1</span>
+    </p>
 
-  <!-- Saira font -->
-  <link href="https://fonts.googleapis.com/css?family=Saira:400,600" rel="stylesheet">
+    <h3>Proposed Schedule</h3>
 
-  <!-- application level css -->
-  <link rel="stylesheet" href="/css/application.css">
+    <form class="schedule-configuration-form">
+      <table>
+        <tbody>
+          <tr class="match-row">
+            <td>
+              <div class="teams">
+                <input type="text" class="match-team">
+                v.
+                <input type="text" class="match-team">
+              </div>
+              <ul class="judges">
+                <li>
+                  <span class="judge-type">Presiding:</span>
+                  <input type="text" class="match-judge">
+                </li>
+                <li>
+                  <span class="judge-type">Scoring:</span>
+                  <input type="text" class="match-judge">
+                </li>
+              </ul>
+            </td>
+            <td class="schedule-actions">
+              <button class="remove-match">Remove Match</button>
+            </td>
+          </tr>
 
-  <title>Configure Schedule | Judicial Manager</title>
-</head>
+          <tr class="match-row clearable">
+            <td>
+              <div class="teams">
+                <input type="text" class="match-team"> v.
+                <input type="text" class="match-team">
+              </div>
+              <ul class="judges">
+                <li>
+                  <span class="judge-type">Presiding:</span>
+                  <input type="text" class="match-judge">
+                </li>
+                <li>
+                  <span class="judge-type">Scoring:</span>
+                  <input type="text" class="match-judge">
+                </li>
+              </ul>
+            </td>
+            <td class="schedule-actions">
+              <button class="remove-match">Remove Match</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-<body class="competition-manager-page">
-  <div id="header-bar-wrapper">
-    <nav id="header-bar">
-      <h1>Judicial Manager</h1>
+      <h4>Byes</h4>
 
-      <section class="user-section">
-        <span class="user-name">Johnny Karate</span>
-        <a href="#" id="logout">Log Out</a>
-      </section>
-    </nav>
-  </div>
+      <ul class="bye-teams">
+        <li>Team 1</li>
+        <li>Team 2</li>
+      </ul>
 
-  <div class="page-wrapper">
-    <section class="full-width-container" id="schedule-configuration-container">
-      <h2 class="competition-name">SC Judicial 2017</h2>
+      <footer>
+        <button type="button">Add Match</button>
+        <button type="submit">Save Schedule</button>
+      </footer>
+    </form>
 
-      <p class="competition-status">
-        Status: <span class="competition-status-value">In Progress</span> • Round <span class="competition-round-numeral">1</span>
-      </p>
-
-      <h3>Proposed Schedule</h3>
-
-      <form class="schedule-configuration-form">
-        <table>
-          <tbody>
-            <tr class="match-row">
-              <td>
-                <div class="teams">
-                  <input type="text" class="match-team">
-                  v.
-                  <input type="text" class="match-team">
-                </div>
-                <ul class="judges">
-                  <li>
-                    <span class="judge-type">Presiding:</span>
-                    <input type="text" class="match-judge">
-                  </li>
-                  <li>
-                    <span class="judge-type">Scoring:</span>
-                    <input type="text" class="match-judge">
-                  </li>
-                </ul>
-              </td>
-              <td class="schedule-actions">
-                <button class="remove-match">Remove Match</button>
-              </td>
-            </tr>
-
-            <tr class="match-row clearable">
-              <td>
-                <div class="teams">
-                  <input type="text" class="match-team"> v.
-                  <input type="text" class="match-team">
-                </div>
-                <ul class="judges">
-                  <li>
-                    <span class="judge-type">Presiding:</span>
-                    <input type="text" class="match-judge">
-                  </li>
-                  <li>
-                    <span class="judge-type">Scoring:</span>
-                    <input type="text" class="match-judge">
-                  </li>
-                </ul>
-              </td>
-              <td class="schedule-actions">
-                <button class="remove-match">Remove Match</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h4>Byes</h4>
-
-        <ul class="bye-teams">
-          <li>Team 1</li>
-          <li>Team 2</li>
-        </ul>
-
-        <footer>
-          <button type="button">Add Match</button>
-          <button type="submit">Save Schedule</button>
-        </footer>
-      </form>
-
-  </div>
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
-</body>
-
-</html>
+</div>

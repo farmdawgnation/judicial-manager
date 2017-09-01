@@ -46,6 +46,7 @@ class Boot extends Loggable {
       Menu.i("root") / "index" >>
         EarlyResponse(() => Full(RedirectResponse(CompChooser.menu.loc.calcDefaultHref))),
       Login.menu,
+      Logout.menu,
       CompChooser.menu,
       CompDashboard.menu,
       CompScoreEntry.menu,
