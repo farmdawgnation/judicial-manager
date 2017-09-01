@@ -12,6 +12,56 @@
   }
 }
 
+#schedule-configuration-container {
+  .schedule-configuration-form {
+    @include snazzy-form;
+
+    .match-row > td {
+      vertical-align: middle;
+    }
+
+    .match-team {
+      display: inline-block;
+      width: 364px;
+    }
+
+    .judge-type {
+      display: inline-block;
+      min-width: 80px;
+    }
+
+    .match-judge {
+      display: inline-block;
+      width: 364px;
+    }
+
+    > table {
+      margin: 0;
+
+      .schedule-actions {
+        width: 30px;
+      }
+    }
+
+    .remove-match {
+      background: transparent;
+      color: $typography-black;
+      padding: 0;
+      margin: 0;
+      width: 29px;
+      height: 32px;
+      overflow: hidden;
+      text-indent: 2px;
+
+      &:before {
+        @include fa-icon;
+        content: $fa-var-trash;
+        font-size: 30px;
+      }
+    }
+  }
+}
+
 .match-participants {
   > .matched-teams {
     font-size: 1.375rem;

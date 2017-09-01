@@ -43,3 +43,15 @@ $_button-background-color-hover: shade($action-color, 20%);
     }
   }
 }
+
+button[type=button] {
+  border: 1px solid;
+  border-color: #717073;
+  background: #E5E5E5;
+  color: #717073;
+
+  &:hover {
+    color: #717073;
+    background-color: #E5E5E5;
+  }
+}
