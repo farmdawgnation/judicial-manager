@@ -13,5 +13,5 @@ object CompSchedulerSetup {
     "Scheduler Setup",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competitions" / * / "scheduler-setup" >> validateCompetitionAccess
+  ) / "competition" / * / "scheduler-setup" >> validateCompetitionAccess
 }

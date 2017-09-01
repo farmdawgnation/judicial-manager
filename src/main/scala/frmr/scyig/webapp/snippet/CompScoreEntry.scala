@@ -13,5 +13,5 @@ object CompScoreEntry {
     "Scores",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competitions" / * / "scores" >> validateCompetitionAccess
+  ) / "competition" / * / "scores" >> validateCompetitionAccess
 }
