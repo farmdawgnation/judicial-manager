@@ -19,9 +19,29 @@ object SnippetHelpers {
     }
   }
 
+  def idToTeam(idStr: String): Box[Team] = {
+    for {
+      id <- (tryo(idStr.toInt) or Empty)
+      query = Teams.filter(_.id === id).result.head
+      team <- DB.runAwait(query)
+    } yield {
+      team 
+    }
+  }
+
   val validateCompetitionAccess: TestValueAccess[Competition] = {
     TestValueAccess((competiton) => competiton.flatMap { comp =>
       if (currentUser.is.toSeq.flatMap(_.sponsorIds).contains(comp.sponsorId)) {
+        Empty
+      } else {
+        Full(RedirectResponse(CompChooser.menu.loc.calcDefaultHref))
+      }
+    })
+  }
+
+  val validateCompetitionResourceAccess: TestValueAccess[(Competition, _)] = {
+    TestValueAccess((resources) => resources.flatMap { resource =>
+      if (currentUser.is.toSeq.flatMap(_.sponsorIds).contains(resource._1.sponsorId)) {
         Empty
       } else {
         Full(RedirectResponse(CompChooser.menu.loc.calcDefaultHref))

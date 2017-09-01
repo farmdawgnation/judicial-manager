@@ -21,7 +21,9 @@ object TeamList {
   ) / "competition" / * / "teams" >>
     validateCompetitionAccess >>
     TemplateBox( () => Templates("competition" :: "star" :: "teams" :: "manage" :: Nil))
+}
 
+class TeamList(competition: Competition) {
   def render = {
     val teams: List[Team] = DB.runAwait(Teams.to[List].result).openOrThrowException("Teams couldn't be found")
 
@@ -32,7 +34,8 @@ object TeamList {
       ".team-row" #> teams.map { team =>
         ".team-id *" #> team.id &
         ".team-name *" #> team.name &
-        ".team-org *" #> team.organization
+        ".team-org *" #> team.organization &
+        ".edit-team [href]" #> TeamForm.editMenu.toLoc.calcHref(competition, team)
       }
     }
   }

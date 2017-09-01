@@ -52,7 +52,9 @@ class Boot extends Loggable {
       CompScoreEntry.menu,
       CompSchedulerSetup.menu,
       CompSchedule.menu,
-      TeamList.menu
+      TeamList.menu,
+      TeamForm.createMenu,
+      TeamForm.editMenu
     ))
 
     // Set security rules
