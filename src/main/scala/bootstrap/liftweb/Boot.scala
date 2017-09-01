@@ -43,6 +43,7 @@ class Boot extends Loggable {
           ),
           scriptSources = List(
             ContentSourceRestriction.Self,
+            ContentSourceRestriction.UnsafeInline,
             ContentSourceRestriction.Host("https://*.bootstrapcdn.com"),
             ContentSourceRestriction.Host("https://*.cloudflare.com"),
             ContentSourceRestriction.Host("https://code.jquery.com")
