@@ -17,13 +17,16 @@ import scala.util.{Failure => TryFailure, _}
 object AuthenticationHelpers extends Loggable {
   object currentUserId extends ContainerVar[Int](0)
 
-  private[this] def retrieveUser: Option[Future[User]] = {
-    for (actualId <- Option(currentUserId.is) if actualId > 0) yield {
-      DB.run(Users.filter(_.id === actualId).take(1).result.head)
+  private[this] def retrieveUser: Option[User] = {
+    for {
+      actualId <- Option(currentUserId.is) if actualId > 0
+      user <- DB.runAwait(Users.filter(_.id === actualId).take(1).result.head)
+    } yield {
+      user
     }
   }
 
-  object currentUser extends RequestVar[Option[Future[User]]](retrieveUser)
+  object currentUser extends RequestVar[Option[User]](retrieveUser)
 
   def login_!(email: String, password: String): Future[AuthenticationResult] = {
     DB.run(Users.filter(_.email === email).result.head).transform {

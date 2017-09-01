@@ -12,6 +12,11 @@ case class User(
 ) {
   def checkpw(candidatePassword: String): Boolean =
     BCrypt.checkpw(candidatePassword, passwordHash)
+
+  lazy val sponsorIds: Seq[Int] = {
+    DB.runAwait(Users.filter(_.id === id).join(UsersSponsors).on(_.id === _.userId)
+      .map(_._2.sponsorId).result).openOr(Seq())
+  }
 }
 
 class Users(tag: Tag) extends Table[User](tag, "users") {

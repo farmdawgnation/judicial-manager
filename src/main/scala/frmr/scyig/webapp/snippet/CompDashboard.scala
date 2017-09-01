@@ -1,8 +1,11 @@
 package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
+import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import net.liftweb.common._
+import net.liftweb.http._
 import net.liftweb.sitemap._
+import net.liftweb.sitemap.Loc._
 import net.liftweb.util.Helpers._
 
 object CompDashboard {
@@ -13,5 +16,5 @@ object CompDashboard {
     "Dashboard",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competitions" / *
+  ) / "competitions" / * >> validateCompetitionAccess
 }

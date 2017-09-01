@@ -13,5 +13,5 @@ object CompSchedule {
     "Dashboard",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competitions" / * / "schedule"
+  ) / "competitions" / * / "schedule" >> validateCompetitionAccess
 }

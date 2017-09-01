@@ -20,6 +20,7 @@ import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.util._
 import frmr.scyig.db._
+import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.MySQLProfile.api._
 import slick.jdbc.meta._
@@ -31,6 +32,11 @@ class Boot extends Loggable {
 
     // Base package for the webapp
     LiftRules.addToPackages("frmr.scyig.webapp")
+
+    // Know how to check logged in status
+    LiftRules.loggedInTest = Full( () => {
+      currentUser.isDefined
+    })
 
     // Set security rules
     LiftRules.securityRules = () => {
