@@ -21,6 +21,8 @@ object CompDashboard {
 }
 
 class CompMeta(competition: Competition) {
+  def this(tuple: (Competition, Team)) = this(tuple._1)
+
   def name =
     "^ *" #> competition.name
 

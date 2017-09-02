@@ -40,8 +40,10 @@ object TeamForm {
     TemplateBox( () => Templates("competition" :: "star" :: "teams" :: "form" :: Nil))
 }
 
-class TeamForm(competition: Competition, var team: Team) {
+class TeamForm(compAndTeam: (Competition, Team)) {
   def this(competition: Competition) = this(competition, Team(None, competition.id.getOrElse(0), "", ""))
+
+  var (competition, team) = compAndTeam
 
   private[this] def save() = {
     DB.runAwait(Teams.insertOrUpdate(team))
