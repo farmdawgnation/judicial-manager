@@ -24,7 +24,8 @@ class CompMeta(competition: Competition) {
   def this(tuple: (Competition, Team)) = this(tuple._1)
 
   def name =
-    "^ *" #> competition.name
+    "a *" #> competition.name &
+    "a [href]" #> CompDashboard.menu.toLoc.calcHref(competition)
 
   def status =
     ".competition-status-value *" #> competition.status &

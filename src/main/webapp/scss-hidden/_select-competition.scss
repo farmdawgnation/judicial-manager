@@ -1,5 +1,10 @@
+$competition-list-grid: (
+  columns: 3,
+  gutter: 20px
+);
+
 #date-ordered-competition-list > li {
-  @include grid-column(5);
+  @include grid-column(1, $competition-list-grid);
   position: relative;
 
   display: inline-block;
