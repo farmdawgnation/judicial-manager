@@ -73,6 +73,15 @@ a {
   }
 }
 
+h1 > a, h2 > a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: inherit;
+  }
+}
+
 .page-wrapper {
   @include grid-container;
   @include grid-constraints;
