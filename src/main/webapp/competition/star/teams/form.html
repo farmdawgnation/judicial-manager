@@ -4,12 +4,18 @@
 
     <h3>Team</h3>
 
-    <form class="team-form" data-lift="TeamForm.render">
+    <form class="team-form resource-form" data-lift="TeamForm.render">
       <label for="team-name">Team name</label>
       <input type="text" id="team-name">
+      <p class="description">This name can be anything.</p>
 
-      <label for="team-name">Organization name</label>
+      <label for="team-name">Team Organization</label>
       <input type="text" id="org-name">
+      <p class="description">
+        Teams from the same organization will not be scheduled with each other.
+        Please ensure you use the same spelling throughout. Spaces and capitalization
+        will not be considered.
+      </p>
 
       <footer>
         <button class="save-and-create" type="submit">Save &amp; Create Another</button>
