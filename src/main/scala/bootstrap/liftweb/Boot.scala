@@ -47,14 +47,23 @@ class Boot extends Loggable {
         EarlyResponse(() => Full(RedirectResponse(CompChooser.menu.loc.calcDefaultHref))),
       Login.menu,
       Logout.menu,
+
       CompChooser.menu,
+
       CompDashboard.menu,
+
       CompScoreEntry.menu,
+
       CompSchedulerSetup.menu,
       CompSchedule.menu,
+
       TeamList.menu,
       TeamForm.createMenu,
-      TeamForm.editMenu
+      TeamForm.editMenu,
+
+      JudgeList.menu,
+      JudgeForm.createMenu,
+      JudgeForm.editMenu
     ))
 
     // Set security rules

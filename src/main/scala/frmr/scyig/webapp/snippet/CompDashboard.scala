@@ -48,6 +48,9 @@ class CompDashboard(competition: Competition) {
     } &
     ".manage-teams-entry" #> {
       "a [href]" #> TeamList.menu.toLoc.calcHref(competition)
+    } &
+    ".manage-judges-entry" #> {
+      "a [href]" #> JudgeList.menu.toLoc.calcHref(competition)
     }
   }
 }

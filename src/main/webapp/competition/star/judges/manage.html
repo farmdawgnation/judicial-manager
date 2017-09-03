@@ -1,0 +1,38 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container" id="schedule-configuration-container">
+    <h2 class="competition-name" data-lift="CompMeta.name">SC Judicial 2017</h2>
+
+    <p class="competition-status" data-lift="CompMeta.status">
+      Status: <span class="competition-status-value">In Progress</span> • Round <span class="competition-round-numeral">1</span>
+    </p>
+
+    <a href="#" data-lift="JudgeList.addLink" class="resource-create-link">Add Judge</a>
+    <h3 class="resource-name">Judges</h3>
+
+    <table class="resource-table" data-lift="JudgeList.render">
+      <thead class="resource-fields">
+        <tr>
+          <th class="resource-field">ID</th>
+          <th class="resource-field">Name</th>
+          <th class="resource-field">Organization</th>
+          <th class="action-column">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="no-judge-rows">
+          <td span="4">There are no judges.</td>
+        </tr>
+        <tr class="judge-row">
+          <td class="judge-id">1</td>
+          <td class="judge-name">Hon Pancake</td>
+          <td class="judge-org">Awesome Org 1</td>
+          <td class="actions">
+            <ul>
+              <a href="#" class="edit-judge">Edit</a>
+              <a href="#" class="delete-judge">Delete</a>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>

@@ -1,0 +1,33 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container" id="scheduler-setup-container">
+    <h2 class="competition-name" data-lift="CompMeta.name">SC Judicial 2017</h2>
+
+    <p class="competition-status" data-lift="CompMeta.status">
+      Status: <span class="competition-status-value">In Progress</span> • Round <span class="competition-round-numeral">1</span>
+    </p>
+
+    <h3>Judge</h3>
+
+    <form class="judge-form resource-form" data-lift="JudgeForm.render">
+      <label for="judge-name">Judge Name</label>
+      <input type="text" id="judge-name">
+      <p class="description">
+        This name can be anything, but keep in mind an actual judge probably
+        wouldn't enjoy being called Squidward, so it's probably best to
+        use their actual name.
+      </p>
+
+      <label for="judge-org-name">Judge Organization</label>
+      <input type="text" id="judge-org-name">
+      <p class="description">
+        Judges will never judge teams from their organization. Please ensure
+        you use the same spelling throughout. Spaces and capitalization will
+        not be considered.
+      </p>
+
+      <footer>
+        <button class="save-and-create" type="submit">Save &amp; Create Another</button>
+        <button class="save" type="submit">Save &amp; Close</button>
+      </footer>
+    </form>
+</div>

@@ -29,6 +29,16 @@ object SnippetHelpers {
     }
   }
 
+  def idToJudge(idStr: String): Box[Judge] = {
+    for {
+      id <- (tryo(idStr.toInt) or Empty)
+      query = Judges.filter(_.id === id).result.head
+      judge <- DB.runAwait(query)
+    } yield {
+      judge
+    }
+  }
+
   val validateCompetitionAccess: TestValueAccess[Competition] = {
     TestValueAccess((competiton) => competiton.flatMap { comp =>
       if (currentUser.is.toSeq.flatMap(_.sponsorIds).contains(comp.sponsorId)) {
