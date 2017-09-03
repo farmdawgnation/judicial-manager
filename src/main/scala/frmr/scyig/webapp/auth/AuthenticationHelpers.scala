@@ -3,7 +3,9 @@ package frmr.scyig.webapp.auth
 import frmr.scyig.db._
 import net.liftweb.common._
 import net.liftweb.http._
+import net.liftweb.http.provider._
 import net.liftweb.http.ContainerSerializer._
+import net.liftweb.util.Helpers
 import scala.concurrent._
 import scala.concurrent.duration._
 import slick.jdbc.MySQLProfile.api._
@@ -16,6 +18,8 @@ import scala.util.{Failure => TryFailure, _}
  * of a request and sticking the user id in the container session.
  */
 object AuthenticationHelpers extends Loggable {
+  val extendedSessionCookieName = "Judicial-Manager-Session-ID"
+
   object currentUserId extends SessionVar[Int](0)
 
   private[this] def retrieveUser: Option[User] = {
@@ -33,7 +37,22 @@ object AuthenticationHelpers extends Loggable {
     val authFuture = DB.run(Users.filter(_.email === email).result.head).transform {
       case Success(user) if user.id.isDefined && user.checkpw(password) =>
         logger.trace(s"Authentication for $email successful")
-        Success(AuthenticationSuccess(user.id.getOrElse(-1)))
+
+        val sessionId = Helpers.hash256(
+          Random.alphanumeric.take(256).mkString
+        )
+        val sessionCookie = HTTPCookie(
+          extendedSessionCookieName,
+          sessionId
+        ).copy(
+          maxAge = Full(604800),
+          httpOnly = Full(true)
+        )
+
+        Success(AuthenticationSuccess(
+          user.id.getOrElse(-1),
+          sessionCookie
+         ))
 
       case Success(user) if user.id.isEmpty =>
         logger.error(s"Auth attempt for $email yielded a user without an id.")
@@ -52,8 +71,15 @@ object AuthenticationHelpers extends Loggable {
     }
 
     Await.result(authFuture, 30.seconds) match {
-      case succ @ AuthenticationSuccess(userId) =>
+      case succ @ AuthenticationSuccess(userId, cookie) =>
         currentUserId(userId)
+
+        DB.run(
+          WebappSessions.insertOrUpdate(
+            WebappSession(cookie.value.getOrElse(""), userId)
+          )
+        )
+
         succ
 
       case other =>
@@ -64,9 +90,34 @@ object AuthenticationHelpers extends Loggable {
   def logout_!(): Unit = {
     currentUserId(0)
   }
+
+  def authenticateFromSessionCookie_!(request: Box[Req]) = {
+    for (request <- request) {
+      val possibleAuthCookie = request.cookies.find(_.name == extendedSessionCookieName)
+
+      if (currentUserId.is == 0 && possibleAuthCookie.isDefined) {
+        logger.info("Found session id cookie")
+        val Some(authCookie) = possibleAuthCookie
+        val existingSessions: Box[WebappSession] = DB.runAwait(
+          WebappSessions.to[List]
+            .filter(_.id === authCookie.value.openOr(""))
+            .result
+            .head
+        )
+
+        existingSessions match {
+          case Full(matchingSession) =>
+            currentUserId(matchingSession.userId)
+
+          case _ =>
+            S.deleteCookie(extendedSessionCookieName)
+        }
+      }
+    }
+  }
 }
 
 sealed trait AuthenticationResult
-case class AuthenticationSuccess(userId: Int) extends AuthenticationResult
+case class AuthenticationSuccess(userId: Int, cookie: HTTPCookie) extends AuthenticationResult
 case object AuthenticationFailure extends AuthenticationResult
 case object AuthenticationInternalError extends AuthenticationResult

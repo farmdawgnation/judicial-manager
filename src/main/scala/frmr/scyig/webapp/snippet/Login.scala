@@ -26,8 +26,8 @@ class Login {
       case AuthenticationInternalError =>
         Alert("An internal error occurred while attempting to authenticate. Try again later.")
 
-      case AuthenticationSuccess(_) =>
-        RedirectTo(CompChooser.menu.loc.calcDefaultHref)
+      case AuthenticationSuccess(_, cookie) =>
+        RedirectTo(CompChooser.menu.loc.calcDefaultHref, () => S.addCookie(cookie))
     }
   }
 

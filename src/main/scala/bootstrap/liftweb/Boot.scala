@@ -23,6 +23,7 @@ import net.liftweb.sitemap.Loc._
 import net.liftweb.util._
 import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
+import frmr.scyig.webapp.auth._
 import frmr.scyig.webapp.snippet._
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.MySQLProfile.api._
@@ -90,6 +91,9 @@ class Boot extends Loggable {
         ))
       )
     }
+
+    // Attach the extended session management
+    LiftRules.earlyInStateful.append(AuthenticationHelpers.authenticateFromSessionCookie_! _)
 
     // Run our migrations
     DB.migrate()
