@@ -54,6 +54,25 @@ class JudgeList(competition: Competition) {
     }
   }
 
+  def doKindQuickFlip(judgeId: Int)(): JsCmd = {
+    val updatedJudge = for {
+      judge <- DB.runAwait(Judges.filter(_.id === judgeId).result.head)
+      newKind = (judge.kind == PresidingJudge) ? ScoringJudge | PresidingJudge
+      updatedJudge = judge.copy(kind = newKind)
+      savedJudge <- DB.runAwait(Judges.insertOrUpdate(updatedJudge))
+    } yield {
+      updatedJudge
+    }
+
+    updatedJudge match {
+      case Full(updatedJudge) =>
+        Jq(s"[data-judge-id=$judgeId] .judge-kind a") ~> JqText(updatedJudge.kind.value)
+
+      case _ =>
+        Alert("Something unexpected occurred while quick-flipping status.")
+    }
+  }
+
   def render = {
     val judges: List[Judge] = DB.runAwait(Judges.to[List].result).openOrThrowException("Judges couldn't be found")
 
@@ -66,14 +85,17 @@ class JudgeList(competition: Competition) {
         ".judge-id *" #> judge.id &
         ".judge-name *" #> judge.name &
         ".judge-org *" #> judge.organization &
-        ".judge-kind *" #> judge.kind.value &
+        ".judge-kind *" #> {
+          "a *" #> judge.kind.value &
+          "a [onclick]" #> SHtml.ajaxInvoke(doKindQuickFlip(judge.id.getOrElse(-1)) _)
+        } &
         ".judge-enabled *" #> {
           "a *" #> (judge.enabled ? "Yes" | "No")  &
           "a [onclick]" #> SHtml.ajaxInvoke(doStatusQuickFlip(judge.id.getOrElse(-1)) _)
         } &
         ".judge-priority *" #> judge.priority.toString &
         ".edit-judge [href]" #> JudgeForm.editMenu.toLoc.calcHref(competition, judge) &
-        ".delete-judge [onclick]" #> SHtml.ajaxInvoke( () => deleteJudge(judge) )
+        ".delete-judge [onclick]" #> SHtml.onEventIf(s"Delete ${judge.name}?", (s: String) => deleteJudge(judge) )
       }
     }
   }
