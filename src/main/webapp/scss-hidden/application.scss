@@ -115,6 +115,22 @@ h1, h2 {
   background: white;
   padding: 2.5rem 1.25rem;
 
+  div.form-errors {
+    margin-bottom: 2.25rem;
+    padding: 0.5rem;
+    border: 1px solid rgb(255, 64, 64);
+    background: rgb(255, 146, 146);
+    border-radius: 4px;
+  }
+
+  div.form-notices {
+    margin-bottom: 2.25rem;
+    padding: 0.5rem;
+    border: 1px solid rgb(24, 174, 52);
+    background: rgb(169, 255, 171);
+    border-radius: 4px;
+  }
+
   p.description {
     font-size: 0.875rem;
     color: $typography-dark-gray;
