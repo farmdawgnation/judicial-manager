@@ -92,6 +92,15 @@ class Boot extends Loggable {
       )
     }
 
+    // Disable caching in development mode
+    if (! Props.productionMode) {
+      LiftRules.supplementalHeaders.default.set(
+        LiftRules.securityRules().headers ++
+        List("Cache-Control" -> "no-cache, no-store, must-revalidate")
+      )
+    }
+
+
     // Attach the extended session management
     LiftRules.earlyInStateful.append(AuthenticationHelpers.authenticateFromSessionCookie_! _)
 
