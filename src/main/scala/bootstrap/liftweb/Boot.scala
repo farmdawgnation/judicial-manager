@@ -24,6 +24,7 @@ import net.liftweb.util._
 import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import frmr.scyig.webapp.auth._
+import frmr.scyig.webapp.js._
 import frmr.scyig.webapp.snippet._
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.MySQLProfile.api._
@@ -100,6 +101,9 @@ class Boot extends Loggable {
       )
     }
 
+    // Trigger the event for the start of AJAX servicing
+    LiftRules.ajaxStart = Full( () => TriggerEvent("ajax-servicing-started") )
+    LiftRules.ajaxEnd = Full( () => TriggerEvent("ajax-servicing-ended") )
 
     // Attach the extended session management
     LiftRules.earlyInStateful.append(AuthenticationHelpers.authenticateFromSessionCookie_! _)

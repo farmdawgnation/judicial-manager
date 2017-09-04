@@ -6,6 +6,19 @@
     }
   };
 
+  var eventNames = {
+    ajaxServicingStarted: "ajax-servicing-started",
+    ajaxServicingEnded: "ajax-servicing-ended"
+  };
+
+  $(document).on(eventNames.ajaxServicingStarted, function(event) {
+    $("form").find("input, button, select").attr("disabled", "");
+  });
+
+  $(document).on(eventNames.ajaxServicingEnded, function(event) {
+    $("form").find("input, button, select").removeAttr("disabled");
+  });
+
   $("#select-competition-container").on('click', '.competition-entry', function(event) {
     var $target = $(event.target);
 
