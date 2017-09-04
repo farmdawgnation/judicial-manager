@@ -1,6 +1,8 @@
 package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
+import frmr.scyig.matching._
+import frmr.scyig.matching.models._
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.sitemap._
@@ -25,6 +27,10 @@ case object ChallengeMatching extends SetupMatchingAlgorithm
 class CompSchedulerSetup(competition: Competition) {
   private[this] var numberOfRooms: Box[Int] = Empty
   private[this] var matchingAlgorithm: Box[SetupMatchingAlgorithm] = Empty
+
+  private[this] def convertJudgesToParticipants: Seq[Participant] = ???
+
+  private[this] def convertTeamsToParticipants: Seq[Participant] = ???
 
   private[this] def submitSchedulerForm = {
     (numberOfRooms, matchingAlgorithm) match {
