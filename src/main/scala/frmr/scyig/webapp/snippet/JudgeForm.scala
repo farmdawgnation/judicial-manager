@@ -41,7 +41,7 @@ object JudgeForm {
 }
 
 class JudgeForm(compAndJudge: (Competition, Judge)) {
-  def this(competition: Competition) = this(competition, Judge(None, competition.id.getOrElse(0), "", ""))
+  def this(competition: Competition) = this(competition, Judge(None, competition.id.getOrElse(0), "", "", PresidingJudge))
 
   var (competition, judge) = compAndJudge
 
