@@ -4,7 +4,9 @@ import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import net.liftweb.common._
 import net.liftweb.http._
+import net.liftweb.http.js._
 import net.liftweb.http.js.JsCmds._
+import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.sitemap._
 import net.liftweb.sitemap.Loc._
 import net.liftweb.util._
@@ -33,6 +35,25 @@ class JudgeList(competition: Competition) {
     Reload
   }
 
+  def doStatusQuickFlip(judgeId: Int)(): JsCmd = {
+    val updatedJudge = for {
+      judge <- DB.runAwait(Judges.filter(_.id === judgeId).result.head)
+      updatedJudge = judge.copy(enabled = !judge.enabled)
+      savedJudge <- DB.runAwait(Judges.insertOrUpdate(updatedJudge))
+    } yield {
+      updatedJudge
+    }
+
+    updatedJudge match {
+      case Full(updatedJudge) =>
+        val newText = (updatedJudge.enabled ? "Yes" | "No")
+        Jq(s"[data-judge-id=$judgeId] .judge-enabled a") ~> JqText(newText)
+
+      case _ =>
+        Alert("Something unexpected occurred while quick-flipping status.")
+    }
+  }
+
   def render = {
     val judges: List[Judge] = DB.runAwait(Judges.to[List].result).openOrThrowException("Judges couldn't be found")
 
@@ -41,11 +62,15 @@ class JudgeList(competition: Competition) {
     } else {
       ".no-judge-rows" #> ClearNodes &
       ".judge-row" #> judges.map { judge =>
+        "^ [data-judge-id]" #> judge.id &
         ".judge-id *" #> judge.id &
         ".judge-name *" #> judge.name &
         ".judge-org *" #> judge.organization &
         ".judge-kind *" #> judge.kind.value &
-        ".judge-enabled *" #> (judge.enabled ? "Yes" | "No") &
+        ".judge-enabled *" #> {
+          "a *" #> (judge.enabled ? "Yes" | "No")  &
+          "a [onclick]" #> SHtml.ajaxInvoke(doStatusQuickFlip(judge.id.getOrElse(-1)) _)
+        } &
         ".judge-priority *" #> judge.priority.toString &
         ".edit-judge [href]" #> JudgeForm.editMenu.toLoc.calcHref(competition, judge) &
         ".delete-judge [onclick]" #> SHtml.ajaxInvoke( () => deleteJudge(judge) )
