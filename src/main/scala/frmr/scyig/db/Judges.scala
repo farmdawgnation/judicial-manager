@@ -30,7 +30,9 @@ case class Judge(
   competitionId: Int,
   name: String,
   organization: String,
-  kind: JudgeKind
+  kind: JudgeKind,
+  enabled: Boolean,
+  priority: Int
 )
 
 class Judges(tag: Tag) extends Table[Judge](tag, "judges") {
@@ -39,8 +41,10 @@ class Judges(tag: Tag) extends Table[Judge](tag, "judges") {
   def name = column[String]("name")
   def organization = column[String]("organization")
   def kind = column[JudgeKind]("kind")
+  def enabled = column[Boolean]("enabled")
+  def priority = column[Int]("priority")
 
-  def * = (id.?, competitionId, name, organization, kind) <> (Judge.tupled, Judge.unapply)
+  def * = (id.?, competitionId, name, organization, kind, enabled, priority) <> (Judge.tupled, Judge.unapply)
 
   def cidFK = foreignKey("j_competition_id_fk", competitionId, Judges)(_.id, onDelete = ForeignKeyAction.Cascade)
 }

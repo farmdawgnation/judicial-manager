@@ -41,7 +41,7 @@ object JudgeForm {
 }
 
 class JudgeForm(compAndJudge: (Competition, Judge)) {
-  def this(competition: Competition) = this(competition, Judge(None, competition.id.getOrElse(0), "", "", PresidingJudge))
+  def this(competition: Competition) = this(competition, Judge(None, competition.id.getOrElse(0), "", "", PresidingJudge, true, 0))
 
   var (competition, judge) = compAndJudge
 
@@ -67,6 +67,13 @@ class JudgeForm(compAndJudge: (Competition, Judge)) {
       "#presiding-judge-kind" -> PresidingJudge,
       "#scoring-judge-kind" -> ScoringJudge
     ) &
+    SHtml.radioCssSel[Boolean](Full(judge.enabled), v => v.foreach(v => judge = judge.copy(enabled = v)))(
+      "#enabled-judge-status" -> true,
+      "#disabled-judge-status" -> false
+    ) &
+    "#judge-priority" #> SHtml.text(judge.priority.toString, v => judge = judge.copy(
+      priority = Full(v).flatMap(asInt).openOr(0)
+    )) &
     ".save-and-create" #> (judge.id.isDefined ? ClearNodes | PassThru) andThen
     ".save-and-create" #> SHtml.ajaxOnSubmit(saveAndCreateAnother _) &
     ".save" #> SHtml.ajaxOnSubmit(saveAndReturn _)

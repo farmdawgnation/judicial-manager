@@ -28,12 +28,41 @@
           individual role during a match can be changed on the fly as needed.
         </p>
 
-        <input type="radio" id="presiding-judge-kind">
-        <label for="presiding-judge-kind">Presiding Judge</label>
+        <ul>
+          <li>
+            <input type="radio" id="presiding-judge-kind">
+            <label for="presiding-judge-kind">Presiding Judge</label>
+          </li>
 
-        <input type="radio" id="scoring-judge-kind">
-        <label for="scoring-judge-kind">Scoring Judge</label>
+          <li>
+            <input type="radio" id="scoring-judge-kind">
+            <label for="scoring-judge-kind">Scoring Judge</label>
+          </li>
+        </ul>
       </fieldset>
+
+      <fieldset>
+        <legend>Enabled status</legend>
+        <p class="description">
+          This indicates whether the judge is currently enabled for the automatic
+          scheduling engine for the next round.
+        </p>
+
+        <ul>
+          <li>
+            <input type="radio" id="enabled-judge-status">
+            <label for="enabled-judge-status">Enabled</label>
+          </li>
+
+          <li>
+            <input type="radio" id="disabled-judge-status">
+            <label for="disabled-judge-status">Disabled</label>
+          </li>
+        </ul>
+      </fieldset>
+
+      <label for="judge-priority">Priority</label>
+      <input type="number" id="judge-priority">
 
       <footer>
         <button class="save-and-create" type="submit">Save &amp; Create Another</button>

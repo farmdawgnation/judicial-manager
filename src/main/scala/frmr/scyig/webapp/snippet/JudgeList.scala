@@ -45,6 +45,8 @@ class JudgeList(competition: Competition) {
         ".judge-name *" #> judge.name &
         ".judge-org *" #> judge.organization &
         ".judge-kind *" #> judge.kind.value &
+        ".judge-enabled *" #> (judge.enabled ? "Yes" | "No") &
+        ".judge-priority *" #> judge.priority.toString &
         ".edit-judge [href]" #> JudgeForm.editMenu.toLoc.calcHref(competition, judge) &
         ".delete-judge [onclick]" #> SHtml.ajaxInvoke( () => deleteJudge(judge) )
       }
