@@ -87,8 +87,15 @@ object AuthenticationHelpers extends Loggable {
     }
   }
 
-  def logout_!(): Unit = {
-    currentUserId(0)
+  def logout_!(): HTTPCookie = {
+    S.session.foreach(_.destroySession())
+    HTTPCookie(
+      extendedSessionCookieName,
+      "deleted"
+    ).copy(
+      httpOnly = Full(true),
+      maxAge = Full(604800)
+    )
   }
 
   def authenticateFromSessionCookie_!(request: Box[Req]) = {

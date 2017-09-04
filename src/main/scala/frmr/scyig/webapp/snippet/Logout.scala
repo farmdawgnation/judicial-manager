@@ -9,7 +9,10 @@ import net.liftweb.sitemap.Loc._
 object Logout {
   def menu = Menu.i("Logout") / "logout" >>
     EarlyResponse( () => {
-      logout_!()
-      Full(RedirectResponse(Login.menu.loc.calcDefaultHref))
+      val logoutCookie = logout_!()
+      Full(RedirectResponse(
+        Login.menu.loc.calcDefaultHref,
+        logoutCookie
+      ))
     })
 }
