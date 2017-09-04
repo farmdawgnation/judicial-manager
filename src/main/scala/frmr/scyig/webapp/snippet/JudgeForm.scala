@@ -63,6 +63,10 @@ class JudgeForm(compAndJudge: (Competition, Judge)) {
     SHtml.makeFormsAjax andThen
     "#judge-name" #> SHtml.text(judge.name, v => judge = judge.copy(name = v)) &
     "#judge-org-name" #> SHtml.text(judge.organization, v => judge = judge.copy(organization = v)) &
+    SHtml.radioCssSel[JudgeKind](Full(judge.kind), v => v.foreach(v => judge = judge.copy(kind = v)))(
+      "#presiding-judge-kind" -> PresidingJudge,
+      "#scoring-judge-kind" -> ScoringJudge
+    ) &
     ".save-and-create" #> (judge.id.isDefined ? ClearNodes | PassThru) andThen
     ".save-and-create" #> SHtml.ajaxOnSubmit(saveAndCreateAnother _) &
     ".save" #> SHtml.ajaxOnSubmit(saveAndReturn _)
