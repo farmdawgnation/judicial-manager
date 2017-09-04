@@ -5,6 +5,7 @@ import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.sitemap.Loc._
+import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import slick.jdbc.MySQLProfile.api._
 
@@ -37,6 +38,14 @@ object SnippetHelpers {
     } yield {
       judge
     }
+  }
+
+  def hideIfCompetitionIs(competition: Competition, status: CompetitionStatus) = {
+    (competition.status == status) ? ClearNodes | PassThru
+  }
+
+  def hideIfCompetitionIsnt(competition: Competition, status: CompetitionStatus) = {
+    (competition.status != status) ? ClearNodes | PassThru
   }
 
   val validateCompetitionAccess: TestValueAccess[Competition] = {

@@ -21,6 +21,8 @@ object CompDashboard {
 }
 
 class CompMeta(competition: Competition) {
+  import SnippetHelpers._
+
   def this(tuple: (Competition, Team)) = this(tuple._1)
 
   def name =
@@ -28,22 +30,19 @@ class CompMeta(competition: Competition) {
     "a [href]" #> CompDashboard.menu.toLoc.calcHref(competition)
 
   def status =
+    ".round-group" #> hideIfCompetitionIsnt(competition, InProgress) andThen
     ".competition-status-value *" #> competition.status.value &
     ".competition-round-numeral *" #> competition.round
 }
 
 class CompDashboard(competition: Competition) {
-  private[this] def hideIfNotInProgress = {
-    if (competition.status == InProgress) {
-     PassThru
-    } else {
-      ClearNodes
-    }
-  }
+  import SnippetHelpers._
+
   def render = {
     ClearClearable andThen
-    ".in-progress-group" #> hideIfNotInProgress &
-    ".view-teams-entry" #> hideIfNotInProgress andThen
+    ".not-started-group" #> hideIfCompetitionIsnt(competition, NotStarted) &
+    ".in-progress-group" #> hideIfCompetitionIsnt(competition, InProgress) &
+    ".view-teams-entry" #> hideIfCompetitionIsnt(competition, InProgress) andThen
     ".view-teams-entry" #> {
       "a [href]" #> TeamList.menu.toLoc.calcHref(competition)
     } &
@@ -52,6 +51,9 @@ class CompDashboard(competition: Competition) {
     } &
     ".manage-judges-entry" #> {
       "a [href]" #> JudgeList.menu.toLoc.calcHref(competition)
+    } &
+    ".begin-competition-entry" #> {
+      "a [href]" #> CompSchedulerSetup.menu.toLoc.calcHref(competition)
     }
   }
 }
