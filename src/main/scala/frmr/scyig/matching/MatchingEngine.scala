@@ -32,11 +32,13 @@ class MatchingEngine(
   initialParticipants: Seq[Participant],
   roundNumber: Int,
   numberOfRooms: Int,
-  matchingPolicy: MatchingPolicy,
+  matchingPolicy: MatchingPolicy = MatchingPolicy.default,
   suggester: (Seq[Participant])=>ParticipantSuggester = participants=>new RandomizedParticipantSuggester(participants)
 ) extends LiftActor with Loggable {
   private[matching] val self = this
   private[matching] var finalState: Option[MatchingEngineState] = None
+
+  private[this] var notifyOnFinish: Seq[LiftActor] = Seq.empty
 
   val getNumberOfRooms = numberOfRooms
   val getInitialParticipants = initialParticipants
@@ -187,6 +189,7 @@ class MatchingEngine(
 
       case RecordFinalState(state) =>
         finalState = Some(state)
+        notifyOnFinish.foreach(_ ! finalState)
 
       case MatchingError(error) =>
         logger.error(s"Matching halted with error: $error")
@@ -195,8 +198,12 @@ class MatchingEngine(
 
   private[matching] def handleMatchingQuery(matchingQuery: MatchingEngineQuery): Unit = {
     matchingQuery match {
-      case QueryMatchingState =>
-        reply(finalState)
+      case QueryMatchingState(requester) =>
+        if (finalState.isDefined) {
+          requester ! finalState
+        }  else {
+          notifyOnFinish = requester +: notifyOnFinish
+        }
     }
   }
 
@@ -242,4 +249,4 @@ case class MatchingError(error: String) extends MatchingEngineEvent
 case class MatchingEngineEventEntry(clazz: Class[_], message: String)
 
 sealed trait MatchingEngineQuery
-case object QueryMatchingState extends MatchingEngineQuery
+case class QueryMatchingState(requester: LiftActor) extends MatchingEngineQuery
