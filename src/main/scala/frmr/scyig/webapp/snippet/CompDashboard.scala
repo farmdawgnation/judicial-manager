@@ -28,13 +28,13 @@ class CompMeta(competition: Competition) {
     "a [href]" #> CompDashboard.menu.toLoc.calcHref(competition)
 
   def status =
-    ".competition-status-value *" #> competition.status &
+    ".competition-status-value *" #> competition.status.value &
     ".competition-round-numeral *" #> competition.round
 }
 
 class CompDashboard(competition: Competition) {
   private[this] def hideIfNotInProgress = {
-    if (competition.status == "In Progress") {
+    if (competition.status == InProgress) {
      PassThru
     } else {
       ClearNodes

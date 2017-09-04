@@ -2,6 +2,33 @@ package frmr.scyig.db
 
 import slick.jdbc.MySQLProfile.api._
 
+sealed trait CompetitionStatus {
+  def value: String
+}
+case object NotStarted extends CompetitionStatus {
+  val value = "Not Started"
+}
+case object InProgress extends CompetitionStatus {
+  val value = "In Progress"
+}
+case object Finished extends CompetitionStatus {
+  val value = "Finished"
+}
+
+object CompetitionStatus {
+  def forValue(input: String): CompetitionStatus = input match {
+    case NotStarted.value => NotStarted
+    case InProgress.value => InProgress
+    case Finished.value => Finished
+    case s => throw new IllegalStateException(s"Illegal competition status: $s")
+  }
+
+  implicit val competitionStatusColumnType = MappedColumnType.base[CompetitionStatus, String](
+    _.value,
+    forValue(_)
+  )
+}
+
 case class Competition(
   id: Option[Int],
   name: String,
@@ -9,7 +36,7 @@ case class Competition(
   dates: String,
   description: String,
   location: String,
-  status: String,
+  status: CompetitionStatus,
   round: Int
 )
 
@@ -20,7 +47,7 @@ class Competitions(tag: Tag) extends Table[Competition](tag, "competitions") {
   def dates = column[String]("dates")
   def description = column[String]("description")
   def location = column[String]("location")
-  def status = column[String]("status")
+  def status = column[CompetitionStatus]("status")
   def round = column[Int]("round")
 
   def * = (id.?, name, sponsorId, dates, description, location, status, round) <> (Competition.tupled, Competition.unapply)
