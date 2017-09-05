@@ -1,12 +1,12 @@
 package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
-import frmr.scyig.matching._
-import frmr.scyig.matching.models._
+import frmr.scyig.matching
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.sitemap._
 import net.liftweb.util.Helpers._
+import slick.jdbc.MySQLProfile.api._
 
 object CompSchedulerSetup {
   import SnippetHelpers._
@@ -24,13 +24,46 @@ case object RandomizedMatching extends SetupMatchingAlgorithm
 case object OpportunityMatching extends SetupMatchingAlgorithm
 case object ChallengeMatching extends SetupMatchingAlgorithm
 
-class CompSchedulerSetup(competition: Competition) {
+class CompSchedulerSetup(competition: Competition) extends Loggable {
   private[this] var numberOfRooms: Box[Int] = Empty
   private[this] var matchingAlgorithm: Box[SetupMatchingAlgorithm] = Empty
 
-  private[this] def convertJudgesToParticipants: Seq[Participant] = ???
+  private[this] def hasEnoughJudges: Boolean = {
+    numberOfRooms match {
+      case Full(numberOfRooms) =>
+        val presidingJudgeCount = DB.runAwait(
+          Judges.filter(_.kind === PresidingJudge.asInstanceOf[JudgeKind])
+            .filter(_.enabled)
+            .length
+            .result
+        )
 
-  private[this] def convertTeamsToParticipants: Seq[Participant] = ???
+        val scoringJudgeCount = DB.runAwait(
+          Judges.filter(_.kind === ScoringJudge.asInstanceOf[JudgeKind])
+            .filter(_.enabled)
+            .length
+            .result
+        )
+
+        (scoringJudgeCount, presidingJudgeCount) match {
+          case (Full(scoringCount), Full(presidingCount)) =>
+            presidingCount >= numberOfRooms &&
+            scoringCount >= numberOfRooms
+
+          case other =>
+            logger.error(s"Error retreiving judge counts: $other")
+            false
+        }
+
+
+      case _ =>
+        false
+    }
+  }
+
+  private[this] def convertJudgesToParticipants: Seq[matching.models.Participant] = ???
+
+  private[this] def convertTeamsToParticipants: Seq[matching.models.Participant] = ???
 
   private[this] def submitSchedulerForm = {
     (numberOfRooms, matchingAlgorithm) match {
@@ -38,7 +71,13 @@ class CompSchedulerSetup(competition: Competition) {
       case (_: Failure, _) => S.error("Please enter a valid number in number of rooms.")
       case (Empty, _) => S.error("Please enter number of rooms before submitting.")
       case (_, Empty) => S.error("Please select a matching algorithm before submitting.")
-      case (Full(rooms), Full(algorithm)) => S.notice("Good job you filled out a form.")
+
+      case (Full(rooms), Full(algorithm)) if ! hasEnoughJudges =>
+        S.error(s"Not enough judges. Make sure there are $rooms presiding and $rooms scoring judges.")
+
+      case (Full(rooms), Full(algorithm)) =>
+        S.notice("Good job you filled out a form.")
+
       case (_, _) => S.error("Some unexpected error occurred while processing the form.")
     }
   }

@@ -19,7 +19,7 @@ object JudgeKind {
     case s => throw new IllegalStateException(s"Illegal judge kind: $s")
   }
 
-  implicit val judeKindStatusColumnType = MappedColumnType.base[JudgeKind, String](
+  implicit val judgeKindStatusColumnType = MappedColumnType.base[JudgeKind, String](
     _.value,
     forValue(_)
   )
