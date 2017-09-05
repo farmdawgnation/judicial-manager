@@ -24,13 +24,11 @@ import net.liftweb.actor._
  * rounds using the suggesters and by ensuring the matching policies are enforced.
  *
  * @param participants All of the participants in the competition.
- * @param roundNumber The round number the matching engine is initilized for.
  * @param numberOfRooms The number of rooms available to the matching engine.
  * @param suggester The suggester that should be used for suggesting possible members.
  */
 class MatchingEngine(
   initialParticipants: Seq[Participant],
-  roundNumber: Int,
   numberOfRooms: Int,
   matchingPolicy: MatchingPolicy = MatchingPolicy.default,
   suggester: (Seq[Participant])=>ParticipantSuggester = participants=>new RandomizedParticipantSuggester(participants)
@@ -38,7 +36,7 @@ class MatchingEngine(
   private[matching] val self = this
   private[matching] var finalState: Option[MatchingEngineState] = None
 
-  private[this] var notifyOnFinish: Seq[LiftActor] = Seq.empty
+  private[this] var notifyOnFinish: Seq[LAFuture[MatchingEngineState]] = Seq.empty
 
   val getNumberOfRooms = numberOfRooms
   val getInitialParticipants = initialParticipants
@@ -178,6 +176,8 @@ class MatchingEngine(
     matchingEvent match {
       case StartMatching =>
         logger.info("Starting matching.")
+        logger.info(s"Initial participants: $initialParticipants")
+        logger.info(s"Number of rooms: $numberOfRooms")
         self ! startMatching()
 
       case BuildMatch(state) =>
@@ -189,7 +189,7 @@ class MatchingEngine(
 
       case RecordFinalState(state) =>
         finalState = Some(state)
-        notifyOnFinish.foreach(_ ! finalState)
+        notifyOnFinish.foreach(r => r.complete(Full(state)))
 
       case MatchingError(error) =>
         logger.error(s"Matching halted with error: $error")
@@ -200,7 +200,7 @@ class MatchingEngine(
     matchingQuery match {
       case QueryMatchingState(requester) =>
         if (finalState.isDefined) {
-          requester ! finalState
+          finalState.foreach(s => requester.complete(Full(s)))
         }  else {
           notifyOnFinish = requester +: notifyOnFinish
         }
@@ -249,4 +249,4 @@ case class MatchingError(error: String) extends MatchingEngineEvent
 case class MatchingEngineEventEntry(clazz: Class[_], message: String)
 
 sealed trait MatchingEngineQuery
-case class QueryMatchingState(requester: LiftActor) extends MatchingEngineQuery
+case class QueryMatchingState(requester: LAFuture[MatchingEngineState]) extends MatchingEngineQuery

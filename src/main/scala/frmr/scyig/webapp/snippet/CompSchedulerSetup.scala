@@ -2,6 +2,7 @@ package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
 import frmr.scyig.matching
+import net.liftweb.actor._
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.sitemap._
@@ -107,6 +108,49 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     }
   }
 
+  private[this] def suggester: (Seq[matching.models.Participant]) => matching.ParticipantSuggester = {
+    matchingAlgorithm match {
+      case Full(ChallengeMatching) =>
+        (participants) => matching.CompetitiveParticipantSuggester(participants)
+      case Full(OpportunityMatching) =>
+        (participants) => matching.OpportunityParticipantSuggester(participants)
+      case _ =>
+        (participants) => matching.RandomizedParticipantSuggester(participants)
+    }
+  }
+
+  private[this] def newMatchingEngine: matching.MatchingEngine =
+    new matching.MatchingEngine(
+      convertTeamsToParticipants ++ convertJudgesToParticipants,
+      numberOfRooms.openOr(0),
+      suggester = suggester
+    )
+
+  private[this] def scheduleRound: Seq[Match] = {
+    val matchingEngine = newMatchingEngine
+
+    matchingEngine ! matching.StartMatching
+
+    val resultingStateFuture = new LAFuture[matching.MatchingEngineState]
+    matchingEngine ! matching.QueryMatchingState(resultingStateFuture)
+
+    val resultingState = resultingStateFuture.get
+
+    resultingState.scheduledRounds.collect {
+      case trial: matching.models.Trial =>
+        Match(
+          id = None,
+          competitionId = competition.id.getOrElse(-1),
+          prosecutionTeamId = trial.prosecution.webappId,
+          defenseTeamId = trial.defense.webappId,
+          presidingJudgeId = trial.presidingJudge.webappId,
+          scoringJudgeId = trial.scoringJudge.map(_.webappId),
+          round = competition.round + 1,
+          order = 0
+        )
+    }
+  }
+
   private[this] def submitSchedulerForm = {
     (numberOfRooms, matchingAlgorithm) match {
       case (Empty, Empty) => S.error("Please fill out the form before submitting.")
@@ -118,7 +162,8 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
         S.error(s"Not enough judges. Make sure there are $rooms presiding and $rooms scoring judges.")
 
       case (Full(rooms), Full(algorithm)) =>
-        S.notice("Good job you filled out a form.")
+        println(scheduleRound)
+        S.notice("The round was successfully scheduled")
 
       case (_, _) => S.error("Some unexpected error occurred while processing the form.")
     }
