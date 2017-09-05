@@ -33,6 +33,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
       case Full(numberOfRooms) =>
         val presidingJudgeCount = DB.runAwait(
           Judges.filter(_.kind === PresidingJudge.asInstanceOf[JudgeKind])
+            .filter(_.competitionId === competition.id.getOrElse(-1))
             .filter(_.enabled)
             .length
             .result
@@ -40,6 +41,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
 
         val scoringJudgeCount = DB.runAwait(
           Judges.filter(_.kind === ScoringJudge.asInstanceOf[JudgeKind])
+            .filter(_.competitionId === competition.id.getOrElse(-1))
             .filter(_.enabled)
             .length
             .result
@@ -61,9 +63,49 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     }
   }
 
-  private[this] def convertJudgesToParticipants: Seq[matching.models.Participant] = ???
+  private[this] def convertJudgesToParticipants: Seq[matching.models.Participant] = {
+    val judges = DB.runAwait(Judges.to[Seq].filter(_.competitionId === competition.id.getOrElse(-1)).result)
 
-  private[this] def convertTeamsToParticipants: Seq[matching.models.Participant] = ???
+    judges match {
+      case Full(judges) =>
+        judges.map {
+          case judge if judge.kind == PresidingJudge =>
+            matching.models.PresidingJudge(
+              matching.models.ParticipantName(judge.name),
+              Some(matching.models.ParticipantOrganization(judge.organization)),
+              webappId = judge.id.getOrElse(-1)
+            )
+
+          case judge =>
+            matching.models.ScoringJudge(
+              matching.models.ParticipantName(judge.name),
+              Some(matching.models.ParticipantOrganization(judge.organization)),
+              webappId = judge.id.getOrElse(-1)
+            )
+        }
+
+      case _ =>
+        throw new RuntimeException("Something went wrong accessing the DB.")
+    }
+  }
+
+  private[this] def convertTeamsToParticipants: Seq[matching.models.Participant] = {
+    val teams = DB.runAwait(Teams.to[Seq].filter(_.competitionId === competition.id.getOrElse(-1)).result)
+
+    teams match {
+      case Full(teams) =>
+        teams.map { team =>
+          matching.models.CompetingTeam(
+            matching.models.ParticipantName(team.name),
+            matching.models.ParticipantOrganization(team.organization),
+            webappId = team.id.getOrElse(-1)
+          )
+        }
+
+      case _ =>
+        throw new RuntimeException("Something went wrong accessing the DB.")
+    }
+  }
 
   private[this] def submitSchedulerForm = {
     (numberOfRooms, matchingAlgorithm) match {

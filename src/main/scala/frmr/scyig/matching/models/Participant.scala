@@ -32,8 +32,8 @@ case class PresidingJudge(
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
   matchHistory: Seq[HistoricalTrial] = Seq.empty,
-  roundsAvailable: Seq[Int] = Seq.empty,
-  id: UUID = UUID.randomUUID()
+  id: UUID = UUID.randomUUID(),
+  webappId: Int = -1
 ) extends Judge {
   def hasJudged_?(teamIdentifier: UUID): Boolean = {
     matchHistory.find(hmatch =>
@@ -46,8 +46,8 @@ case class ScoringJudge(
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
   matchHistory: Seq[HistoricalTrial] = Seq.empty,
-  roundsAvailable: Seq[Int] = Seq.empty,
-  id: UUID = UUID.randomUUID()
+  id: UUID = UUID.randomUUID(),
+  webappId: Int = -1
 ) extends Judge {
   def hasJudged_?(teamIdentifier: UUID): Boolean = {
     matchHistory.find(hmatch =>
@@ -61,7 +61,8 @@ case class CompetingTeam(
   name: ParticipantName,
   private val _organization: ParticipantOrganization,
   matchHistory: Seq[HistoricalMatch] = Seq.empty,
-  id: UUID = UUID.randomUUID()
+  id: UUID = UUID.randomUUID(),
+  webappId: Int = -1
 ) extends Participant {
   override val organization = Some(_organization)
 
