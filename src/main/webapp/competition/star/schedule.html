@@ -4,24 +4,24 @@
 
     <h3>Proposed Schedule</h3>
 
-    <form class="schedule-configuration-form">
+    <form class="schedule-configuration-form" data-lift="CompSchedule.render">
       <table>
         <tbody>
           <tr class="match-row">
             <td>
               <div class="teams">
-                <input type="text" class="match-team">
+                <input type="text" class="match-team prosecution-team">
                 v.
-                <input type="text" class="match-team">
+                <input type="text" class="match-team defense-team">
               </div>
               <ul class="judges">
                 <li>
                   <span class="judge-type">Presiding:</span>
-                  <input type="text" class="match-judge">
+                  <input type="text" class="match-judge presiding-judge">
                 </li>
                 <li>
                   <span class="judge-type">Scoring:</span>
-                  <input type="text" class="match-judge">
+                  <input type="text" class="match-judge scoring-judge">
                 </li>
               </ul>
             </td>
@@ -57,8 +57,8 @@
       <h4>Byes</h4>
 
       <ul class="bye-teams">
-        <li>Team 1</li>
-        <li>Team 2</li>
+        <li class="bye-team">Team 1</li>
+        <li class="clearable">Team 2</li>
       </ul>
 
       <footer>

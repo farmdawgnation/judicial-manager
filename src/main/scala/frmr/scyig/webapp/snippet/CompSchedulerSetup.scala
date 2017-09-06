@@ -162,8 +162,8 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
         S.error(s"Not enough judges. Make sure there are $rooms presiding and $rooms scoring judges.")
 
       case (Full(rooms), Full(algorithm)) =>
-        println(scheduleRound)
-        S.notice("The round was successfully scheduled")
+        val computedSchedule = scheduleRound
+        S.redirectTo(CompSchedule.menu.toLoc.calcHref(competition), () => CompSchedule.populatedMatches(computedSchedule))
 
       case (_, _) => S.error("Some unexpected error occurred while processing the form.")
     }
