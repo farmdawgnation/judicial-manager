@@ -22,6 +22,7 @@ import net.liftweb.sitemap._
 import net.liftweb.sitemap.Loc._
 import net.liftweb.util._
 import frmr.scyig.db._
+import frmr.scyig.webapp.api._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import frmr.scyig.webapp.auth._
 import frmr.scyig.webapp.js._
@@ -67,6 +68,9 @@ class Boot extends Loggable {
       JudgeForm.createMenu,
       JudgeForm.editMenu
     ))
+
+    // Add the stateful rest api
+    LiftRules.dispatch.append(TeamSuggestionApi)
 
     // Set security rules
     LiftRules.securityRules = () => {
