@@ -78,6 +78,7 @@ class Boot extends Loggable {
         content = Some(ContentSecurityPolicy(
           styleSources = List(
             ContentSourceRestriction.Self,
+            ContentSourceRestriction.UnsafeInline,
             ContentSourceRestriction.Host("https://*.bootstrapcdn.com"),
             ContentSourceRestriction.Host("https://fonts.googleapis.com")
           ),

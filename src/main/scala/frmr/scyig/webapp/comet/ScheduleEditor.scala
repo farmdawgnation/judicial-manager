@@ -4,6 +4,7 @@ import frmr.scyig.db._
 import frmr.scyig.webapp.snippet.CompSchedule
 import net.liftweb.common._
 import net.liftweb.http._
+import net.liftweb.http.js.JE._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import slick.jdbc.MySQLProfile.api._
@@ -31,7 +32,10 @@ class ScheduleEditor extends CometActor with Loggable {
         Nil
     }
 
+    S.appendJs(Call("window.bindSuggestions").cmd)
+
     ClearClearable andThen
+    "^ [data-rerender-function-id]" #> SHtml.ajaxInvoke( () => reRender()).guid &
     "^ [data-competition-id]" #> competition.id.getOrElse(0).toString &
     ".match-row" #> currentEditorMatches.zipWithIndex.flatMap {
       case (m, idx) =>

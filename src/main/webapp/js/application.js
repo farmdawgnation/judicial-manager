@@ -56,25 +56,41 @@
     }
   }
 
-  $(".match-row").each(function(index, rowElem) {
-    $(rowElem).find(".prosecution-team").elemicaSuggest({
-      suggestFunction: suggest(apiUrls.teamSuggestionUrl),
-      valueInput: $(rowElem).find(".prosecution-team-id")
-    });
+  window.bindSuggestions = function() {
+    function reRenderAfterSelect(selection) {
+      if (selection) {
+        var data = $(".schedule-configuration-form").data('rerender-function-id') + "=_";
+        var onFail = function () {
+          alert("Rerender of scheduler failed");
+        };
+        lift.ajax(data, null, onFail);
+      }
+    }
 
-    $(rowElem).find(".defense-team").elemicaSuggest({
-      suggestFunction: suggest(apiUrls.teamSuggestionUrl),
-      valueInput: $(rowElem).find(".defense-team-id")
-    });
+    $(".match-row").each(function(index, rowElem) {
+      $(rowElem).find(".prosecution-team").elemicaSuggest({
+        suggestFunction: suggest(apiUrls.teamSuggestionUrl),
+        valueInput: $(rowElem).find(".prosecution-team-id"),
+        afterSelect: reRenderAfterSelect
+      });
 
-    $(rowElem).find(".presiding-judge").elemicaSuggest({
-      suggestFunction: suggest(apiUrls.judgeSuggestionUrl),
-      valueInput: $(rowElem).find(".presiding-judge-id")
-    });
+      $(rowElem).find(".defense-team").elemicaSuggest({
+        suggestFunction: suggest(apiUrls.teamSuggestionUrl),
+        valueInput: $(rowElem).find(".defense-team-id"),
+        afterSelect: reRenderAfterSelect
+      });
 
-    $(rowElem).find(".scoring-judge").elemicaSuggest({
-      suggestFunction: suggest(apiUrls.judgeSuggestionUrl),
-      valueInput: $(rowElem).find(".scoring-judge-id")
+      $(rowElem).find(".presiding-judge").elemicaSuggest({
+        suggestFunction: suggest(apiUrls.judgeSuggestionUrl),
+        valueInput: $(rowElem).find(".presiding-judge-id"),
+        afterSelect: reRenderAfterSelect
+      });
+
+      $(rowElem).find(".scoring-judge").elemicaSuggest({
+        suggestFunction: suggest(apiUrls.judgeSuggestionUrl),
+        valueInput: $(rowElem).find(".scoring-judge-id"),
+        afterSelect: reRenderAfterSelect
+      });
     });
-  });
+  }
 })();
