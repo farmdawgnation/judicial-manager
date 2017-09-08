@@ -29,5 +29,21 @@ object SuggestionApi extends RestHelper {
 
         JsonResponse(teamObjs)
       }
+
+    case Get("api" :: "v1" :: "competition" :: AsInt(competitionId) :: "judge-suggestions" :: Nil, req) if currentUserId.is > 0 =>
+      val nameQuery = S.param("q").openOr("")
+      val query = Judges.to[List]
+        .filter(_.name startsWith nameQuery)
+        .filter(_.competitionId === competitionId)
+        .result
+
+      DB.run(query).map { judges =>
+        val judgeObjs = judges.map { judge =>
+          ("display" -> judge.name) ~
+          ("value" -> judge.id)
+        }
+
+        JsonResponse(judgeObjs)
+      }
   }
 }
