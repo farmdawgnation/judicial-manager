@@ -24,6 +24,11 @@ class ScheduleEditor extends CometActor with Loggable {
     reRender()
   }
 
+  private[this] def ajaxRemoveMatch(index: Int): Unit = {
+    currentEditorMatches = currentEditorMatches.patch(index, Nil, 1);
+    reRender()
+  }
+
   def render = {
     val scheduledTeamIds = currentEditorMatches.flatMap { m =>
       Seq(m.prosecutionTeamId, m.defenseTeamId)
@@ -76,7 +81,8 @@ class ScheduleEditor extends CometActor with Loggable {
             "",
             v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt)))
           ).guid &
-          ".scoring-judge [value]" #> scoringJudge.name
+          ".scoring-judge [value]" #> scoringJudge.name &
+          ".remove-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxRemoveMatch(idx) )
         }
     } &
     ".bye-team" #> byeTeams.map { team =>
