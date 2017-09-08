@@ -1,13 +1,18 @@
 package frmr.scyig.webapp.comet
 
 import frmr.scyig.db._
-import frmr.scyig.webapp.snippet.CompSchedule
+import frmr.scyig.webapp.snippet.{CompDashboard, CompSchedule}
 import net.liftweb.common._
 import net.liftweb.http._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JE._
 import net.liftweb.json._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import slick._
 import slick.jdbc.MySQLProfile.api._
 
 class ScheduleEditor extends CometActor with Loggable {
@@ -27,6 +32,27 @@ class ScheduleEditor extends CometActor with Loggable {
   private[this] def ajaxRemoveMatch(index: Int): Unit = {
     currentEditorMatches = currentEditorMatches.patch(index, Nil, 1);
     reRender()
+  }
+
+  private[this] def ajaxAddMatch(): Unit = {
+    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, None, competition.round + 1, 0)
+    reRender()
+  }
+
+  private[this] def saveSchedule(): JsCmd = {
+    val inserts = currentEditorMatches.map { cem => Matches.insertOrUpdate(cem) }
+    val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
+    val allQueries = inserts :+ updateCompetition
+
+    val actions = DBIO.seq(allQueries: _*)
+
+    DB.runAwait(actions) match {
+      case Full(_) =>
+        RedirectTo(CompDashboard.menu.toLoc.calcHref(competition))
+
+      case _ =>
+        Alert("Something went wrong")
+    }
   }
 
   def render = {
@@ -50,10 +76,10 @@ class ScheduleEditor extends CometActor with Loggable {
     ".match-row" #> currentEditorMatches.zipWithIndex.flatMap {
       case (m, idx) =>
         for {
-          prosecution <- DB.runAwait(Teams.filter(_.id === m.prosecutionTeamId).result.head)
-          defense <- DB.runAwait(Teams.filter(_.id === m.defenseTeamId).result.head)
-          presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head)
-          scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId.getOrElse(-1)).result.head)
+          prosecution <- DB.runAwait(Teams.filter(_.id === m.prosecutionTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
+          defense <- DB.runAwait(Teams.filter(_.id === m.defenseTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
+          presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
+          scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId.getOrElse(-1)).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
         } yield {
           ".prosecution-team-id" #> SHtml.hidden(
             v => updateMatch(idx, _.copy(prosecutionTeamId = v.toInt)),
@@ -76,7 +102,7 @@ class ScheduleEditor extends CometActor with Loggable {
             v => ajaxUpdateMatch(idx, _.copy(presidingJudgeId = v.toInt))
           ).guid &
           ".presiding-judge [value]" #> presidingJudge.name &
-          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt))), m.scoringJudgeId.toString) andThen
+          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt))), m.scoringJudgeId.getOrElse(0).toString) andThen
           ".scoring-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
             "",
             v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt)))
@@ -87,6 +113,8 @@ class ScheduleEditor extends CometActor with Loggable {
     } &
     ".bye-team" #> byeTeams.map { team =>
       "^ *" #> team.name
-    }
+    } &
+    ".add-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxAddMatch() ) &
+    ".save-schedule" #> SHtml.ajaxOnSubmit( () => saveSchedule() )
   }
 }

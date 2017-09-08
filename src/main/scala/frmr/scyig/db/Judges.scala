@@ -30,9 +30,9 @@ case class Judge(
   competitionId: Int,
   name: String,
   organization: String,
-  kind: JudgeKind,
-  enabled: Boolean,
-  priority: Int
+  kind: JudgeKind = PresidingJudge,
+  enabled: Boolean = true,
+  priority: Int = 0
 )
 
 class Judges(tag: Tag) extends Table[Judge](tag, "judges") {
