@@ -27,6 +27,8 @@ object JudgeList {
 }
 
 class JudgeList(competition: Competition) {
+  import SnippetHelpers._
+
   def addLink =
     "^ [href]" #> JudgeForm.createMenu.toLoc.calcHref(competition)
 
@@ -80,6 +82,7 @@ class JudgeList(competition: Competition) {
       ".judge-row" #> ClearNodes
     } else {
       ".no-judge-rows" #> ClearNodes &
+      ".delete-judge" #> hideIfCompetitionIsnt(competition, NotStarted) andThen
       ".judge-row" #> judges.map { judge =>
         "^ [data-judge-id]" #> judge.id &
         ".judge-id *" #> judge.id &

@@ -42,7 +42,8 @@ class CompDashboard(competition: Competition) {
     ClearClearable andThen
     ".not-started-group" #> hideIfCompetitionIsnt(competition, NotStarted) &
     ".in-progress-group" #> hideIfCompetitionIsnt(competition, InProgress) &
-    ".view-teams-entry" #> hideIfCompetitionIsnt(competition, InProgress) andThen
+    ".view-teams-entry" #> hideIfCompetitionIsnt(competition, InProgress) &
+    ".manage-teams-entry" #> hideIfCompetitionIsnt(competition, NotStarted) andThen
     ".view-teams-entry" #> {
       "a [href]" #> TeamList.menu.toLoc.calcHref(competition)
     } &

@@ -25,8 +25,12 @@ object TeamList {
 }
 
 class TeamList(competition: Competition) {
-  def addLink =
+  import SnippetHelpers._
+
+  def addLink = {
+    "^" #> hideIfCompetitionIsnt(competition, NotStarted) andThen
     "^ [href]" #> TeamForm.createMenu.toLoc.calcHref(competition)
+  }
 
   private[this] def deleteTeam(team: Team) = {
     DB.runAwait(Teams.filter(_.id === team.id).delete)
@@ -39,7 +43,11 @@ class TeamList(competition: Competition) {
     if (teams.isEmpty) {
       ".team-row" #> ClearNodes
     } else {
-      ".no-team-rows" #> ClearNodes &
+      ".no-team-rows" #> ClearNodes andThen
+      ".edit-team" #> hideIfCompetitionIsnt(competition, NotStarted) &
+      ".delete-team" #> hideIfCompetitionIsnt(competition, NotStarted) &
+      ".action-column" #> hideIfCompetitionIsnt(competition, NotStarted) &
+      ".actions" #> hideIfCompetitionIsnt(competition, NotStarted) andThen
       ".team-row" #> teams.map { team =>
         ".team-id *" #> team.id &
         ".team-name *" #> team.name &
