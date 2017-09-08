@@ -11,6 +11,12 @@
     ajaxServicingEnded: "ajax-servicing-ended"
   };
 
+  var apiUrls = {
+    teamSuggestionUrl: function(competitionId) {
+      return "/api/v1/competition/" + competitionId + "/team-suggestions"
+    }
+  }
+
   $(document).on(eventNames.ajaxServicingStarted, function(event) {
     $("form").find("input, button, select").attr("disabled", "");
   });
@@ -30,5 +36,24 @@
 
       window.location.href = href;
     }
+  });
+
+  function suggestTeam(teamPartial, callback) {
+    var competitionId = $(".schedule-configuration-form").data('competition-id');
+
+    $.ajax({
+      url: apiUrls.teamSuggestionUrl(competitionId),
+      data: {
+        q: teamPartial
+      },
+      success: callback
+    });
+  }
+
+  $(".match-row").each(function(index, rowElem) {
+    $(rowElem).find(".prosecution-team").elemicaSuggest({
+      suggestFunction: suggestTeam,
+      valueInput: $(rowElem).find(".prosecution-team-id")
+    });
   });
 })();

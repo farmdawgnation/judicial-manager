@@ -162,6 +162,25 @@ h1, h2 {
   @include snazzy-form;
 }
 
+div.suggestion-box-bound {
+  display: inline-block;
+  position: relative;
+
+  ul.suggestions {
+    position: absolute;
+    width: 100%;
+    background: white;
+    border: 1px solid black;
+    padding: 8px;
+    top: 44px;
+    z-index: 1;
+
+    > li.active {
+      background: $action-color;
+    }
+  }
+}
+
 @import "select-competition";
 @import "competition-manager";
 @import "scheduler-setup";

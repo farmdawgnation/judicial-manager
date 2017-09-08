@@ -14,7 +14,7 @@ import slick.jdbc.MySQLProfile.api._
 
 object TeamSuggestionApi extends RestHelper {
   serve {
-    case JsonPost("api" :: "v1" :: "competition" :: AsInt(competitionId) :: "team-suggestions" :: Nil, req) if currentUserId.is > 0 =>
+    case Get("api" :: "v1" :: "competition" :: AsInt(competitionId) :: "team-suggestions" :: Nil, req) if currentUserId.is > 0 =>
       val nameQuery = S.param("q").openOr("")
       val query = Teams.to[List]
         .filter(_.name startsWith nameQuery)
@@ -27,7 +27,7 @@ object TeamSuggestionApi extends RestHelper {
           ("value" -> team.id)
         }
 
-        JsonResponse(teamObjs.foldLeft(JObject(Nil))(_ ~ _))
+        JsonResponse(teamObjs)
       }
   }
 }

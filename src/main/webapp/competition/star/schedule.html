@@ -10,40 +10,30 @@
           <tr class="match-row">
             <td>
               <div class="teams">
-                <input type="text" class="match-team prosecution-team">
+                <div class="suggestion-box-bound">
+                  <input type="text" class="match-team prosecution-team">
+                  <input type="hidden" class="prosecution-team-id">
+                </div>
                 v.
-                <input type="text" class="match-team defense-team">
+                <div class="suggestion-box-bound">
+                  <input type="text" class="match-team defense-team">
+                  <input type="hidden" class="prosecution-team-id">
+                </div>
               </div>
               <ul class="judges">
                 <li>
                   <span class="judge-type">Presiding:</span>
-                  <input type="text" class="match-judge presiding-judge">
+                  <div class="suggestion-box-bound">
+                    <input type="text" class="match-judge presiding-judge">
+                    <input type="hidden" class="presiding-judge-id">
+                  </div>
                 </li>
                 <li>
                   <span class="judge-type">Scoring:</span>
-                  <input type="text" class="match-judge scoring-judge">
-                </li>
-              </ul>
-            </td>
-            <td class="schedule-actions">
-              <button class="remove-match">Remove Match</button>
-            </td>
-          </tr>
-
-          <tr class="match-row clearable">
-            <td>
-              <div class="teams">
-                <input type="text" class="match-team"> v.
-                <input type="text" class="match-team">
-              </div>
-              <ul class="judges">
-                <li>
-                  <span class="judge-type">Presiding:</span>
-                  <input type="text" class="match-judge">
-                </li>
-                <li>
-                  <span class="judge-type">Scoring:</span>
-                  <input type="text" class="match-judge">
+                  <div class="suggestion-box-bound">
+                    <input type="text" class="match-judge scoring-judge">
+                    <input type="hidden" class="scoring-judge-id">
+                  </div>
                 </li>
               </ul>
             </td>
