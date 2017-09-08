@@ -55,5 +55,10 @@
       suggestFunction: suggestTeam,
       valueInput: $(rowElem).find(".prosecution-team-id")
     });
+
+    $(rowElem).find(".defense-team").elemicaSuggest({
+      suggestFunction: suggestTeam,
+      valueInput: $(rowElem).find(".defense-team-id")
+    });
   });
 })();
