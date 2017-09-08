@@ -61,6 +61,7 @@
       return function(selection) {
         if (selection) {
           var data = functionId + "=" + selection.value;
+          console.log("Invoking " + data);
           var onFail = function () {
             alert("Rerender of scheduler failed");
           };

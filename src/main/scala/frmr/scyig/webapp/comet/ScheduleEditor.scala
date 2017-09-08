@@ -20,7 +20,6 @@ class ScheduleEditor extends CometActor with Loggable {
   }
 
   private[this] def ajaxUpdateMatch(index: Int, updater: (Match)=>Match): Unit = {
-    println(s"ajax update for $index")
     updateMatch(index, updater)
     reRender()
   }
