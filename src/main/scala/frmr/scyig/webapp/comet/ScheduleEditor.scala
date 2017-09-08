@@ -5,6 +5,7 @@ import frmr.scyig.webapp.snippet.CompSchedule
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.http.js.JE._
+import net.liftweb.json._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import slick.jdbc.MySQLProfile.api._
@@ -16,6 +17,12 @@ class ScheduleEditor extends CometActor with Loggable {
   private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
     val matchInQuestion = currentEditorMatches(index)
     currentEditorMatches = currentEditorMatches.patch(index, updater(matchInQuestion) :: Nil, 1)
+  }
+
+  private[this] def ajaxUpdateMatch(index: Int, updater: (Match)=>Match): Unit = {
+    println(s"ajax update for $index")
+    updateMatch(index, updater)
+    reRender()
   }
 
   def render = {
@@ -35,7 +42,6 @@ class ScheduleEditor extends CometActor with Loggable {
     S.appendJs(Call("window.bindSuggestions").cmd)
 
     ClearClearable andThen
-    "^ [data-rerender-function-id]" #> SHtml.ajaxInvoke( () => reRender()).guid &
     "^ [data-competition-id]" #> competition.id.getOrElse(0).toString &
     ".match-row" #> currentEditorMatches.zipWithIndex.flatMap {
       case (m, idx) =>
@@ -45,13 +51,32 @@ class ScheduleEditor extends CometActor with Loggable {
           presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head)
           scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId.getOrElse(-1)).result.head)
         } yield {
-          ".prosecution-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(prosecutionTeamId = v.toInt)), m.prosecutionTeamId.toString) &
+          ".prosecution-team-id" #> SHtml.hidden(
+            v => updateMatch(idx, _.copy(prosecutionTeamId = v.toInt)),
+            m.prosecutionTeamId.toString
+          ) andThen
+          ".prosecution-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
+            "",
+            v => ajaxUpdateMatch(idx, _.copy(prosecutionTeamId = v.toInt))
+          ).guid &
           ".prosecution-team [value]" #> prosecution.name &
-          ".defense-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(defenseTeamId = v.toInt)), m.defenseTeamId.toString) &
+          ".defense-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(defenseTeamId = v.toInt)), m.defenseTeamId.toString) andThen
+          ".defense-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
+            "",
+            v => ajaxUpdateMatch(idx, _.copy(defenseTeamId = v.toInt))
+          ).guid &
           ".defense-team [value]" #> defense.name &
-          ".presiding-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(presidingJudgeId = v.toInt)), m.presidingJudgeId.toString) &
+          ".presiding-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(presidingJudgeId = v.toInt)), m.presidingJudgeId.toString) andThen
+          ".presiding-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
+            "",
+            v => ajaxUpdateMatch(idx, _.copy(presidingJudgeId = v.toInt))
+          ).guid &
           ".presiding-judge [value]" #> presidingJudge.name &
-          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt))), m.scoringJudgeId.toString) &
+          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt))), m.scoringJudgeId.toString) andThen
+          ".scoring-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
+            "",
+            v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt)))
+          ).guid &
           ".scoring-judge [value]" #> scoringJudge.name
         }
     } &
