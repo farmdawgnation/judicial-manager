@@ -12,7 +12,7 @@ import net.liftweb.util.CanResolveAsync.resolveFuture
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.MySQLProfile.api._
 
-object TeamSuggestionApi extends RestHelper {
+object SuggestionApi extends RestHelper {
   serve {
     case Get("api" :: "v1" :: "competition" :: AsInt(competitionId) :: "team-suggestions" :: Nil, req) if currentUserId.is > 0 =>
       val nameQuery = S.param("q").openOr("")

@@ -70,7 +70,7 @@ class Boot extends Loggable {
     ))
 
     // Add the stateful rest api
-    LiftRules.dispatch.append(TeamSuggestionApi)
+    LiftRules.dispatch.append(SuggestionApi)
 
     // Set security rules
     LiftRules.securityRules = () => {
