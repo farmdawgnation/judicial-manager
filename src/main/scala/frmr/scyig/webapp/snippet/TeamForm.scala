@@ -21,6 +21,7 @@ object TeamForm {
     _.id.getOrElse("").toString,
   ) / "competition" / * / "team" / "create" >>
     validateCompetitionAccess >>
+    validateCompetitionStatus(NotStarted) >>
     TemplateBox( () => Templates("competition" :: "star" :: "teams" :: "form" :: Nil))
 
   val editMenu = Menu.params[(Competition, Team)](
@@ -37,6 +38,7 @@ object TeamForm {
     (params) => params._1.id.getOrElse("").toString :: params._2.id.getOrElse("").toString :: Nil
   ) / "competition" / * / "team" / "edit" / * >>
     validateCompetitionResourceAccess >>
+    validateCompetitionStatus(NotStarted) >>
     TemplateBox( () => Templates("competition" :: "star" :: "teams" :: "form" :: Nil))
 }
 

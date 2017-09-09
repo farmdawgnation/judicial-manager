@@ -67,4 +67,23 @@ object SnippetHelpers {
       }
     })
   }
+
+  def validateCompetitionStatus(status: CompetitionStatus): TestValueAccess[Competition] = {
+    TestValueAccess((competition) =>
+      competition.filter(_.status != status)
+        .map(competition =>
+          RedirectResponse(CompDashboard.menu.toLoc.calcHref(competition))
+        )
+    )
+  }
+
+  def validateCompetitionStatus(status: CompetitionStatus, dummyVal: Boolean = true): TestValueAccess[(Competition, _)] = {
+    TestValueAccess((resources) =>
+      resources.filter(_._1.status != status)
+        .map(_._1)
+        .map(competition =>
+          RedirectResponse(CompDashboard.menu.toLoc.calcHref(competition))
+        )
+    )
+  }
 }
