@@ -18,7 +18,10 @@ import slick.jdbc.MySQLProfile.api._
 object scheduleEditorPopulatedMatches extends RequestVar[Seq[Match]](Seq.empty)
 
 class ScheduleEditor() extends CometActor with Loggable {
-  private[this] val competition: Competition = CompSchedulerSetup.scheduleMenu.toLoc.currentValue openOrThrowException("No competition?")
+  private[this] val competition: Competition = S.request.flatMap(_.location).flatMap(_.currentValue).collect {
+    case competition: Competition => competition
+    case (item1: Competition, _) => item1
+  } openOrThrowException("No competition?")
   private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is
 
   private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
