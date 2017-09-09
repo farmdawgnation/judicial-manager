@@ -34,7 +34,7 @@ class JudgeList(competition: Competition) {
 
   private[this] def deleteJudge(judge: Judge) = {
     DB.runAwait(Judges.filter(_.id === judge.id).delete)
-    Reload
+    RedirectTo(JudgeList.menu.toLoc.calcHref(competition), () => S.notice(s"${judge.name} was deleted."))
   }
 
   def doStatusQuickFlip(judgeId: Int)(): JsCmd = {

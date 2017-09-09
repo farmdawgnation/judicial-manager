@@ -51,12 +51,12 @@ class JudgeForm(compAndJudge: (Competition, Judge)) {
 
   private[this] def saveAndReturn = {
     save()
-    RedirectTo(JudgeList.menu.toLoc.calcHref(competition))
+    RedirectTo(JudgeList.menu.toLoc.calcHref(competition), () => S.notice(s"${judge.name} was successfully saved"))
   }
 
   private[this] def saveAndCreateAnother = {
     save()
-    RedirectTo(JudgeForm.createMenu.toLoc.calcHref(competition))
+    RedirectTo(JudgeForm.createMenu.toLoc.calcHref(competition), () => S.notice(s"${judge.name} was successfully saved"))
   }
 
   def render = {
