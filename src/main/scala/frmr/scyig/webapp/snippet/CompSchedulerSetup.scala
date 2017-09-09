@@ -2,22 +2,33 @@ package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
 import frmr.scyig.matching
+import frmr.scyig.webapp.comet._
 import net.liftweb.actor._
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.sitemap._
+import net.liftweb.sitemap.Loc._
 import net.liftweb.util.Helpers._
 import slick.jdbc.MySQLProfile.api._
 
 object CompSchedulerSetup {
   import SnippetHelpers._
 
-  val menu = Menu.param[Competition](
+  val setupMenu = Menu.param[Competition](
     "Scheduler Setup",
     "Scheduler Setup",
     idToCompetition,
     _.id.getOrElse("").toString
   ) / "competition" / * / "scheduler-setup" >> validateCompetitionAccess
+
+  val scheduleMenu = Menu.param[Competition](
+    "Next Round Scheduler",
+    "Next Round Scheduler",
+    idToCompetition,
+    _.id.getOrElse("").toString
+  ) / "competition" / * / "scheduler" >>
+    validateCompetitionAccess >>
+    TemplateBox( () => Templates("competition" :: "star" :: "schedule" :: Nil) )
 }
 
 sealed trait SetupMatchingAlgorithm
@@ -163,7 +174,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
 
       case (Full(rooms), Full(algorithm)) =>
         val computedSchedule = scheduleRound
-        S.redirectTo(CompSchedule.menu.toLoc.calcHref(competition), () => CompSchedule.populatedMatches(computedSchedule))
+        S.redirectTo(CompSchedulerSetup.scheduleMenu.toLoc.calcHref(competition), () => scheduleEditorPopulatedMatches(computedSchedule))
 
       case (_, _) => S.error("Some unexpected error occurred while processing the form.")
     }

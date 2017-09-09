@@ -1,7 +1,7 @@
 package frmr.scyig.webapp.comet
 
 import frmr.scyig.db._
-import frmr.scyig.webapp.snippet.{CompDashboard, CompSchedule}
+import frmr.scyig.webapp.snippet._
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.http.js._
@@ -15,9 +15,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import slick._
 import slick.jdbc.MySQLProfile.api._
 
-class ScheduleEditor extends CometActor with Loggable {
-  private[this] val competition: Competition = CompSchedule.menu.toLoc.currentValue openOrThrowException("No competition?")
-  private[this] var currentEditorMatches: Seq[Match] = CompSchedule.populatedMatches.is
+object scheduleEditorPopulatedMatches extends RequestVar[Seq[Match]](Seq.empty)
+
+class ScheduleEditor() extends CometActor with Loggable {
+  private[this] val competition: Competition = CompSchedulerSetup.scheduleMenu.toLoc.currentValue openOrThrowException("No competition?")
+  private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is
 
   private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
     val matchInQuestion = currentEditorMatches(index)

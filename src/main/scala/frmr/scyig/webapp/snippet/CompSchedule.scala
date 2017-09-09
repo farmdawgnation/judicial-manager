@@ -11,11 +11,9 @@ import slick.jdbc.MySQLProfile.api._
 object CompSchedule {
   import SnippetHelpers._
 
-  object populatedMatches extends RequestVar[Seq[Match]](Seq.empty)
-
   val menu = Menu.param[Competition](
-    "Schedule",
-    "Schedule",
+    "Current Round Schedule",
+    "Current Round Schedule",
     idToCompetition,
     _.id.getOrElse("").toString
   ) / "competition" / * / "schedule" >> validateCompetitionAccess

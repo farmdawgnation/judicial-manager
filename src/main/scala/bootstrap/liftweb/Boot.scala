@@ -57,7 +57,9 @@ class Boot extends Loggable {
 
       CompScoreEntry.menu,
 
-      CompSchedulerSetup.menu,
+      CompSchedulerSetup.setupMenu,
+      CompSchedulerSetup.scheduleMenu,
+
       CompSchedule.menu,
 
       TeamList.menu,

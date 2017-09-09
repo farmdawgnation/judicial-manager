@@ -54,10 +54,10 @@ class CompDashboard(competition: Competition) {
       "a [href]" #> JudgeList.menu.toLoc.calcHref(competition)
     } &
     ".begin-competition-entry" #> {
-      "a [href]" #> CompSchedulerSetup.menu.toLoc.calcHref(competition)
+      "a [href]" #> CompSchedulerSetup.setupMenu.toLoc.calcHref(competition)
     } &
     ".advance-round-entry" #> {
-      "a [href]" #> CompSchedulerSetup.menu.toLoc.calcHref(competition)
+      "a [href]" #> CompSchedulerSetup.setupMenu.toLoc.calcHref(competition)
     }
   }
 }
