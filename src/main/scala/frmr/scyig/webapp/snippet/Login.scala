@@ -21,10 +21,10 @@ class Login {
   private[this] def authenticate = {
     AuthenticationHelpers.login_!(email, password) match {
       case AuthenticationFailure =>
-        Alert("Invalid username or password")
+        S.error("Invalid username or password"): JsCmd
 
       case AuthenticationInternalError =>
-        Alert("An internal error occurred while attempting to authenticate. Try again later.")
+        S.error("An internal error occurred while attempting to authenticate. Try again later."): JsCmd
 
       case AuthenticationSuccess(_, cookie) =>
         RedirectTo(CompChooser.menu.loc.calcDefaultHref, () => S.addCookie(cookie))

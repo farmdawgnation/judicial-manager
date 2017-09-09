@@ -72,7 +72,7 @@ object SnippetHelpers {
     TestValueAccess((competition) =>
       competition.filter(_.status != status)
         .map(competition =>
-          RedirectResponse(CompDashboard.menu.toLoc.calcHref(competition))
+          RedirectWithState(CompDashboard.menu.toLoc.calcHref(competition), RedirectState(() => S.error(s"That is only allowed when the competition is ${status.value}")))
         )
     )
   }
@@ -82,7 +82,7 @@ object SnippetHelpers {
       resources.filter(_._1.status != status)
         .map(_._1)
         .map(competition =>
-          RedirectResponse(CompDashboard.menu.toLoc.calcHref(competition))
+          RedirectWithState(CompDashboard.menu.toLoc.calcHref(competition), RedirectState(() => S.error(s"That is only allowed when the competition is ${status.value}")))
         )
     )
   }

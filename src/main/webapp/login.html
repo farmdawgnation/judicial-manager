@@ -20,6 +20,11 @@
         <h1>Judicial Manager</h1>
 
         <form class="login-form" data-lift="Login.loginForm?form=post">
+          <div data-lift="Msgs">
+            <lift:error_class>notice-errors</lift:error_class>
+            <lift:notice_class>notice-notices</lift:notice_class>
+          </div>
+
           <label for="email-input">E-Mail Address</label>
           <input type="email" id="email-input">
 
