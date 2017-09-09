@@ -5,6 +5,11 @@
     <h3>Team</h3>
 
     <form class="team-form resource-form" data-lift="TeamForm.render">
+      <div data-lift="Msgs">
+        <lift:error_class>notice-errors</lift:error_class>
+        <lift:notice_class>notice-notices</lift:notice_class>
+      </div>
+
       <label for="team-name">Team name</label>
       <input type="text" id="team-name">
       <p class="description">This name can be anything.</p>
