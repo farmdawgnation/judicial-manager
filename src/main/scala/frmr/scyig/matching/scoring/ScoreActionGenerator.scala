@@ -27,7 +27,7 @@ case class DenoteScoringError(error: String) extends ScoringActions
 case class RecordHistoricalTrial(historicalTrial: HistoricalTrial) extends ScoringActions
 case class RecordHistoricalBye(teamId: UUID) extends ScoringActions
 
-case class ScoreByTeam(prosecution: Int, defense: Int)
+case class ScoresByTeam(prosecution: Seq[Int], defense: Seq[Int])
 
 /**
  * Generates scoring actions based on the activites of a round. These actions are expected to be
@@ -35,7 +35,7 @@ case class ScoreByTeam(prosecution: Int, defense: Int)
  */
 class ScoreActionGenerator(getMatches: ()=>Box[Seq[ScheduledRoundMatch]]) {
   type TrialIdentifier = UUID
-  type ScoreSummary = Map[TrialIdentifier, ScoreByTeam]
+  type ScoreSummary = Map[TrialIdentifier, ScoresByTeam]
 
   def generateScoringActions(scores: ScoreSummary): Box[Seq[ScoringActions]] = {
     for (scheduledMatches <- getMatches()) yield {
@@ -46,12 +46,12 @@ class ScoreActionGenerator(getMatches: ()=>Box[Seq[ScheduledRoundMatch]]) {
 
           case Trial(prosecution, defense, presidingJudge, scoringJudge, _, trialId) =>
             scores.get(trialId) match {
-              case Some(ScoreByTeam(pScore, dScore)) =>
+              case Some(ScoresByTeam(pScores, dScores)) =>
                 RecordHistoricalTrial(HistoricalTrial(
                   prosecutionIdentifier = prosecution.id,
-                  prosecutionScore = pScore,
+                  prosecutionScores = pScores,
                   defenseIdentifier = defense.id,
-                  defenseScore = dScore,
+                  defenseScores = dScores,
                   presidingJudgeIdentifier = presidingJudge.id,
                   scoringJudgeIdentifier = scoringJudge.map(_.id)
                 ))
