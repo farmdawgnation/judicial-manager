@@ -61,6 +61,9 @@ class CompDashboard(competition: Competition) {
     } &
     ".edit-round-entry" #> {
       "a [href]" #> CompSchedule.menu.toLoc.calcHref(competition)
+    } &
+    ".enter-scores-entry" #> {
+      "a [href]" #> CompScoreEntry.menu.toLoc.calcHref(competition)
     }
   }
 }
