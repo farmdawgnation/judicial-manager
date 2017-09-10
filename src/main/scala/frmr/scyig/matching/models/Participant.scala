@@ -25,6 +25,7 @@ sealed trait Participant {
   def id: UUID
   def name: ParticipantName
   def organization: Option[ParticipantOrganization]
+  def webappId: Int
 }
 
 sealed trait Judge extends Participant

@@ -119,6 +119,30 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     }
   }
 
+  private[this] def convertMatchesToHistoricalTrials(participants: Seq[matching.models.Participant]) = {
+    val matchesHeld = DB.runAwait(Matches.to[Seq].filter(_.competitionId === competition.id.getOrElse(-1)).result)
+
+    matchesHeld match {
+      case Full(matchesHeld) =>
+        matchesHeld.map { matchHeld =>
+          val prosecutionUUID = participants.find(_.webappId == matchHeld.prosecutionTeamId).map(_.id).getOrElse {
+            throw new RuntimeException("Could not determine prosecution UUID")
+          }
+          val defenseUUID = participants.find(_.webappId == matchHeld.defenseTeamId).map(_.id).getOrElse {
+            throw new RuntimeException("Could not determine defense UUID")
+          }
+          val presidingUUID = participants.find(_.webappId == matchHeld.presidingJudgeId).map(_.id).getOrElse {
+            throw new RuntimeException("Could not determine presiding judge UUID")
+          }
+        }
+
+        null
+
+      case _ =>
+        throw new RuntimeException("Something weont wrong accessing the DB.")
+    }
+  }
+
   private[this] def suggester: (Seq[matching.models.Participant]) => matching.ParticipantSuggester = {
     matchingAlgorithm match {
       case Full(ChallengeMatching) =>
