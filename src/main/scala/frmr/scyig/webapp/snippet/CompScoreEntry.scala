@@ -3,6 +3,7 @@ package frmr.scyig.webapp.snippet
 import frmr.scyig.db._
 import net.liftweb.common._
 import net.liftweb.http._
+import net.liftweb.http.js.JsCmds._
 import net.liftweb.sitemap._
 import net.liftweb.util._
 import net.liftweb.util.CanResolveAsync._
@@ -25,6 +26,25 @@ object CompScoreEntry {
 }
 
 class CompScoreEntry(competition: Competition) {
+  private[this] def recordScore(matchId: Int, teamId: Int, scorerId: Int, score: Int) = {
+    val deleteExisting = Scores
+      .filter(_.matchId === matchId)
+      .filter(_.teamId === teamId)
+      .filter(_.scorerId === scorerId)
+      .delete
+
+    val addNew = Scores += Score(matchId, teamId, scorerId, score)
+
+    DB.runAwait(DBIO.seq(deleteExisting, addNew)).openOrThrowException("Error recording scores")
+  }
+
+  private[this] def submitScores() = {
+    RedirectTo(
+      CompDashboard.menu.toLoc.calcHref(competition),
+      () => S.notice("Scores have been saved")
+    )
+  }
+
   def render = {
     val matchesQuery = {
       Matches.to[Seq]
@@ -57,14 +77,38 @@ class CompScoreEntry(competition: Competition) {
 
         val presidingProsecutionScore = DB.runAwait(
           Scores.filter(_.matchId === m.id.getOrElse(0))
+            .filter(_.teamId === m.prosecutionTeamId)
             .filter(_.scorerId === m.presidingJudgeId)
+            .map(_.score)
             .result
+            .head
         )
 
-        val scoringJudgeScore = DB.runAwait(
+        val presidingDefenseScore = DB.runAwait(
           Scores.filter(_.matchId === m.id.getOrElse(0))
-            .filter(_.scorerId === m.scoringJudgeId)
+            .filter(_.teamId === m.defenseTeamId)
+            .filter(_.scorerId === m.presidingJudgeId)
+            .map(_.score)
             .result
+            .head
+        )
+
+        val scoringProsecutionScore = DB.runAwait(
+          Scores.filter(_.matchId === m.id.getOrElse(0))
+            .filter(_.teamId === m.prosecutionTeamId)
+            .filter(_.scorerId === m.scoringJudgeId)
+            .map(_.score)
+            .result
+            .head
+        )
+
+        val scoringDefenseScore = DB.runAwait(
+          Scores.filter(_.matchId === m.id.getOrElse(0))
+            .filter(_.teamId === m.defenseTeamId)
+            .filter(_.scorerId === m.scoringJudgeId)
+            .map(_.score)
+            .result
+            .head
         )
 
         ".prosecution *" #> prosecution.map(_.name) &
@@ -72,8 +116,46 @@ class CompScoreEntry(competition: Competition) {
         ".judges" #> {
           ".presiding *" #> presidingJudge.map(_.name) &
           ".scoring *" #> scoringJudge.map(_.name)
-        }
+        } &
+        ".presiding-prosecution-score" #> SHtml.text(
+          presidingProsecutionScore.map(_.toString).openOr(""),
+          (v) => asInt(v).map(score => recordScore(
+            m.id.getOrElse(0),
+            m.prosecutionTeamId,
+            m.presidingJudgeId,
+            score
+          ))
+        ) &
+        ".presiding-defense-score" #> SHtml.text(
+          presidingDefenseScore.map(_.toString).openOr(""),
+          (v) => asInt(v).map(score => recordScore(
+            m.id.getOrElse(0),
+            m.defenseTeamId,
+            m.presidingJudgeId,
+            score
+          ))
+        ) &
+        ".scoring-prosecution-score" #> SHtml.text(
+          scoringProsecutionScore.map(_.toString).openOr(""),
+          (v) => asInt(v).map(score => recordScore(
+            m.id.getOrElse(0),
+            m.prosecutionTeamId,
+            m.scoringJudgeId.getOrElse(0),
+            score
+          ))
+        ) &
+        ".scoring-defense-score" #> SHtml.text(
+          scoringDefenseScore.map(_.toString).openOr(""),
+          (v) => asInt(v).map(score => recordScore(
+            m.id.getOrElse(0),
+            m.defenseTeamId,
+            m.scoringJudgeId.getOrElse(0),
+            score
+          ))
+        )
+
       }
-    }
+    } &
+    ".save-scores" #> SHtml.ajaxOnSubmit(submitScores _)
   }
 }
