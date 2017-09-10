@@ -58,6 +58,9 @@ class CompDashboard(competition: Competition) {
     } &
     ".advance-round-entry" #> {
       "a [href]" #> CompSchedulerSetup.setupMenu.toLoc.calcHref(competition)
+    } &
+    ".edit-round-entry" #> {
+      "a [href]" #> CompSchedule.menu.toLoc.calcHref(competition)
     }
   }
 }

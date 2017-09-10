@@ -174,7 +174,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
 
       case (Full(rooms), Full(algorithm)) =>
         val computedSchedule = scheduleRound
-        S.redirectTo(CompSchedulerSetup.scheduleMenu.toLoc.calcHref(competition), () => scheduleEditorPopulatedMatches(computedSchedule))
+        S.redirectTo(CompSchedulerSetup.scheduleMenu.toLoc.calcHref(competition), () => scheduleEditorPopulatedMatches(Full(computedSchedule)))
 
       case (_, _) => S.error("Some unexpected error occurred while processing the form.")
     }

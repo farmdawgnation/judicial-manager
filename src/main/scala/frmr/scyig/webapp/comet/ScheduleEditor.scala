@@ -15,14 +15,22 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import slick._
 import slick.jdbc.MySQLProfile.api._
 
-object scheduleEditorPopulatedMatches extends RequestVar[Seq[Match]](Seq.empty)
+object scheduleEditorPopulatedMatches extends RequestVar[Box[Seq[Match]]](Empty)
 
 class ScheduleEditor() extends CometActor with Loggable {
   private[this] val competition: Competition = S.request.flatMap(_.location).flatMap(_.currentValue).collect {
     case competition: Competition => competition
     case (item1: Competition, _) => item1
   } openOrThrowException("No competition?")
-  private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is
+
+  private[this] val matchesQuery = Matches.to[Seq]
+    .filter(_.competitionId === competition.id.getOrElse(0))
+    .filter(_.round === competition.round)
+    .result
+
+  private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
+    DB.runAwait(matchesQuery) openOr
+    Seq.empty
 
   private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
     val matchInQuestion = currentEditorMatches(index)
@@ -46,17 +54,31 @@ class ScheduleEditor() extends CometActor with Loggable {
 
   private[this] def saveSchedule(): JsCmd = {
     val inserts = currentEditorMatches.map { cem => Matches.insertOrUpdate(cem) }
-    val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
-    val allQueries = inserts :+ updateCompetition
 
-    val actions = DBIO.seq(allQueries: _*)
+    val actions = if (scheduleEditorPopulatedMatches.is.isDefined) {
+      val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
+      val allQueries = inserts :+ updateCompetition
+
+      DBIO.seq(allQueries: _*)
+    } else {
+      DBIO.seq(inserts: _*)
+    }
 
     DB.runAwait(actions) match {
+      case Full(_) if scheduleEditorPopulatedMatches.is.isDefined =>
+        RedirectTo(
+          CompDashboard.menu.toLoc.calcHref(competition),
+          () => S.notice(s"Congratulations! You've started round ${competition.round+1} of the competition!")
+         )
+
       case Full(_) =>
-        RedirectTo(CompDashboard.menu.toLoc.calcHref(competition))
+        RedirectTo(
+          CompDashboard.menu.toLoc.calcHref(competition),
+          () => S.notice(s"The schedule for round ${competition.round} has been updated.")
+        )
 
       case _ =>
-        Alert("Something went wrong")
+        S.error("Something went wrong")
     }
   }
 
@@ -76,6 +98,7 @@ class ScheduleEditor() extends CometActor with Loggable {
 
     S.appendJs(Call("window.bindSuggestions").cmd)
 
+    SHtml.makeFormsAjax andThen
     ClearClearable andThen
     "^ [data-competition-id]" #> competition.id.getOrElse(0).toString &
     ".match-row" #> currentEditorMatches.zipWithIndex.flatMap {
