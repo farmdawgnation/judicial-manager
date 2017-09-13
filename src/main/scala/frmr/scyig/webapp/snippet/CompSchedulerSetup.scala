@@ -2,6 +2,7 @@ package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
 import frmr.scyig.matching
+import frmr.scyig.matching._
 import frmr.scyig.matching.models.{HistoricalMatch, HistoricalTrial, HistoricalBye, CompetingTeam, Judge}
 import frmr.scyig.webapp.comet._
 import net.liftweb.actor._
@@ -200,6 +201,23 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
             participantsByUuid = participantsByUuid + (dTeam.id -> updatedTeam)
           }
 
+          for {
+            pjParticipant <- participantsByUuid.get(trial.presidingJudgeIdentifier)
+            pjJudge <- Box.asA[models.Judge](pjParticipant)
+          } {
+            val updatedJudge = pjJudge.copy(matchHistory = pjJudge.matchHistory :+ trial)
+            participantsByUuid = participantsByUuid + (pjJudge.id -> updatedJudge)
+          }
+
+          for {
+            scoringJudgeIdentifier <- trial.scoringJudgeIdentifier
+            sjParticipant <- participantsByUuid.get(scoringJudgeIdentifier)
+            sjJudge <- Box.asA[models.Judge](sjParticipant)
+          } {
+            val updatedJudge = sjJudge.copy(matchHistory = sjJudge.matchHistory :+ trial)
+            participantsByUuid = participantsByUuid + (sjJudge.id -> updatedJudge)
+          }
+
         case bye: HistoricalBye =>
           for {
             byeParticipant <- participantsByUuid.get(bye.teamIdentifier)
@@ -227,7 +245,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
 
   private[this] def newMatchingEngine: matching.MatchingEngine =
     new matching.MatchingEngine(
-      convertTeamsToParticipants ++ convertJudgesToParticipants,
+      decorateParticipantHistory(convertTeamsToParticipants ++ convertJudgesToParticipants),
       numberOfRooms.openOr(0),
       suggester = suggester
     )
