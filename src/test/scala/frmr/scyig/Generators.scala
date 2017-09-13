@@ -37,14 +37,14 @@ object Generators {
     name <- participantNameGen
     org <- Gen.option(participantOrgGen)
   } yield {
-    PresidingJudge(name, org)
+    Judge(name, org, isPresiding = true)
   }
 
   val scoringJudgeGen = for {
     name <- participantNameGen
     org <- Gen.option(participantOrgGen)
   } yield {
-    ScoringJudge(name, org)
+    Judge(name, org, isScoring = true)
   }
 
   val participantGen: Gen[Participant] = for {
@@ -57,14 +57,12 @@ object Generators {
 
   val matchingEngineGen = for {
     participants <- participantsGen
-    roundNumber <- Gen.choose[Int](1, 10)
     numberOfRooms <- Gen.choose[Int](1, 100)
     matchingPolicy = MatchingPolicy.default
     suggester = (participants)=>new RandomizedParticipantSuggester(participants)
   } yield {
     new MatchingEngine(
       participants,
-      roundNumber,
       numberOfRooms,
       matchingPolicy,
       suggester

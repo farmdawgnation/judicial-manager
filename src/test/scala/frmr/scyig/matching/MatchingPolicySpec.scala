@@ -43,10 +43,10 @@ class MatchingPolicySpec extends WordSpec with Matchers {
       val team2 = CompetingTeam(ParticipantName("Eastside 1"), ParticipantOrganization("Eastside"))
       val matchedTeams = MatchedTeams(team1, team2)
 
-      val judge1 = PresidingJudge(ParticipantName("Bob Jones"), None)
-      val judge2 = PresidingJudge(ParticipantName("Mark Appleseed"), Some(ParticipantOrganization("Eastside")))
-      val judge3 = PresidingJudge(ParticipantName("Johnny Appleseed"), Some(ParticipantOrganization("Riverside")))
-      val judge4 = PresidingJudge(ParticipantName("Owlfred"), Some(ParticipantOrganization("OpenStudy")))
+      val judge1 = Judge(ParticipantName("Bob Jones"), None, isPresiding = true)
+      val judge2 = Judge(ParticipantName("Mark Appleseed"), Some(ParticipantOrganization("Eastside")), isPresiding = true)
+      val judge3 = Judge(ParticipantName("Johnny Appleseed"), Some(ParticipantOrganization("Riverside")), isPresiding = true)
+      val judge4 = Judge(ParticipantName("Owlfred"), Some(ParticipantOrganization("OpenStudy")), isPresiding = true)
 
       policyUnderTest.isValid(matchedTeams, judge1) should equal(true)
       policyUnderTest.isValid(matchedTeams, judge2) should equal(false)
@@ -57,13 +57,13 @@ class MatchingPolicySpec extends WordSpec with Matchers {
     "only permit scoring judges without organization or from different organizations" in {
       val team1 = CompetingTeam(ParticipantName("Riverside 1"), ParticipantOrganization("Riverside"))
       val team2 = CompetingTeam(ParticipantName("Eastside 1"), ParticipantOrganization("Eastside"))
-      val presidingJudge = PresidingJudge(ParticipantName("Bob Jones"), None)
+      val presidingJudge = Judge(ParticipantName("Bob Jones"), None, isPresiding = true)
       val matchedTeamsWithPresiding = MatchedTeamsWithPresidingJudge(team1, team2, presidingJudge)
 
-      val judge1 = ScoringJudge(ParticipantName("Bob Jones"), None)
-      val judge2 = ScoringJudge(ParticipantName("Mark Appleseed"), Some(ParticipantOrganization("Eastside")))
-      val judge3 = ScoringJudge(ParticipantName("Johnny Appleseed"), Some(ParticipantOrganization("Riverside")))
-      val judge4 = ScoringJudge(ParticipantName("Owlfred"), Some(ParticipantOrganization("OpenStudy")))
+      val judge1 = Judge(ParticipantName("Bob Jones"), None, isScoring = true)
+      val judge2 = Judge(ParticipantName("Mark Appleseed"), Some(ParticipantOrganization("Eastside")), isScoring = true)
+      val judge3 = Judge(ParticipantName("Johnny Appleseed"), Some(ParticipantOrganization("Riverside")), isScoring = true)
+      val judge4 = Judge(ParticipantName("Owlfred"), Some(ParticipantOrganization("OpenStudy")), isScoring = true)
 
       policyUnderTest.isValid(matchedTeamsWithPresiding, judge1) should equal(true)
       policyUnderTest.isValid(matchedTeamsWithPresiding, judge2) should equal(false)
@@ -82,9 +82,9 @@ class MatchingPolicySpec extends WordSpec with Matchers {
 
     val historicalMatch = HistoricalTrial(
       team1Uuid,
-      10,
+      Seq(10, 10),
       team2Uuid,
-      20,
+      Seq(20, 20),
       presidingJudgeUuid,
       Some(scoringJudgeUuid)
     )
@@ -106,26 +106,30 @@ class MatchingPolicySpec extends WordSpec with Matchers {
       ParticipantOrganization("Eastside")
     )
 
-    val judge1 = PresidingJudge(
+    val judge1 = Judge(
       ParticipantName("Bob Jones"),
       None,
       id = presidingJudgeUuid,
-      matchHistory = Seq(historicalMatch)
+      matchHistory = Seq(historicalMatch),
+      isPresiding = true
     )
-    val judge2 = PresidingJudge(
+    val judge2 = Judge(
       ParticipantName("W.L. Weller"),
-      None
+      None,
+      isPresiding = true
     )
 
-    val scoring1 = ScoringJudge(
+    val scoring1 = Judge(
       ParticipantName("Dr. Frankenstein"),
       None,
       id = scoringJudgeUuid,
-      matchHistory = Seq(historicalMatch)
+      matchHistory = Seq(historicalMatch),
+      isScoring = true
     )
-    val scoring2 = ScoringJudge(
+    val scoring2 = Judge(
       ParticipantName("Mr. Kind"),
-      None
+      None,
+      isScoring = true
     )
 
     "only permit other teams that haven't played this team" in {

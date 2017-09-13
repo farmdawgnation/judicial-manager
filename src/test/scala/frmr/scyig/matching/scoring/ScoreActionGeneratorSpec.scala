@@ -28,11 +28,11 @@ class ScoreActionGeneratorSpec extends WordSpec with GeneratorDrivenPropertyChec
   "ScoreActionGenerator" should {
     "generate correct scoring actions" in {
       forAll(multipleScheduledRoundMatchesGen) { scheduledRounds =>
-        val scoresByTrial: Map[UUID, ScoreByTeam] = scheduledRounds.collect({
+        val scoresByTrial: Map[UUID, ScoresByTeam] = scheduledRounds.collect({
           case trial: Trial =>
             val pScore = Random.nextInt(100)
             val dScore = Random.nextInt(100)
-            (trial.id, ScoreByTeam(pScore, dScore))
+            (trial.id, ScoresByTeam(Seq(pScore, pScore), Seq(dScore, dScore)))
         }).toMap
 
         val actionGenerator = new ScoreActionGenerator(() => Full(scheduledRounds))
@@ -63,8 +63,8 @@ class ScoreActionGeneratorSpec extends WordSpec with GeneratorDrivenPropertyChec
               scoresByTrial.get(openedTrial.id).isDefined should equal(true)
 
               val openedScores = scoresByTrial.get(openedTrial.id).get
-              openedScores.prosecution should equal(histTrial.prosecutionScore)
-              openedScores.defense should equal(histTrial.defenseScore)
+              openedScores.prosecution should equal(histTrial.prosecutionScores)
+              openedScores.defense should equal(histTrial.defenseScores)
 
             case DenoteScoringError(error) =>
               fail(s"Scoring error was surfaced: $error")

@@ -2,6 +2,7 @@ package frmr.scyig.webapp.snippet
 
 import frmr.scyig.db._
 import frmr.scyig.matching
+import frmr.scyig.matching.models.{HistoricalMatch, HistoricalTrial, HistoricalBye, CompetingTeam, Judge}
 import frmr.scyig.webapp.comet._
 import net.liftweb.actor._
 import net.liftweb.common._
@@ -9,6 +10,7 @@ import net.liftweb.http._
 import net.liftweb.sitemap._
 import net.liftweb.sitemap.Loc._
 import net.liftweb.util.Helpers._
+import scala.collection.immutable
 import slick.jdbc.MySQLProfile.api._
 
 object CompSchedulerSetup {
@@ -80,20 +82,14 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
 
     judges match {
       case Full(judges) =>
-        judges.map {
-          case judge if judge.kind == PresidingJudge =>
-            matching.models.PresidingJudge(
-              matching.models.ParticipantName(judge.name),
-              Some(matching.models.ParticipantOrganization(judge.organization)),
-              webappId = judge.id.getOrElse(-1)
-            )
-
-          case judge =>
-            matching.models.ScoringJudge(
-              matching.models.ParticipantName(judge.name),
-              Some(matching.models.ParticipantOrganization(judge.organization)),
-              webappId = judge.id.getOrElse(-1)
-            )
+        judges.map { judge =>
+          Judge(
+            matching.models.ParticipantName(judge.name),
+            Some(matching.models.ParticipantOrganization(judge.organization)),
+            isPresiding = judge.enabled && judge.kind == PresidingJudge,
+            isScoring = judge.enabled && judge.kind == ScoringJudge,
+            webappId = judge.id.getOrElse(-1)
+          )
         }
 
       case _ =>
@@ -119,28 +115,103 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     }
   }
 
-  private[this] def convertMatchesToHistoricalTrials(participants: Seq[matching.models.Participant]) = {
-    val matchesHeld = DB.runAwait(Matches.to[Seq].filter(_.competitionId === competition.id.getOrElse(-1)).result)
+  private[this] def convertMatchesToHistoricalMatches(participants: Seq[matching.models.Participant]): Seq[(Int, Seq[HistoricalMatch])] = {
+    val teams = participants.collect {
+      case team: matching.models.CompetingTeam => team
+    }
 
-    matchesHeld match {
-      case Full(matchesHeld) =>
-        matchesHeld.map { matchHeld =>
+    val matchesHeld: Seq[Match] = DB.runAwait(
+      Matches.to[Seq]
+        .filter(_.competitionId === competition.id.getOrElse(-1))
+        .result
+    ).openOrThrowException("Couldn't retrieve matches")
+    val matchesByRound: immutable.Map[Int, Seq[Match]] = matchesHeld.sortBy(_.round).groupBy(_.round)
+
+    val trialsByRound: Map[Int, Seq[HistoricalTrial]] = matchesByRound.map {
+      case (round, matches) =>
+        val trials = matchesHeld.map { matchHeld =>
+          val scoresForRound: Seq[Score] = DB.runAwait(Scores.to[Seq].filter(_.matchId === matchHeld.id.getOrElse(0)).result).openOrThrowException(
+            "Scores for round could not be retrieved"
+          )
+
           val prosecutionUUID = participants.find(_.webappId == matchHeld.prosecutionTeamId).map(_.id).getOrElse {
             throw new RuntimeException("Could not determine prosecution UUID")
           }
+          val prosecutionScores = scoresForRound.filter(_.teamId == matchHeld.prosecutionTeamId).map(_.score)
+
           val defenseUUID = participants.find(_.webappId == matchHeld.defenseTeamId).map(_.id).getOrElse {
             throw new RuntimeException("Could not determine defense UUID")
           }
+          val defenseScores = scoresForRound.filter(_.teamId == matchHeld.defenseTeamId).map(_.score)
+
           val presidingUUID = participants.find(_.webappId == matchHeld.presidingJudgeId).map(_.id).getOrElse {
             throw new RuntimeException("Could not determine presiding judge UUID")
           }
+          val scoringUUID = participants.find(_.webappId == matchHeld.scoringJudgeId.getOrElse(0)).map(_.id)
+
+          matching.models.HistoricalTrial(
+            prosecutionUUID,
+            prosecutionScores,
+            defenseUUID,
+            defenseScores,
+            presidingUUID,
+            scoringUUID
+          )
         }
 
-        null
-
-      case _ =>
-        throw new RuntimeException("Something weont wrong accessing the DB.")
+        round -> trials
     }
+
+    val byesByRound: Map[Int, Seq[HistoricalBye]] = trialsByRound.map {
+      case (round, trials) =>
+        val byeTeams = teams.filter { team =>
+          trials.find(trial => trial.prosecutionIdentifier == team.id || trial.defenseIdentifier == team.id).isEmpty
+        }
+
+        round -> byeTeams.map(team => HistoricalBye(team.id))
+    }
+
+    trialsByRound.map({
+      case (round, trials) =>
+        (round, trials ++ byesByRound.get(round).getOrElse(Seq.empty))
+    }).toSeq.sortBy(_._1)
+  }
+
+  private[this] def decorateParticipantHistory(participants: Seq[matching.models.Participant]): Seq[matching.models.Participant] = {
+    val allMatchesByRound: Seq[(Int, Seq[HistoricalMatch])] = convertMatchesToHistoricalMatches(participants)
+    var participantsByUuid = participants.map(p => (p.id, p)).toMap
+
+    allMatchesByRound.foreach {
+      case (_, historicalMatch) => historicalMatch match {
+        case trial: HistoricalTrial =>
+          for {
+            pParticipant <- participantsByUuid.get(trial.prosecutionIdentifier)
+            pTeam <- Box.asA[CompetingTeam](pParticipant)
+          } {
+            val updatedTeam = pTeam.copy(matchHistory = pTeam.matchHistory :+ trial)
+            participantsByUuid = participantsByUuid + (pTeam.id -> updatedTeam)
+          }
+
+          for {
+            dParticipant <- participantsByUuid.get(trial.defenseIdentifier)
+            dTeam <- Box.asA[CompetingTeam](dParticipant)
+          } {
+            val updatedTeam = dTeam.copy(matchHistory = dTeam.matchHistory :+ trial)
+            participantsByUuid = participantsByUuid + (dTeam.id -> updatedTeam)
+          }
+
+        case bye: HistoricalBye =>
+          for {
+            byeParticipant <- participantsByUuid.get(bye.teamIdentifier)
+            byeTeam <- Box.asA[CompetingTeam](byeParticipant)
+          } {
+            val updatedTeam = byeTeam.copy(matchHistory = byeTeam.matchHistory :+ bye)
+            participantsByUuid = participantsByUuid + (byeTeam.id -> updatedTeam)
+          }
+      }
+    }
+
+    participantsByUuid.values.toSeq
   }
 
   private[this] def suggester: (Seq[matching.models.Participant]) => matching.ParticipantSuggester = {

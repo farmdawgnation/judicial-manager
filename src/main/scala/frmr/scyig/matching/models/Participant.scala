@@ -28,28 +28,15 @@ sealed trait Participant {
   def webappId: Int
 }
 
-sealed trait Judge extends Participant
-case class PresidingJudge(
+case class Judge(
   name: ParticipantName,
   organization: Option[ParticipantOrganization],
   matchHistory: Seq[HistoricalTrial] = Seq.empty,
+  isPresiding: Boolean = false,
+  isScoring: Boolean = false,
   id: UUID = UUID.randomUUID(),
   webappId: Int = -1
-) extends Judge {
-  def hasJudged_?(teamIdentifier: UUID): Boolean = {
-    matchHistory.find(hmatch =>
-      hmatch.prosecutionIdentifier == teamIdentifier ||
-      hmatch.defenseIdentifier == teamIdentifier
-    ).isDefined
-  }
-}
-case class ScoringJudge(
-  name: ParticipantName,
-  organization: Option[ParticipantOrganization],
-  matchHistory: Seq[HistoricalTrial] = Seq.empty,
-  id: UUID = UUID.randomUUID(),
-  webappId: Int = -1
-) extends Judge {
+) extends Participant {
   def hasJudged_?(teamIdentifier: UUID): Boolean = {
     matchHistory.find(hmatch =>
       hmatch.prosecutionIdentifier == teamIdentifier ||

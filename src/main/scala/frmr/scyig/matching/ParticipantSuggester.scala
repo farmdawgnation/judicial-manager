@@ -33,11 +33,11 @@ trait ParticipantSuggester {
   lazy val teams: Seq[CompetingTeam] = participants.collect {
     case team: CompetingTeam => team
   }
-  lazy val presidingJudges: Seq[PresidingJudge] = participants.collect {
-    case judge: PresidingJudge => judge
+  lazy val presidingJudges: Seq[Judge] = participants.collect {
+    case judge: Judge if judge.isPresiding => judge
   }
-  lazy val scoringJudges: Seq[ScoringJudge] = participants.collect {
-    case judge: ScoringJudge => judge
+  lazy val scoringJudges: Seq[Judge] = participants.collect {
+    case judge: Judge if judge.isScoring => judge
   }
 
   def suggestJudges(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {

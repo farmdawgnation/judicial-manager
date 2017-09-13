@@ -97,7 +97,7 @@ class MatchingEngine(
               )
             )
 
-          case Some(presidingJudge: PresidingJudge) =>
+          case Some(presidingJudge: Judge) if presidingJudge.isPresiding =>
             BuildMatch(
               state.copy(
                 currentlyBuildingRound = Some(matchedTeams.withPresidingJudge(presidingJudge))
@@ -120,11 +120,11 @@ class MatchingEngine(
               )
             )
 
-          case scoringJudgeOpt @ Some(scoringJudge: ScoringJudge) =>
+          case scoringJudgeOpt @ Some(scoringJudge: Judge) if scoringJudge.isScoring =>
             BuildMatch(
               state.copy(
                 fullyMatchedRounds = state.fullyMatchedRounds :+ teamsWithPresiding.withScoringJudge(
-                  scoringJudgeOpt.asInstanceOf[Option[ScoringJudge]]
+                  scoringJudgeOpt.asInstanceOf[Option[Judge]]
                 ),
                 currentlyBuildingRound = None
               ).withoutParticipant(scoringJudge)

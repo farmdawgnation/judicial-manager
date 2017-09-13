@@ -49,11 +49,11 @@ object NotFromSameOrganizationPolicy extends MatchingPolicy {
       case (MatchSeed(team1), team2: CompetingTeam) =>
         team1.organization != team2.organization
 
-      case (MatchedTeams(team1, team2), presidingJudge: PresidingJudge) =>
+      case (MatchedTeams(team1, team2), presidingJudge: Judge) =>
         team1.organization != presidingJudge.organization &&
         team2.organization != presidingJudge.organization
 
-      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: ScoringJudge) =>
+      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: Judge) =>
         team1.organization != scoringJudge.organization &&
         team2.organization != scoringJudge.organization
 
@@ -75,11 +75,11 @@ object NotAPreviousPolicy extends MatchingPolicy {
       case (MatchSeed(team1), team2: CompetingTeam) =>
         ! team1.hasPlayed_?(team2.id)
 
-      case (MatchedTeams(team1, team2), presidingJudge: PresidingJudge) =>
+      case (MatchedTeams(team1, team2), presidingJudge: Judge) =>
         presidingJudge.hasJudged_?(team1.id) == false &&
         presidingJudge.hasJudged_?(team2.id) == false
 
-      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: ScoringJudge) =>
+      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: Judge) =>
         scoringJudge.hasJudged_?(team1.id) == false &&
         scoringJudge.hasJudged_?(team2.id) == false
 
