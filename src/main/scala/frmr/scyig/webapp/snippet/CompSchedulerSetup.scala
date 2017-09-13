@@ -183,7 +183,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     var participantsByUuid = participants.map(p => (p.id, p)).toMap
 
     allMatchesByRound.foreach {
-      case (_, historicalMatch) => historicalMatch match {
+      case (_, historicalMatch) => historicalMatch.foreach {
         case trial: HistoricalTrial =>
           for {
             pParticipant <- participantsByUuid.get(trial.prosecutionIdentifier)

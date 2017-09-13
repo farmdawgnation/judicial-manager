@@ -28,6 +28,7 @@ class ScheduleEditor() extends CometActor with Loggable {
     .filter(_.round === competition.round)
     .result
 
+  private[this] val isCreatingNewRound: Boolean = scheduleEditorPopulatedMatches.is.isDefined
   private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
     DB.runAwait(matchesQuery) openOr
     Seq.empty
@@ -48,14 +49,19 @@ class ScheduleEditor() extends CometActor with Loggable {
   }
 
   private[this] def ajaxAddMatch(): Unit = {
-    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, None, competition.round + 1, 0)
+    val targetRound = if (isCreatingNewRound) {
+      competition.round + 1
+    } else {
+      competition.round
+    }
+    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, None, targetRound, 0)
     reRender()
   }
 
   private[this] def saveSchedule(): JsCmd = {
     val inserts = currentEditorMatches.map { cem => Matches.insertOrUpdate(cem) }
 
-    val actions = if (scheduleEditorPopulatedMatches.is.isDefined) {
+    val actions = if (isCreatingNewRound) {
       val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
       val allQueries = inserts :+ updateCompetition
 
@@ -65,7 +71,7 @@ class ScheduleEditor() extends CometActor with Loggable {
     }
 
     DB.runAwait(actions) match {
-      case Full(_) if scheduleEditorPopulatedMatches.is.isDefined =>
+      case Full(_) if isCreatingNewRound =>
         RedirectTo(
           CompDashboard.menu.toLoc.calcHref(competition),
           () => S.notice(s"Congratulations! You've started round ${competition.round+1} of the competition!")
