@@ -38,4 +38,4 @@ case class HistoricalTrial(
   }
 }
 
-case object HistoricalBye extends HistoricalMatch
+case class HistoricalBye(teamIdentifier: UUID) extends HistoricalMatch
