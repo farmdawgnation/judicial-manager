@@ -78,7 +78,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     }
   }
 
-  private[this] def convertJudgesToParticipants: Seq[matching.models.Participant] = {
+  private[this] def convertJudgesToParticipants: Seq[matching.models.Judge] = {
     val judges = DB.runAwait(Judges.to[Seq].filter(_.competitionId === competition.id.getOrElse(-1)).result)
 
     judges match {
@@ -161,20 +161,16 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     }
   }
 
-  private[this] def convertMatchesToHistoricalMatches: Seq[(Int, Seq[HistoricalMatch])] = {
-    ???
-  }
-
-  private[this] def decorateTeamHistory(participants: Seq[matching.models.CompetingTeam]): Seq[matching.models.CompetingTeam] = {
+  private[this] def decorateTeamHistory(teams: Seq[matching.models.CompetingTeam]): Seq[matching.models.CompetingTeam] = {
     for {
-      participant <- participants
-      participantId = participant.webappId
+      team <- teams
+      teamId = team.webappId
 
       dbMatches <- DB.runAwait(
-        Matches.to[Seq].filter(f => f.prosecutionTeamId === participantId || f.defenseTeamId === participantId).result
+        Matches.to[Seq].filter(f => f.prosecutionTeamId === teamId || f.defenseTeamId === teamId).result
       )
       dbByes <- DB.runAwait(
-        Byes.to[Seq].filter(_.teamId === participantId).result
+        Byes.to[Seq].filter(_.teamId === teamId).result
       )
 
       dbMatchesByRound = dbMatches.groupBy(_.round)
@@ -188,7 +184,15 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
           .sortBy(_._1)
           .flatMap(_._2)
 
-      participant.copy(matchHistory = allHistory)
+      team.copy(matchHistory = allHistory)
+    }
+  }
+
+  private[this] def decorateJudgeHistory(judges: Seq[matching.models.Judge]): Seq[matching.models.Judge] = {
+    for {
+      judge <- judges
+    } yield {
+      judge
     }
   }
 
@@ -206,7 +210,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
   private[this] def newMatchingEngine: matching.MatchingEngine = {
     val participants =
       decorateTeamHistory(convertTeamsToParticipants) ++
-      convertJudgesToParticipants
+      decorateJudgeHistory(convertJudgesToParticipants)
     new matching.MatchingEngine(
       participants,
       numberOfRooms.openOr(0),
