@@ -191,8 +191,17 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
   private[this] def decorateJudgeHistory(judges: Seq[matching.models.Judge]): Seq[matching.models.Judge] = {
     for {
       judge <- judges
+      judgeId = judge.webappId
+
+      dbMatches <- DB.runAwait(
+        Matches.to[Seq].filter(f => f.presidingJudgeId === judgeId || f.scoringJudgeId === judgeId).result
+      )
+
+      historicalMatchesByRound = dbMatches.groupBy(_.round).mapValues(_.flatMap(dbMatchToTrial))
     } yield {
-      judge
+      val orderedHistory: Seq[HistoricalTrial] =
+        historicalMatchesByRound.toList.sortBy(_._1).flatMap(_._2)
+      judge.copy(matchHistory = orderedHistory)
     }
   }
 
