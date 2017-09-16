@@ -1,5 +1,6 @@
 package frmr.scyig.db
 
+import java.util.UUID
 import slick.jdbc.MySQLProfile.api._
 
 sealed trait JudgeKind {
@@ -32,7 +33,8 @@ case class Judge(
   organization: String,
   kind: JudgeKind = PresidingJudge,
   enabled: Boolean = true,
-  priority: Int = 0
+  priority: Int = 0,
+  uuid: UUID = UUID.randomUUID()
 )
 
 class Judges(tag: Tag) extends Table[Judge](tag, "judges") {
@@ -43,8 +45,9 @@ class Judges(tag: Tag) extends Table[Judge](tag, "judges") {
   def kind = column[JudgeKind]("kind")
   def enabled = column[Boolean]("enabled")
   def priority = column[Int]("priority")
+  def uuid = column[UUID]("uuid")
 
-  def * = (id.?, competitionId, name, organization, kind, enabled, priority) <> (Judge.tupled, Judge.unapply)
+  def * = (id.?, competitionId, name, organization, kind, enabled, priority, uuid) <> (Judge.tupled, Judge.unapply)
 
   def cidFK = foreignKey("j_competition_id_fk", competitionId, Judges)(_.id, onDelete = ForeignKeyAction.Cascade)
 }

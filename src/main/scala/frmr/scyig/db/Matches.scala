@@ -1,5 +1,6 @@
 package frmr.scyig.db
 
+import java.util.UUID
 import slick.jdbc.MySQLProfile.api._
 
 case class Match(
@@ -10,7 +11,8 @@ case class Match(
   presidingJudgeId: Int,
   scoringJudgeId: Option[Int],
   round: Int,
-  order: Int
+  order: Int,
+  uuid: UUID = UUID.randomUUID()
 )
 
 class Matches(tag: Tag) extends Table[Match](tag, "matches") {
@@ -22,8 +24,10 @@ class Matches(tag: Tag) extends Table[Match](tag, "matches") {
   def scoringJudgeId = column[Option[Int]]("scoring_judge_id")
   def round = column[Int]("round")
   def order = column[Int]("order")
+  def uuid = column[UUID]("uuid")
 
-  def * = (id.?, competitionId, prosecutionTeamId, defenseTeamId, presidingJudgeId, scoringJudgeId, round, order) <> (Match.tupled, Match.unapply)
+  def * = (id.?, competitionId, prosecutionTeamId, defenseTeamId, presidingJudgeId, scoringJudgeId,
+    round, order, uuid) <> (Match.tupled, Match.unapply)
 
   def cidFK = foreignKey("m_competition_id_fk", competitionId, Competitions)(_.id, onDelete = ForeignKeyAction.Cascade)
   def ptidFK = foreignKey("m_prosecution_team_id_fk", prosecutionTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
