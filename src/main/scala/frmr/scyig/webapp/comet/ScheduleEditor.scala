@@ -59,15 +59,33 @@ class ScheduleEditor() extends CometActor with Loggable {
   }
 
   private[this] def saveSchedule(): JsCmd = {
-    val inserts = currentEditorMatches.map { cem => Matches.insertOrUpdate(cem) }
+    val inserts = currentEditorMatches.map({ cem => Matches.insertOrUpdate(cem) })
 
     val actions = if (isCreatingNewRound) {
       val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
-      val allQueries = inserts :+ updateCompetition
+
+      val insertByes = calculatedByes.map({ team => Bye(
+        None,
+        competition.id.getOrElse(0),
+        team.id.getOrElse(0),
+        competition.round + 1
+      )}).map(Byes += _)
+
+      val allQueries = inserts ++ insertByes :+ updateCompetition
 
       DBIO.seq(allQueries: _*)
     } else {
-      DBIO.seq(inserts: _*)
+      val clearByes = Byes.filter(_.competitionId === competition.id.getOrElse(0)).delete
+      val insertByes = calculatedByes.map({ team => Bye(
+        None,
+        competition.id.getOrElse(0),
+        team.id.getOrElse(0),
+        competition.round
+      )}).map(Byes += _)
+
+      val allQueries = clearByes +: (inserts ++ insertByes)
+
+      DBIO.seq(allQueries: _*)
     }
 
     DB.runAwait(actions) match {
@@ -88,12 +106,12 @@ class ScheduleEditor() extends CometActor with Loggable {
     }
   }
 
-  def render = {
+  private[this] def calculatedByes = {
     val scheduledTeamIds = currentEditorMatches.flatMap { m =>
       Seq(m.prosecutionTeamId, m.defenseTeamId)
     }
 
-    val byeTeams = DB.runAwait(Teams.to[List].filterNot(_.id inSet scheduledTeamIds).result) match {
+    DB.runAwait(Teams.to[List].filterNot(_.id inSet scheduledTeamIds).result) match {
       case Full(actualByeTeams) =>
         actualByeTeams
 
@@ -101,7 +119,9 @@ class ScheduleEditor() extends CometActor with Loggable {
         logger.warn(s"Got unexpected result when computing bye teams: $other")
         Nil
     }
+  }
 
+  def render = {
     S.appendJs(Call("window.bindSuggestions").cmd)
 
     SHtml.makeFormsAjax andThen
@@ -145,7 +165,7 @@ class ScheduleEditor() extends CometActor with Loggable {
           ".remove-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxRemoveMatch(idx) )
         }
     } &
-    ".bye-team" #> byeTeams.map { team =>
+    ".bye-team" #> calculatedByes.map { team =>
       "^ *" #> team.name
     } &
     ".add-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxAddMatch() ) &
