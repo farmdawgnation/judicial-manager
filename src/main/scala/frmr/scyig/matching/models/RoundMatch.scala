@@ -33,7 +33,7 @@ sealed trait PartialRoundMatch extends RoundMatch {
   def teams: Seq[CompetingTeam] = Seq()
 
   def toByes: Seq[Bye] = {
-    teams.map(Bye.apply)
+    teams.map(Bye(_))
   }
 }
 
@@ -45,7 +45,7 @@ sealed trait CompletedRoundMatch extends RoundMatch {
   def teams: Seq[CompetingTeam] = Seq()
 
   def toByes: Seq[Bye] = {
-    teams.map(Bye.apply)
+    teams.map(Bye(_))
   }
 }
 
@@ -146,5 +146,6 @@ case class Trial(
  * A Bye match, representing where a team is not playing another team.
  */
 case class Bye(
-  team: CompetingTeam
+  team: CompetingTeam,
+  id: UUID = UUID.randomUUID()
 ) extends ScheduledRoundMatch

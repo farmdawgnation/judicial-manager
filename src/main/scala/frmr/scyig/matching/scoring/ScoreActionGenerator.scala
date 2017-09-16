@@ -41,7 +41,7 @@ class ScoreActionGenerator(getMatches: ()=>Box[Seq[ScheduledRoundMatch]]) {
     for (scheduledMatches <- getMatches()) yield {
       for (scheduledMatch <- scheduledMatches) yield {
         scheduledMatch match {
-          case Bye(team) =>
+          case Bye(team, _) =>
             RecordHistoricalBye(team.id)
 
           case Trial(prosecution, defense, presidingJudge, scoringJudge, _, trialId) =>

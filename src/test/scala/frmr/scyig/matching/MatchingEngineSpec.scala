@@ -58,7 +58,7 @@ class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks wit
         case Trial(team1, team2, presidingJudge, _, _, _) =>
           Seq(team1, team2, presidingJudge)
 
-        case Bye(team) =>
+        case Bye(team, _) =>
           Seq(team)
       }
     }
