@@ -13,7 +13,7 @@ libraryDependencies ++= {
 
   Seq(
     "net.liftweb"                   %% "lift-webkit"          % liftVersion,
-    "com.typesafe.slick"            %% "slick"                % "3.2.0",
+    "com.typesafe.slick"            %% "slick"                % "3.2.1",
     "mysql"                         % "mysql-connector-java"  % "8.0.7-dmr",
     "org.flywaydb"                  % "flyway-core"           % "4.2.0",
     "ch.qos.logback"                % "logback-classic"       % "1.2.3",
