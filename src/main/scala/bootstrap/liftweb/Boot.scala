@@ -129,6 +129,20 @@ class Boot extends Loggable {
             Users.hashpw("admin"),
             "Admin",
             true
+          ),
+          Sponsors += Sponsor(
+            None,
+            "Judicial Manager Developers",
+            "Atlanta, GA, USA"
+          ),
+          UsersSponsors += ("admin", 1, 1),
+          Competitions += Competition(
+            None,
+            "JM Testing",
+            1,
+            "Nov 2017",
+            "Testing competition",
+            "Atlanta, GA"
           )
         ))
 

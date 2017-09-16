@@ -36,8 +36,8 @@ case class Competition(
   dates: String,
   description: String,
   location: String,
-  status: CompetitionStatus,
-  round: Int
+  status: CompetitionStatus = NotStarted,
+  round: Int = 0
 )
 
 class Competitions(tag: Tag) extends Table[Competition](tag, "competitions") {
