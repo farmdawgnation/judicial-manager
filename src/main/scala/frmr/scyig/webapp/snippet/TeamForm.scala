@@ -53,12 +53,12 @@ class TeamForm(compAndTeam: (Competition, Team)) {
 
   private[this] def saveAndReturn = {
     save()
-    RedirectTo(TeamList.menu.toLoc.calcHref(competition))
+    RedirectTo(TeamList.menu.toLoc.calcHref(competition), () => S.notice(s"${team.name} was successfully saved"))
   }
 
   private[this] def saveAndCreateAnother = {
     save()
-    RedirectTo(TeamForm.createMenu.toLoc.calcHref(competition))
+    RedirectTo(TeamForm.createMenu.toLoc.calcHref(competition), () => S.notice(s"${team.name} was successfully saved"))
   }
 
   def render = {
