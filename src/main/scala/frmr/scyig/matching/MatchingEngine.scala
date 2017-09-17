@@ -33,7 +33,8 @@ class MatchingEngine(
   initialParticipants: Seq[Participant],
   numberOfRooms: Int,
   matchingPolicy: MatchingPolicy = MatchingPolicy.default,
-  suggester: (Seq[Participant])=>ParticipantSuggester = participants=>new RandomizedParticipantSuggester(participants)
+  suggester: (Seq[Participant])=>ParticipantSuggester = participants=>new RandomizedParticipantSuggester(participants),
+  optimizer: (Seq[ScheduledRoundMatch])=>Seq[ScheduledRoundMatch] = MatchingOptimizer.noOpOptmizer
 ) extends LiftActor with Loggable {
   private[matching] val self = this
   private[matching] var finalState: Option[MatchingEngineState] = None
@@ -173,7 +174,11 @@ class MatchingEngine(
       scheduledRounds = updatedState.scheduledRounds ++ updatedState.fullyMatchedRounds.map(_.toByes).flatten
     )
 
-    RecordFinalState(byedState)
+    val optimizedState = byedState.copy(
+      scheduledRounds = optimizer(byedState.scheduledRounds)
+    )
+
+    RecordFinalState(optimizedState)
   }
 
   private[matching] def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
