@@ -37,10 +37,11 @@ case class Judge(
   id: UUID = UUID.randomUUID(),
   webappId: Int = -1
 ) extends Participant {
-  def hasJudged_?(teamIdentifier: UUID): Boolean = {
+  def hasJudged_?(participantIdentifier: UUID): Boolean = {
     matchHistory.find(hmatch =>
-      hmatch.prosecutionIdentifier == teamIdentifier ||
-      hmatch.defenseIdentifier == teamIdentifier
+      hmatch.prosecutionIdentifier == participantIdentifier ||
+      hmatch.defenseIdentifier == participantIdentifier ||
+      hmatch.presidingJudgeIdentifier == participantIdentifier
     ).isDefined
   }
 }

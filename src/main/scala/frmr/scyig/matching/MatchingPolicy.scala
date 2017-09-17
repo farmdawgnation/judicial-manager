@@ -80,9 +80,10 @@ object NotAPreviousPolicy extends MatchingPolicy {
         presidingJudge.hasJudged_?(team1.id) == false &&
         presidingJudge.hasJudged_?(team2.id) == false
 
-      case (MatchedTeamsWithPresidingJudge(team1, team2, _), scoringJudge: Judge) =>
+      case (MatchedTeamsWithPresidingJudge(team1, team2, presidingJudge), scoringJudge: Judge) =>
         scoringJudge.hasJudged_?(team1.id) == false &&
-        scoringJudge.hasJudged_?(team2.id) == false
+        scoringJudge.hasJudged_?(team2.id) == false &&
+        scoringJudge.hasJudged_?(presidingJudge.id) == false
 
       case (_: ScheduleableTrial, _) =>
         true
