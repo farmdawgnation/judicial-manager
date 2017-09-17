@@ -1,0 +1,21 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container" id="scheduler-setup-container">
+    <section class="competition-meta" data-lift="embed?what=competition-meta"></section>
+
+    <h3>Upload Teams</h3>
+
+    <form class="team-upload resource-form" enctype="multipart/form-data" data-lift="TeamUpload.render?form=post">
+      <div data-lift="Msgs">
+        <lift:error_class>notice-errors</lift:error_class>
+        <lift:notice_class>notice-notices</lift:notice_class>
+      </div>
+
+      <label for="team-csv-file">CSV File</label>
+      <input type="file" accept=".csv" id="team-csv-file">
+      <p class="description">Select the CSV file to upload</p>
+
+      <footer>
+        <button class="upload" type="submit">Upload</button>
+      </footer>
+    </form>
+</div>
