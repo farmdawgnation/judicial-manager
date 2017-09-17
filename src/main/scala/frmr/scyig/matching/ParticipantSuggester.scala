@@ -169,17 +169,24 @@ case class ByePrioritizingParticipantSuggester(
 ) extends ParticipantSuggester {
   override val participants = innerSuggester.participants
 
+  private[this] def possiblySuggestOnBye(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
+    val byeBuckets = teams.groupBy(_.byeCount)
+    val byeCounts = byeBuckets.keySet.toSeq
+
+    if (byeCounts.length > 1) {
+      teams.sortBy(_.byeCount).reverse
+    } else {
+      innerSuggester.suggestParticipants(partialMatch)
+    }
+  }
+
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     partialMatch match {
-      case None | Some(MatchSeed(_)) =>
-        val byeBuckets = teams.groupBy(_.byeCount)
-        val byeCounts = byeBuckets.keySet.toSeq
+      case value @ None =>
+        possiblySuggestOnBye(value)
 
-        if (byeCounts.length > 1) {
-          teams.sortBy(_.byeCount).reverse
-        } else {
-          innerSuggester.suggestParticipants(None)
-        }
+      case value @ Some(MatchSeed(_)) =>
+        possiblySuggestOnBye(value)
 
       case other =>
         innerSuggester.suggestParticipants(other)
@@ -188,6 +195,49 @@ case class ByePrioritizingParticipantSuggester(
 
   def withoutParticipant(participantId: UUID): ParticipantSuggester = {
     new ByePrioritizingParticipantSuggester(
+      innerSuggester.withoutParticipant(participantId)
+    )
+  }
+}
+
+/**
+ * A suggester that will prioritize those participants that need to fill the role its currently
+ * looking at (be that prosecution or defense).
+ */
+case class RolePrioritizingParticipantSuggester(
+  innerSuggester: ParticipantSuggester
+) extends ParticipantSuggester {
+  override val participants = innerSuggester.participants
+
+  def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
+    partialMatch match {
+      case value @ None =>
+        val prosecutionCountBuckets = teams.groupBy(_.prosecutionCount)
+        val prosecutionCounts = prosecutionCountBuckets.keySet.toSeq
+
+        if (prosecutionCounts.length > 1) {
+          teams.sortBy(_.prosecutionCount).reverse
+        } else {
+          innerSuggester.suggestParticipants(value)
+        }
+
+      case value @ Some(MatchSeed(_)) =>
+        val defenseCountBuckets = teams.groupBy(_.defenseCount)
+        val defenseCounts = defenseCountBuckets.keySet.toSeq
+
+        if (defenseCounts.length > 1) {
+          teams.sortBy(_.defenseCount).reverse
+        } else {
+          innerSuggester.suggestParticipants(value)
+        }
+
+      case other =>
+        innerSuggester.suggestParticipants(other)
+    }
+  }
+
+  def withoutParticipant(participantId: UUID): ParticipantSuggester = {
+    new RolePrioritizingParticipantSuggester(
       innerSuggester.withoutParticipant(participantId)
     )
   }
