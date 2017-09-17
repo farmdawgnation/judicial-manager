@@ -209,27 +209,32 @@ case class RolePrioritizingParticipantSuggester(
 ) extends ParticipantSuggester {
   override val participants = innerSuggester.participants
 
+  private[this] def ifHasOpinion(opinionTest: (Seq[Int])=>Boolean, opinionHandler: => Seq[Participant], noOpinionHandler: => Seq[Participant]) = {
+    val roleCountBuckets = teams.groupBy(t => t.prosecutionCount - t.defenseCount)
+    val bucketCount = roleCountBuckets.keySet.toSeq
+
+    if (opinionTest(bucketCount)) {
+      opinionHandler
+    } else {
+      noOpinionHandler
+    }
+  }
+
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     partialMatch match {
       case value @ None =>
-        val prosecutionCountBuckets = teams.groupBy(_.prosecutionCount)
-        val prosecutionCounts = prosecutionCountBuckets.keySet.toSeq
-
-        if (prosecutionCounts.length > 1) {
-          teams.sortBy(_.prosecutionCount).reverse
-        } else {
-          innerSuggester.suggestParticipants(value)
-        }
+        ifHasOpinion(
+          opinionTest = (counts) => counts.find(_ < 0).isDefined,
+          opinionHandler = teams.sortBy(t => t.prosecutionCount - t.defenseCount),
+          noOpinionHandler = innerSuggester.suggestParticipants(value)
+        )
 
       case value @ Some(MatchSeed(_)) =>
-        val defenseCountBuckets = teams.groupBy(_.defenseCount)
-        val defenseCounts = defenseCountBuckets.keySet.toSeq
-
-        if (defenseCounts.length > 1) {
-          teams.sortBy(_.defenseCount).reverse
-        } else {
-          innerSuggester.suggestParticipants(value)
-        }
+        ifHasOpinion(
+          opinionTest = (counts) => counts.find(_ > 0).isDefined,
+          opinionHandler = teams.sortBy(t => t.prosecutionCount - t.defenseCount).reverse,
+          noOpinionHandler = innerSuggester.suggestParticipants(value)
+        )
 
       case other =>
         innerSuggester.suggestParticipants(other)
