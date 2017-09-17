@@ -17,6 +17,7 @@ libraryDependencies ++= {
     "mysql"                         % "mysql-connector-java"  % "8.0.7-dmr",
     "org.flywaydb"                  % "flyway-core"           % "4.2.0",
     "ch.qos.logback"                % "logback-classic"       % "1.2.3",
+    "org.apache.commons"            % "commons-csv"           % "1.5",
     "org.scalatest"                 %% "scalatest"            % "3.0.1" % "test",
     "org.scalacheck"                %% "scalacheck"           % "1.13.4" % "test"
   )
