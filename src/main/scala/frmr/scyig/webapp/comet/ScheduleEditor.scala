@@ -135,6 +135,7 @@ class ScheduleEditor() extends CometActor with Loggable {
         for {
           prosecution <- DB.runAwait(Teams.filter(_.id === m.prosecutionTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
           defense <- DB.runAwait(Teams.filter(_.id === m.defenseTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
+
           presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
           scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId.getOrElse(-1)).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
         } yield {

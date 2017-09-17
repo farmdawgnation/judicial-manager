@@ -150,25 +150,6 @@ h1, h2 {
   @include snazzy-form;
 }
 
-div.suggestion-box-bound {
-  display: inline-block;
-  position: relative;
-
-  ul.suggestions {
-    position: absolute;
-    width: 100%;
-    background: white;
-    border: 1px solid black;
-    padding: 8px;
-    top: 44px;
-    z-index: 1;
-
-    > li.active {
-      background: $action-color;
-    }
-  }
-}
-
 .notice-errors {
   margin-bottom: 2.25rem;
   padding: 0.5rem;
@@ -189,3 +170,4 @@ div.suggestion-box-bound {
 @import "competition-manager";
 @import "scheduler-setup";
 @import "score-entry";
+@import "schedule-editor";
