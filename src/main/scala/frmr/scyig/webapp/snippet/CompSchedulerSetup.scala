@@ -230,7 +230,8 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
     new matching.MatchingEngine(
       participants,
       numberOfRooms.openOr(0),
-      suggester = suggester
+      suggester = suggester,
+      optimizer = matching.MatchingOptimizer.roleOpimizer _
     )
   }
 
