@@ -45,9 +45,9 @@ class MatchingEngine(
   val getInitialParticipants = initialParticipants
 
   private[matching] def buildMatch(state: MatchingEngineState): MatchingEngineEvent = {
-    logger.info("Requesting suggestions...")
+    logger.debug("Requesting suggestions...")
     val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)
-    logger.info("Suggestions provided: " + suggestions.map(_.name.value).mkString(", "))
+    logger.debug("Suggestions provided: " + suggestions.map(_.name.value).mkString(", "))
 
     (state.currentlyBuildingRound, suggestions) match {
       case (None, suggestions) if suggestions.nonEmpty =>
@@ -187,8 +187,8 @@ class MatchingEngine(
       case StartMatching =>
         logger.info("Starting matching.")
         val participantsJson: String = compactRender(decompose(initialParticipants))
-        logger.info(s"Initial participants: $participantsJson")
-        logger.info(s"Number of rooms: $numberOfRooms")
+        logger.trace(s"Initial participants: $participantsJson")
+        logger.debug(s"Number of rooms: $numberOfRooms")
         self ! startMatching()
 
       case BuildMatch(state) =>

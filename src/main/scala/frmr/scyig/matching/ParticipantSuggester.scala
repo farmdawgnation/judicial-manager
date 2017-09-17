@@ -191,7 +191,7 @@ case class ByePrioritizingParticipantSuggester(
     val byeCounts = byeBuckets.keySet.toSeq.sortBy(c => c).reverse
 
     if (byeCounts.length > 1) {
-      logger.info(s"Suggesting teams based on bye counts: ${byeBuckets.mapValues(_.map(_.name.value))}")
+      logger.trace(s"Suggesting teams based on bye counts: ${byeBuckets.mapValues(_.map(_.name.value))}")
       val internallyProcessedByeBuckets = byeBuckets.mapValues(filteredTeams =>
         innerSuggester.withParticipants(filteredTeams ++ presidingJudges ++ scoringJudges).suggestParticipants(partialMatch)
       )
@@ -200,24 +200,24 @@ case class ByePrioritizingParticipantSuggester(
         internallyProcessedByeBuckets.get(byeCount)
       }).foldLeft(Seq.empty[Participant])(_ ++ _)
     } else {
-      logger.info("Byes are balanced. Delegating suggestions.")
+      logger.trace("Byes are balanced. Delegating suggestions.")
       innerSuggester.suggestParticipants(partialMatch)
     }
   }
 
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
-    logger.info("Suggesting participants")
+    logger.trace("Suggesting participants")
     partialMatch match {
       case value @ None =>
-        logger.info("Suggesting prosecution")
+        logger.trace("Suggesting prosecution")
         possiblySuggestOnBye(value)
 
       case value @ Some(MatchSeed(_)) =>
-        logger.info("Suggesting defense")
+        logger.trace("Suggesting defense")
         possiblySuggestOnBye(value)
 
       case other =>
-        logger.info("Delegating suggestions")
+        logger.trace("Delegating suggestions")
         innerSuggester.suggestParticipants(other)
     }
   }
