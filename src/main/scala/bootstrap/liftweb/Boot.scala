@@ -63,6 +63,7 @@ class Boot extends Loggable {
       CompSchedule.menu,
 
       TeamList.menu,
+      TeamUpload.menu,
       TeamForm.createMenu,
       TeamForm.editMenu,
 

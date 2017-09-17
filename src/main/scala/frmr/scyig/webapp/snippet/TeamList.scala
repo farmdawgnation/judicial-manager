@@ -32,6 +32,11 @@ class TeamList(competition: Competition) {
     "^ [href]" #> TeamForm.createMenu.toLoc.calcHref(competition)
   }
 
+  def uploadLink = {
+    "^" #> hideIfCompetitionIsnt(competition, NotStarted) andThen
+    "^ [href]" #> TeamUpload.menu.toLoc.calcHref(competition)
+  }
+
   private[this] def deleteTeam(team: Team) = {
     DB.runAwait(Teams.filter(_.id === team.id).delete)
     Reload

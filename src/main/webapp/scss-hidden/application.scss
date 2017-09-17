@@ -132,6 +132,10 @@ h1, h2 {
 
 .resource-create-link {
   float: right;
+
+  & + .resource-create-link {
+    margin-right: 10px;
+  }
 }
 
 .resource-table {
