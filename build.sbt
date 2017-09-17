@@ -1,4 +1,4 @@
-name := "scyig-judicial"
+name := "judicial-manager"
 
 organization := "me.frmr.scyig"
 
@@ -66,4 +66,8 @@ webappPostProcess := { webappDir: File =>
     ".scss",
     compileScss _
   )
+}
+
+artifactName := { (v: ScalaVersion, m: ModuleID, a: Artifact) =>
+  a.name + "." + a.extension
 }
