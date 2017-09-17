@@ -58,7 +58,10 @@ class MatchingPolicySpec extends WordSpec with Matchers {
       val team1 = CompetingTeam(ParticipantName("Riverside 1"), ParticipantOrganization("Riverside"))
       val team2 = CompetingTeam(ParticipantName("Eastside 1"), ParticipantOrganization("Eastside"))
       val presidingJudge = Judge(ParticipantName("Bob Jones"), None, isPresiding = true)
+      val presidingJudge2 = Judge(ParticipantName("Will Smartt"), Some(ParticipantOrganization("OpenStudy")))
+
       val matchedTeamsWithPresiding = MatchedTeamsWithPresidingJudge(team1, team2, presidingJudge)
+      val matchedTeamsWithPresiding2 = MatchedTeamsWithPresidingJudge(team1, team2, presidingJudge2)
 
       val judge1 = Judge(ParticipantName("Bob Jones"), None, isScoring = true)
       val judge2 = Judge(ParticipantName("Mark Appleseed"), Some(ParticipantOrganization("Eastside")), isScoring = true)
@@ -69,6 +72,7 @@ class MatchingPolicySpec extends WordSpec with Matchers {
       policyUnderTest.isValid(matchedTeamsWithPresiding, judge2) should equal(false)
       policyUnderTest.isValid(matchedTeamsWithPresiding, judge3) should equal(false)
       policyUnderTest.isValid(matchedTeamsWithPresiding, judge4) should equal(true)
+      policyUnderTest.isValid(matchedTeamsWithPresiding2, judge4) should equal(false)
     }
   }
 
@@ -153,6 +157,10 @@ class MatchingPolicySpec extends WordSpec with Matchers {
       policyUnderTest.isValid(MatchedTeamsWithPresidingJudge(team3, team1, judge2), scoring1) should equal(false)
       policyUnderTest.isValid(MatchedTeamsWithPresidingJudge(team1, team3, judge2), scoring2) should equal(true)
       policyUnderTest.isValid(MatchedTeamsWithPresidingJudge(team3, team1, judge2), scoring2) should equal(true)
+    }
+
+    "only permit scoring judges that haven't paired with prior presiding judges" in {
+      policyUnderTest.isValid(MatchedTeamsWithPresidingJudge(team1, team3, judge1), scoring1) should equal(false)
     }
   }
 

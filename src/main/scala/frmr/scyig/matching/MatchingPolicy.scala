@@ -50,10 +50,12 @@ object NotFromSameOrganizationPolicy extends MatchingPolicy {
         team1.organization != team2.organization
 
       case (MatchedTeams(team1, team2), presidingJudge: Judge) =>
+        presidingJudge.organization.isEmpty ||
         team1.organization != presidingJudge.organization &&
         team2.organization != presidingJudge.organization
 
       case (MatchedTeamsWithPresidingJudge(team1, team2, presidingJudge), scoringJudge: Judge) =>
+        scoringJudge.organization.isEmpty ||
         team1.organization != scoringJudge.organization &&
         team2.organization != scoringJudge.organization &&
         presidingJudge.organization != scoringJudge.organization
