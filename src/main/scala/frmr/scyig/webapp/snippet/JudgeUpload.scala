@@ -10,6 +10,8 @@ import net.liftweb.sitemap._
 import net.liftweb.sitemap.Loc._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
+import org.apache.commons.csv._
+import scala.collection.JavaConverters._
 import slick.jdbc.MySQLProfile.api._
 
 object JudgeUpload {
@@ -36,8 +38,8 @@ class JudgeUpload(competition: Competition) extends Loggable {
   }
 
   def doUpload = {
-    def parseRow(row: String): Option[(String, String, String)] = {
-      row.split(",").toList match {
+    def parseRow(row: CSVRecord): Option[(String, String, String)] = {
+      row.iterator().asScala.toList match {
         case f1 :: f2 :: f3 :: rest =>
           Some((f1, f2, f3))
         case _ =>
@@ -48,8 +50,10 @@ class JudgeUpload(competition: Competition) extends Loggable {
 
     val judges = for {
       csv <- csvContent.toSeq
-      csvRow <- csv.lines if csvRow.nonEmpty
-      (judgeName, judgeOrg, judgeKind) <- parseRow(csvRow)
+      parser <- tryo(CSVParser.parse(csv, CSVFormat.DEFAULT)).logFailure("Error parsing CSV").toSeq
+      records <- tryo(parser.getRecords()).logFailure("Error parsing CSV records").toSeq
+      record <- records.asScala
+      (judgeName, judgeOrg, judgeKind) <- parseRow(record)
       actualKind = judgeKind.toLowerCase.trim match {
         case "scoring" => ScoringJudge
         case _ => PresidingJudge

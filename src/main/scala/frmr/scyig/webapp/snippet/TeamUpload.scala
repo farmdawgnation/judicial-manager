@@ -10,6 +10,8 @@ import net.liftweb.sitemap._
 import net.liftweb.sitemap.Loc._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
+import org.apache.commons.csv._
+import scala.collection.JavaConverters._
 import slick.jdbc.MySQLProfile.api._
 
 object TeamUpload {
@@ -36,8 +38,8 @@ class TeamUpload(competition: Competition) {
   }
 
   def doUpload = {
-    def parseRow(row: String): Option[(String, String)] = {
-      row.split(",").toList match {
+    def parseRow(row: CSVRecord): Option[(String, String)] = {
+      row.iterator().asScala.toList match {
         case f1 :: f2 :: rest => Some((f1, f2))
         case _ => None
       }
@@ -45,8 +47,10 @@ class TeamUpload(competition: Competition) {
 
     val teams = for {
       csv <- csvContent.toSeq
-      csvRow <- csv.lines if csvRow.nonEmpty
-      (teamName, teamOrg) <- parseRow(csvRow)
+      parser <- tryo(CSVParser.parse(csv, CSVFormat.DEFAULT)).logFailure("Error parsing CSV").toSeq
+      records <- tryo(parser.getRecords()).logFailure("Error parsing CSV records").toSeq
+      record <- records.asScala
+      (teamName, teamOrg) <- parseRow(record)
     } yield {
       val team = Team(None, competitionId, teamName, teamOrg)
       Teams.insertOrUpdate(team)
