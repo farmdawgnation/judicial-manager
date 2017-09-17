@@ -19,12 +19,13 @@ import frmr.scyig.matching.models._
 import java.util.UUID
 import scala.math._
 import scala.util.Random
+import net.liftweb.common._
 
 /**
  * Determines a list of participants that would be good to fill the next open
  * slot in the partial match.
  */
-trait ParticipantSuggester {
+trait ParticipantSuggester extends Loggable {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant]
   def withoutParticipant(participantId: UUID): ParticipantSuggester
 
@@ -122,29 +123,32 @@ case class OpportunityParticipantSuggester(
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     partialMatch match {
       case None =>
-        teams.sortBy(_.averageScore)
+        teams.sortBy(_.averageScore).reverse
 
       case Some(MatchSeed(initialTeam)) if ! initialTeam.hasScores_? =>
         teams.sortBy(_.hasScores_?)
 
       case Some(MatchSeed(initialTeam)) =>
-        val sortedByScore = teams.sortBy(_.averageScore)
+        // highest teams first
+        val sortedByScore = teams.sortBy(_.averageScore).reverse
         val listLength = sortedByScore.length
 
-        val tier1 = sortedByScore.slice(0, listLength/2)
-        val tier2 = sortedByScore.slice(listLength/2, listLength)
+        val windowedGropings = sortedByScore.sliding(3, 3)
+        val (intermediate1, intermediate2) = windowedGropings
+          .zipWithIndex
+          .partition(_._2 % 2 == 0) // group by even and odd indexes
 
-        val initialTeamWasLikelyTier1 = tier2
-          .headOption
-          .map(_.averageScore < initialTeam.averageScore)
-          .getOrElse(false)
+        val teamListA: Seq[CompetingTeam] = intermediate1.flatMap(_._1).toSeq
+        val teamListB: Seq[CompetingTeam] = intermediate2.flatMap(_._1).toSeq
 
-        if (initialTeamWasLikelyTier1) {
-          tier2 ++
-          tier1
+        val initialTeamIsListA = teamListB.find(_.id == initialTeam.id).isEmpty
+
+        if (initialTeamIsListA) {
+          teamListB ++
+          teamListA
         } else {
-          tier1 ++
-          tier2
+          teamListA ++
+          teamListB
         }
 
       case _ =>
@@ -174,21 +178,27 @@ case class ByePrioritizingParticipantSuggester(
     val byeCounts = byeBuckets.keySet.toSeq
 
     if (byeCounts.length > 1) {
+      logger.info(s"Suggesting teams based on bye counts: ${byeBuckets.mapValues(_.map(_.name.value))}")
       teams.sortBy(_.byeCount).reverse
     } else {
+      logger.info("Byes are balanced. Delegating suggestions.")
       innerSuggester.suggestParticipants(partialMatch)
     }
   }
 
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
+    logger.info("Suggesting participants")
     partialMatch match {
       case value @ None =>
+        logger.info("Suggesting prosecution")
         possiblySuggestOnBye(value)
 
       case value @ Some(MatchSeed(_)) =>
+        logger.info("Suggesting defense")
         possiblySuggestOnBye(value)
 
       case other =>
+        logger.info("Delegating suggestions")
         innerSuggester.suggestParticipants(other)
     }
   }
@@ -214,15 +224,19 @@ case class RolePrioritizingParticipantSuggester(
     val bucketCount = roleCountBuckets.keySet.toSeq
 
     if (opinionTest(bucketCount)) {
+      logger.info("This suggestor has an opinion")
       opinionHandler
     } else {
+      logger.info("This suffestor has no opinion, delegating suggestions")
       noOpinionHandler
     }
   }
 
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
+    logger.info("Suggesting participants")
     partialMatch match {
       case value @ None =>
+        logger.info("Suggesting prosecution")
         ifHasOpinion(
           opinionTest = (counts) => counts.find(_ < 0).isDefined,
           opinionHandler = teams.sortBy(t => t.prosecutionCount - t.defenseCount),
@@ -230,6 +244,7 @@ case class RolePrioritizingParticipantSuggester(
         )
 
       case value @ Some(MatchSeed(_)) =>
+        logger.info("Suggesting defense")
         ifHasOpinion(
           opinionTest = (counts) => counts.find(_ > 0).isDefined,
           opinionHandler = teams.sortBy(t => t.prosecutionCount - t.defenseCount).reverse,
@@ -237,6 +252,7 @@ case class RolePrioritizingParticipantSuggester(
         )
 
       case other =>
+        logger.info("Delegating suggestions")
         innerSuggester.suggestParticipants(other)
     }
   }

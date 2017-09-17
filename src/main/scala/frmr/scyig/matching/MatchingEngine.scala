@@ -18,6 +18,8 @@ package frmr.scyig.matching
 import frmr.scyig.matching.models._
 import net.liftweb.common._
 import net.liftweb.actor._
+import net.liftweb.json._
+import net.liftweb.json.Extraction._
 
 /**
  * The brains of this operation! The matching engine is responsible for generating fully realized
@@ -42,7 +44,9 @@ class MatchingEngine(
   val getInitialParticipants = initialParticipants
 
   private[matching] def buildMatch(state: MatchingEngineState): MatchingEngineEvent = {
+    logger.info("Requesting suggestions...")
     val suggestions = state.suggester.suggestParticipants(state.currentlyBuildingRound)
+    logger.info("Suggestions provided: " + suggestions.map(_.name.value).mkString(", "))
 
     (state.currentlyBuildingRound, suggestions) match {
       case (None, suggestions) if suggestions.nonEmpty =>
@@ -173,10 +177,12 @@ class MatchingEngine(
   }
 
   private[matching] def handleMatchingEvent(matchingEvent: MatchingEngineEvent): Unit = {
+    implicit val formats = DefaultFormats
     matchingEvent match {
       case StartMatching =>
         logger.info("Starting matching.")
-        logger.info(s"Initial participants: $initialParticipants")
+        val participantsJson: String = compactRender(decompose(initialParticipants))
+        logger.info(s"Initial participants: $participantsJson")
         logger.info(s"Number of rooms: $numberOfRooms")
         self ! startMatching()
 
