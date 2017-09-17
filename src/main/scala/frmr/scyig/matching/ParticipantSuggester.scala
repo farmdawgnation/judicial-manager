@@ -27,6 +27,7 @@ import net.liftweb.common._
  */
 trait ParticipantSuggester extends Loggable {
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant]
+  def withParticipants(participants: Seq[Participant]): ParticipantSuggester
   def withoutParticipant(participantId: UUID): ParticipantSuggester
 
   val participants: Seq[Participant]
@@ -79,6 +80,10 @@ case class RandomizedParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )
   }
+
+  def withParticipants(participants: Seq[Participant]): ParticipantSuggester = {
+    new RandomizedParticipantSuggester(participants)
+  }
 }
 
 /**
@@ -107,6 +112,10 @@ case class CompetitiveParticipantSuggester(
     new CompetitiveParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )
+  }
+
+  def withParticipants(participants: Seq[Participant]): ParticipantSuggester = {
+    new CompetitiveParticipantSuggester(participants)
   }
 }
 
@@ -161,6 +170,10 @@ case class OpportunityParticipantSuggester(
       participants.filterNot(_.id == participantId)
     )
   }
+
+  def withParticipants(participants: Seq[Participant]): ParticipantSuggester = {
+    new OpportunityParticipantSuggester(participants)
+  }
 }
 
 /**
@@ -175,11 +188,17 @@ case class ByePrioritizingParticipantSuggester(
 
   private[this] def possiblySuggestOnBye(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     val byeBuckets = teams.groupBy(_.byeCount)
-    val byeCounts = byeBuckets.keySet.toSeq
+    val byeCounts = byeBuckets.keySet.toSeq.sortBy(c => c).reverse
 
     if (byeCounts.length > 1) {
       logger.info(s"Suggesting teams based on bye counts: ${byeBuckets.mapValues(_.map(_.name.value))}")
-      teams.sortBy(_.byeCount).reverse
+      val internallyProcessedByeBuckets = byeBuckets.mapValues(filteredTeams =>
+        innerSuggester.withParticipants(filteredTeams ++ presidingJudges ++ scoringJudges).suggestParticipants(partialMatch)
+      )
+
+      byeCounts.flatMap({ byeCount =>
+        internallyProcessedByeBuckets.get(byeCount)
+      }).foldLeft(Seq.empty[Participant])(_ ++ _)
     } else {
       logger.info("Byes are balanced. Delegating suggestions.")
       innerSuggester.suggestParticipants(partialMatch)
@@ -207,6 +226,10 @@ case class ByePrioritizingParticipantSuggester(
     new ByePrioritizingParticipantSuggester(
       innerSuggester.withoutParticipant(participantId)
     )
+  }
+
+  def withParticipants(participants: Seq[Participant]): ParticipantSuggester = {
+    new ByePrioritizingParticipantSuggester(innerSuggester.withParticipants(participants))
   }
 }
 
@@ -261,5 +284,9 @@ case class RolePrioritizingParticipantSuggester(
     new RolePrioritizingParticipantSuggester(
       innerSuggester.withoutParticipant(participantId)
     )
+  }
+
+  def withParticipants(participants: Seq[Participant]): ParticipantSuggester = {
+    new RolePrioritizingParticipantSuggester(innerSuggester.withParticipants(participants))
   }
 }
