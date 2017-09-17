@@ -48,11 +48,11 @@ $manager-icon-color: #0089CF;
         content: $fa-var-pencil-square-o;
       }
 
-      &.print-scorecard-entry:before {
-        content: $fa-var-print;
+      &.view-leaderboard-entry:before {
+        content: $fa-var-list-ol;
       }
 
-      &.print-calendar-entry:before {
+      &.view-schedule-entry:before {
         content: $fa-var-calendar;
       }
 
