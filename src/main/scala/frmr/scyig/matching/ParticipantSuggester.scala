@@ -171,7 +171,7 @@ case class ByePrioritizingParticipantSuggester(
 
   def suggestParticipants(partialMatch: Option[PartialRoundMatch]): Seq[Participant] = {
     partialMatch match {
-      case None =>
+      case None | Some(MatchSeed(_)) =>
         val byeBuckets = teams.groupBy(_.byeCount)
         val byeCounts = byeBuckets.keySet.toSeq
 
