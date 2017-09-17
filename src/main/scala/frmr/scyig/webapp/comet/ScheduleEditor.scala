@@ -75,7 +75,10 @@ class ScheduleEditor() extends CometActor with Loggable {
 
       DBIO.seq(allQueries: _*)
     } else {
-      val clearByes = Byes.filter(_.competitionId === competition.id.getOrElse(0)).delete
+      val clearByes = Byes
+        .filter(_.competitionId === competition.id.getOrElse(0))
+        .filter(_.round === competition.round)
+        .delete
       val insertByes = calculatedByes.map({ team => Bye(
         None,
         competition.id.getOrElse(0),
