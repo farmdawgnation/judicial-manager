@@ -208,11 +208,11 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
   private[this] def suggester: (Seq[matching.models.Participant]) => matching.ParticipantSuggester = {
     matchingAlgorithm match {
       case Full(ChallengeMatching) =>
-        (participants) => matching.CompetitiveParticipantSuggester(participants)
+        (participants) => matching.ByePrioritizingParticipantSuggester(matching.CompetitiveParticipantSuggester(participants))
       case Full(OpportunityMatching) =>
-        (participants) => matching.OpportunityParticipantSuggester(participants)
+        (participants) => matching.ByePrioritizingParticipantSuggester(matching.OpportunityParticipantSuggester(participants))
       case _ =>
-        (participants) => matching.RandomizedParticipantSuggester(participants)
+        (participants) => matching.ByePrioritizingParticipantSuggester(matching.RandomizedParticipantSuggester(participants))
     }
   }
 
