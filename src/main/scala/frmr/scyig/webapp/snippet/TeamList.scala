@@ -38,7 +38,7 @@ class TeamList(competition: Competition) {
   }
 
   def render = {
-    val teams: List[Team] = DB.runAwait(Teams.to[List].result).openOrThrowException("Teams couldn't be found")
+    val teams: List[Team] = DB.runAwait(Teams.to[List].filter(_.competitionId === competition.id.getOrElse(0)).result).openOrThrowException("Teams couldn't be found")
 
     if (teams.isEmpty) {
       ".team-row" #> ClearNodes

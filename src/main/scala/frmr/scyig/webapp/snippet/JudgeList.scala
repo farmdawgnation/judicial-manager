@@ -76,7 +76,7 @@ class JudgeList(competition: Competition) {
   }
 
   def render = {
-    val judges: List[Judge] = DB.runAwait(Judges.to[List].result).openOrThrowException("Judges couldn't be found")
+    val judges: List[Judge] = DB.runAwait(Judges.to[List].filter(_.competitionId === competition.id.getOrElse(0)).result).openOrThrowException("Judges couldn't be found")
 
     if (judges.isEmpty) {
       ".judge-row" #> ClearNodes
