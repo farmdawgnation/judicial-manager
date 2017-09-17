@@ -28,6 +28,7 @@ import frmr.scyig.webapp.auth._
 import frmr.scyig.webapp.js._
 import frmr.scyig.webapp.snippet._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 import slick.jdbc.MySQLProfile.api._
 import slick.jdbc.meta._
 
@@ -120,15 +121,25 @@ class Boot extends Loggable {
     // Run our migrations
     DB.migrate()
 
-    // Create admin user if it doesn't already exist
+    // Create seed data if there are no users
     DB.run(Users.size.result).map { userCount =>
       if (userCount == 0) {
-        logger.info("No users found in db. Attempting admin user creation.")
-        val userCreation = DB.run(DBIO.seq(
+        logger.info("No users found in db. Attempting seed data creation.")
+
+        val adminpw = if (Props.productionMode) {
+          val productionAdminPassword = Random.alphanumeric.take(16).mkString
+          logger.info(s"Admin password: $productionAdminPassword")
+          Users.hashpw(productionAdminPassword)
+        } else {
+          logger.info("Admin password: admin")
+          Users.hashpw("admin")
+        }
+
+        val seedCreation = DB.run(DBIO.seq(
           Users += User(
             None,
             "admin@admin.com",
-            Users.hashpw("admin"),
+            adminpw,
             "Admin",
             true
           ),
@@ -148,7 +159,7 @@ class Boot extends Loggable {
           )
         ))
 
-        userCreation.map { _ => logger.info("Admin user successfully created.") }
+        seedCreation.map { _ => logger.info("Seed data successfully created.") }
       }
     }
   }
