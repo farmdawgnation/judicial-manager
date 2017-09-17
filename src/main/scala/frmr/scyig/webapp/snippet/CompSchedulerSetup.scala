@@ -86,7 +86,9 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
         judges.map { judge =>
           Judge(
             matching.models.ParticipantName(judge.name),
-            Some(matching.models.ParticipantOrganization(judge.organization)),
+            Some(matching.models.ParticipantOrganization(
+              judge.organization.toLowerCase.replace(" ", "")
+            )),
             isPresiding = judge.enabled && judge.kind == PresidingJudge,
             isScoring = judge.enabled && judge.kind == ScoringJudge,
             webappId = judge.id.getOrElse(-1),
@@ -107,7 +109,9 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
         teams.map { team =>
           matching.models.CompetingTeam(
             matching.models.ParticipantName(team.name),
-            matching.models.ParticipantOrganization(team.organization),
+            matching.models.ParticipantOrganization(
+              team.organization.toLowerCase.replace(" ", "")
+            ),
             webappId = team.id.getOrElse(-1),
             id = team.uuid
           )
