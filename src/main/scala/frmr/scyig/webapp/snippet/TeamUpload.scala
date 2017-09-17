@@ -3,6 +3,7 @@ package frmr.scyig.webapp.snippet
 import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import net.liftweb.common._
+import net.liftweb.common.BoxLogging._
 import net.liftweb.http._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.sitemap._
@@ -35,17 +36,29 @@ class TeamUpload(competition: Competition) {
   }
 
   def doUpload = {
+    def parseRow(row: String): Option[(String, String)] = {
+      row.split(",").toList match {
+        case f1 :: f2 :: rest => Some((f1, f2))
+        case _ => None
+      }
+    }
+
     val teams = for {
       csv <- csvContent.toSeq
       csvRow <- csv.lines if csvRow.nonEmpty
-      Array(teamName, teamOrg) = csvRow.split(",")
-      team = Team(None, competitionId, teamName, teamOrg)
-      _ <- DB.runAwait(Teams.insertOrUpdate(team))
+      (teamName, teamOrg) <- parseRow(csvRow)
     } yield {
-      team
+      val team = Team(None, competitionId, teamName, teamOrg)
+      Teams.insertOrUpdate(team)
     }
 
-    S.redirectTo(TeamList.menu.toLoc.calcHref(competition), () => S.notice(s"Uploaded ${teams.length} teams"))
+    DB.runAwait(DBIO.seq(teams: _*)).logFailure("Database error processing upload") match {
+      case fail: Failure =>
+        S.error("A database failure occurred. Please see the log for more information.")
+
+      case _ =>
+        S.redirectTo(TeamList.menu.toLoc.calcHref(competition), () => S.notice(s"Uploaded ${teams.length} teams"))
+    }
   }
 
   def render = {

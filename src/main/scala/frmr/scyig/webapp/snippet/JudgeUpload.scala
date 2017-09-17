@@ -24,7 +24,7 @@ object JudgeUpload {
     validateCompetitionAccess
 }
 
-class JudgeUpload(competition: Competition) {
+class JudgeUpload(competition: Competition) extends Loggable {
   val competitionId = competition.id.getOrElse {
     throw new IllegalStateException("Running with a competition lacking an ID")
   }
@@ -36,23 +36,36 @@ class JudgeUpload(competition: Competition) {
   }
 
   def doUpload = {
-    println(csvContent)
+    def parseRow(row: String): Option[(String, String, String)] = {
+      row.split(",").toList match {
+        case f1 :: f2 :: f3 :: rest =>
+          Some((f1, f2, f3))
+        case _ =>
+          logger.warn(s"Ignoring incorrectly formatted CSV row during import: $row")
+          None
+      }
+    }
+
     val judges = for {
       csv <- csvContent.toSeq
       csvRow <- csv.lines if csvRow.nonEmpty
-      _ = println(csvRow)
-      Array(judgeName, judgeOrg, judgeKind) = csvRow.split(",")
+      (judgeName, judgeOrg, judgeKind) <- parseRow(csvRow)
       actualKind = judgeKind.toLowerCase.trim match {
         case "scoring" => ScoringJudge
         case _ => PresidingJudge
       }
-      judge = Judge(None, competitionId, judgeName.trim, judgeOrg.trim, actualKind)
-      _ <- DB.runAwait(Judges.insertOrUpdate(judge)).logFailure("Something went wrong talking to the db")
     } yield {
-      judge
+      val judge = Judge(None, competitionId, judgeName.trim, judgeOrg.trim, actualKind)
+      Judges.insertOrUpdate(judge)
     }
 
-    S.redirectTo(JudgeList.menu.toLoc.calcHref(competition), () => S.notice(s"Uploaded ${judges.length} judges"))
+    DB.runAwait(DBIO.seq(judges: _*)).logFailure("Database error processing upload") match {
+      case fail: Failure =>
+        S.error("A database failure occurred. Please see the log for more information.")
+
+      case _ =>
+        S.redirectTo(JudgeList.menu.toLoc.calcHref(competition), () => S.notice(s"Uploaded ${judges.length} judges"))
+    }
   }
 
   def render = {
