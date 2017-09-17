@@ -210,14 +210,18 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
   }
 
   private[this] def suggester: (Seq[matching.models.Participant]) => matching.ParticipantSuggester = {
-    def vendSuggester(innermostSuggester: matching.ParticipantSuggester) =
-      matching.ByePrioritizingParticipantSuggester(matching.RolePrioritizingParticipantSuggester(innermostSuggester))
+    def vendSuggester(innermostSuggester: matching.ParticipantSuggester, rolePrioritizer: Boolean = true) =
+      if (rolePrioritizer) {
+        matching.ByePrioritizingParticipantSuggester(matching.RolePrioritizingParticipantSuggester(innermostSuggester))
+      } else {
+        matching.ByePrioritizingParticipantSuggester(innermostSuggester)
+      }
 
     matchingAlgorithm match {
       case Full(ChallengeMatching) =>
-        (participants) => vendSuggester(matching.CompetitiveParticipantSuggester(participants))
+        (participants) => vendSuggester(matching.CompetitiveParticipantSuggester(participants), rolePrioritizer = false)
       case Full(OpportunityMatching) =>
-        (participants) => vendSuggester(matching.OpportunityParticipantSuggester(participants))
+        (participants) => vendSuggester(matching.OpportunityParticipantSuggester(participants), rolePrioritizer = false)
       case _ =>
         (participants) => vendSuggester(matching.RandomizedParticipantSuggester(participants))
     }
