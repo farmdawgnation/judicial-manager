@@ -49,7 +49,7 @@ class Judges(tag: Tag) extends Table[Judge](tag, "judges") {
 
   def * = (id.?, competitionId, name, organization, kind, enabled, priority, uuid) <> (Judge.tupled, Judge.unapply)
 
-  def cidFK = foreignKey("j_competition_id_fk", competitionId, Judges)(_.id, onDelete = ForeignKeyAction.Cascade)
+  def cidFK = foreignKey("j_competition_id_fk", competitionId, Competitions)(_.id, onDelete = ForeignKeyAction.Cascade)
 }
 
 object Judges extends TableQuery[Judges](new Judges(_))

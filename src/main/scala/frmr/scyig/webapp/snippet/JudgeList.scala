@@ -29,6 +29,10 @@ object JudgeList {
 class JudgeList(competition: Competition) {
   import SnippetHelpers._
 
+  def uploadLink = {
+    "^ [href]" #> JudgeUpload.menu.toLoc.calcHref(competition)
+  }
+
   def addLink =
     "^ [href]" #> JudgeForm.createMenu.toLoc.calcHref(competition)
 

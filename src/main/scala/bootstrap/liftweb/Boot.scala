@@ -68,6 +68,7 @@ class Boot extends Loggable {
       TeamForm.editMenu,
 
       JudgeList.menu,
+      JudgeUpload.menu,
       JudgeForm.createMenu,
       JudgeForm.editMenu
     ))

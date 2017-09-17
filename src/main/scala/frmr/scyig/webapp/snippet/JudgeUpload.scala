@@ -3,6 +3,7 @@ package frmr.scyig.webapp.snippet
 import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import net.liftweb.common._
+import net.liftweb.common.BoxLogging._
 import net.liftweb.http._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.sitemap._
@@ -11,45 +12,51 @@ import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import slick.jdbc.MySQLProfile.api._
 
-object TeamUpload {
+object JudgeUpload {
   import SnippetHelpers._
 
   val menu = Menu.param[Competition](
-    "Upload Teams",
-    "Upload Teams",
+    "Upload Judges",
+    "Upload Judges",
     idToCompetition,
     _.id.getOrElse("").toString
-  ) / "competition" / * / "teams" / "upload" >>
+  ) / "competition" / * / "judges" / "upload" >>
     validateCompetitionAccess
 }
 
-class TeamUpload(competition: Competition) {
+class JudgeUpload(competition: Competition) {
   val competitionId = competition.id.getOrElse {
     throw new IllegalStateException("Running with a competition lacking an ID")
   }
   var csvContent: Option[String] = None
 
   def csvUploadHandler(file: FileParamHolder) = {
-    println("saw file upload")
+    println("got file")
     csvContent = Some(new String(file.file, "UTF-8"))
   }
 
   def doUpload = {
-    val teams = for {
+    println(csvContent)
+    val judges = for {
       csv <- csvContent.toSeq
       csvRow <- csv.lines if csvRow.nonEmpty
-      Array(teamName, teamOrg) = csvRow.split(",")
-      team = Team(None, competitionId, teamName, teamOrg)
-      _ <- DB.runAwait(Teams.insertOrUpdate(team))
+      _ = println(csvRow)
+      Array(judgeName, judgeOrg, judgeKind) = csvRow.split(",")
+      actualKind = judgeKind.toLowerCase.trim match {
+        case "scoring" => ScoringJudge
+        case _ => PresidingJudge
+      }
+      judge = Judge(None, competitionId, judgeName.trim, judgeOrg.trim, actualKind)
+      _ <- DB.runAwait(Judges.insertOrUpdate(judge)).logFailure("Something went wrong talking to the db")
     } yield {
-      team
+      judge
     }
 
-    S.redirectTo(TeamList.menu.toLoc.calcHref(competition), () => S.notice(s"Uploaded ${teams.length} teams"))
+    S.redirectTo(JudgeList.menu.toLoc.calcHref(competition), () => S.notice(s"Uploaded ${judges.length} judges"))
   }
 
   def render = {
-    "#team-csv-file" #> SHtml.fileUpload(csvUploadHandler _) &
+    "#judge-csv-file" #> SHtml.fileUpload(csvUploadHandler _) &
     ".upload" #> SHtml.onSubmitUnit(doUpload _)
   }
 }
