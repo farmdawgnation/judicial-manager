@@ -1,0 +1,2 @@
+database.url = jdbc:mysql://mysql:3306/scyig?autoReconnect=true&useSSL=false
+database.username = scyig
