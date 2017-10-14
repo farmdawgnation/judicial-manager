@@ -10,11 +10,16 @@ import net.liftweb.util.Helpers.tryo
 import org.flywaydb.core.Flyway
 
 object DB extends Loggable {
+  def databasePassword =
+    Box.legacyNullTest(System.getProperty("database.password")) or
+    Box.legacyNullTest(System.getenv("DATABASE_PASSWORD")) or
+    Props.get("database.password")
+
   def withConnectionInfo[T](handler: (String, String, String)=>T): T = {
     for {
       url <- Props.get("database.url") ?~! "No database url"
       username <- Props.get("database.username") ?~! "No database username"
-      password <- Props.get("database.password") ?~! "No database password"
+      password <- databasePassword ?~! "No database password"
     } yield {
       handler(url, username, password)
     }
