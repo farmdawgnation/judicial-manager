@@ -148,12 +148,16 @@ class ScheduleEditor() extends CometActor with Loggable {
             v => ajaxUpdateMatch(idx, _.copy(prosecutionTeamId = v.toInt))
           ).guid &
           ".prosecution-team [value]" #> prosecution.name &
+          ".p-role-prosecution *" #> prosecution.prosecutionOccurrences &
+          ".p-role-defense *" #> prosecution.defenseOccurrences &
           ".defense-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(defenseTeamId = v.toInt)), m.defenseTeamId.toString) andThen
           ".defense-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
             "",
             v => ajaxUpdateMatch(idx, _.copy(defenseTeamId = v.toInt))
           ).guid &
           ".defense-team [value]" #> defense.name &
+          ".d-role-prosecution *" #> defense.prosecutionOccurrences &
+          ".d-role-defense *" #> defense.defenseOccurrences &
           ".presiding-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(presidingJudgeId = v.toInt)), m.presidingJudgeId.toString) andThen
           ".presiding-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
             "",
