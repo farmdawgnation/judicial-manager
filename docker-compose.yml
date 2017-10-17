@@ -1,11 +1,16 @@
-version: '3'
+version: '3.3'
 services:
   db:
     image: "mysql:5.7.19"
     ports:
       - "127.0.0.1:3306:3306"
+    volumes:
+      - "mysql-volume:/var/lib/mysql"
     environment:
       MYSQL_ROOT_PASSWORD: scyigisawesome
       MYSQL_DATABASE: scyig
       MYSQL_USER: scyig
       MYSQL_PASSWORD: scyig
+
+volumes:
+  mysql-volume:
