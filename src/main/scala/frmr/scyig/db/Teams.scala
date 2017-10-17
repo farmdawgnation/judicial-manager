@@ -1,6 +1,7 @@
 package frmr.scyig.db
 
 import java.util.UUID
+import net.liftweb.common._
 import slick.jdbc.MySQLProfile.api._
 
 case class Team(
@@ -9,7 +10,13 @@ case class Team(
   name: String,
   organization: String,
   uuid: UUID = UUID.randomUUID()
-)
+) {
+  def prosecutionOccurrences: Box[Int] =
+    Matches.countProsecutionOccurrences(this)
+
+  def defenseOccurrences: Box[Int] =
+    Matches.countDefenseOccurrences(this)
+}
 
 class Teams(tag: Tag) extends Table[Team](tag, "teams") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

@@ -1,6 +1,7 @@
 package frmr.scyig.db
 
 import java.util.UUID
+import net.liftweb.common._
 import slick.jdbc.MySQLProfile.api._
 
 case class Match(
@@ -36,4 +37,16 @@ class Matches(tag: Tag) extends Table[Match](tag, "matches") {
   def sjidFK = foreignKey("m_scoring_judge_id_fk", scoringJudgeId, Judges)(_.id.?, onDelete = ForeignKeyAction.Restrict)
 }
 
-object Matches extends TableQuery[Matches](new Matches(_))
+object Matches extends TableQuery[Matches](new Matches(_)) {
+  def countDefenseOccurrences(team: Team): Box[Int] = {
+    DB.runAwait(
+      Matches.filter(_.defenseTeamId === team.id.getOrElse(0)).length.result
+    )
+  }
+
+  def countProsecutionOccurrences(team: Team): Box[Int] = {
+    DB.runAwait(
+      Matches.filter(_.prosecutionTeamId === team.id.getOrElse(0)).length.result
+    )
+  }
+}
