@@ -80,7 +80,8 @@ $manager-icon-color: #0089CF;
         @include grid-column(3, $competition-manager-menu-grid);
       }
 
-      &.view-teams-entry, &.manage-teams-entry, &.manage-judges-entry {
+      &.view-teams-entry, &.manage-teams-entry, &.manage-judges-entry,
+      &.export-scorecard-entry, &.view-schedule-entry {
         @include grid-column(1.5, $competition-manager-menu-grid);
       }
 
