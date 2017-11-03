@@ -1,0 +1,41 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container" id="schedule-configuration-container">
+    <div data-lift="Msgs">
+      <lift:error_class>notice-errors</lift:error_class>
+      <lift:notice_class>notice-notices</lift:notice_class>
+    </div>
+
+    <a href="#" class="resource-create-link">Add User</a>
+    <h3 class="resource-name">Users</h3>
+
+    <table class="resource-table">
+      <thead class="resource-fields">
+        <tr>
+          <th class="resource-field">ID</th>
+          <th class="resource-field">Name</th>
+          <th class="resource-field">Email</th>
+          <th class="resource-field">Superuser</th>
+          <th class="action-column">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="no-user-rows">
+          <td colspan="7">There are no users.</td>
+        </tr>
+        <tr class="user-row">
+          <td class="user-id">1</td>
+          <td class="user-name">Shadow Farmer</td>
+          <td class="user-email">shadow@farmer.com</td>
+          <td class="user-is-superuser">
+            <a href="#">Yes</a>
+          </td>
+          <td class="actions">
+            <ul>
+              <a href="#" class="edit-user">Edit</a>
+              <a href="#" class="delete-user">Delete</a>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>

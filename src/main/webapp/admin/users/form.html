@@ -1,0 +1,43 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container">
+    <h3>User</h3>
+
+    <form class="user-form resource-form">
+      <div data-lift="Msgs">
+        <lift:error_class>notice-errors</lift:error_class>
+        <lift:notice_class>notice-notices</lift:notice_class>
+      </div>
+
+      <label for="user-name">User Name</label>
+      <input type="text" id="user-name">
+
+      <label for="user-email">User Email</label>
+      <input type="text" id="user-email">
+
+      <label for="user-password">New Password</label>
+      <input type="password" id="user-new-password">
+
+      <fieldset>
+        <legend>Superuser status</legend>
+        <p class="description">
+          Determines whether or not this user has superuser permissions.
+        </p>
+
+        <ul>
+          <li>
+            <input type="radio" id="enabled-superuser-status">
+            <label for="enabled-superuser-status">Enabled</label>
+          </li>
+
+          <li>
+            <input type="radio" id="disabled-superuser-status">
+            <label for="disabled-superuser-status">Disabled</label>
+          </li>
+        </ul>
+      </fieldset>
+
+      <footer>
+        <button class="save" type="submit">Save</button>
+      </footer>
+    </form>
+</div>

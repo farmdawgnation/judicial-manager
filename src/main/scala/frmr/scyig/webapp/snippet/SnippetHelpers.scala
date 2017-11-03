@@ -26,7 +26,7 @@ object SnippetHelpers {
       query = Teams.filter(_.id === id).result.head
       team <- DB.runAwait(query)
     } yield {
-      team 
+      team
     }
   }
 
@@ -37,6 +37,16 @@ object SnippetHelpers {
       judge <- DB.runAwait(query)
     } yield {
       judge
+    }
+  }
+
+  def idToUser(idStr: String): Box[User] = {
+    for {
+      id <- (tryo(idStr.toInt) or Empty)
+      query = Users.filter(_.id === id).result.head
+      user <- DB.runAwait(query)
+    } yield {
+      user
     }
   }
 
@@ -86,4 +96,9 @@ object SnippetHelpers {
         )
     )
   }
+
+  val validateSuperuser = If(
+    () => currentUser.is.map(_.superuser).getOrElse(false),
+    () => NotFoundResponse()
+  )
 }
