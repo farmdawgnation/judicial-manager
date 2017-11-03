@@ -64,6 +64,9 @@ class CompDashboard(competition: Competition) {
     } &
     ".enter-scores-entry" #> {
       "a [href]" #> CompScoreEntry.menu.toLoc.calcHref(competition)
+    } &
+    ".export-scorecard-entry" #> {
+      "a [href]" #> ScorecardExport.menu.toLoc.calcHref(competition)
     }
   }
 }

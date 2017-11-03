@@ -4,6 +4,10 @@ import java.util.UUID
 import net.liftweb.common._
 import slick.jdbc.MySQLProfile.api._
 
+trait Scheduleable {
+  def round: Int
+}
+
 case class Match(
   id: Option[Int],
   competitionId: Int,
@@ -14,7 +18,17 @@ case class Match(
   round: Int,
   order: Int,
   uuid: UUID = UUID.randomUUID()
-)
+) extends Scheduleable {
+  def scoresFor(teamId: Int): Box[Seq[Score]] = {
+    val matchId = id.getOrElse(0)
+    DB.runAwait(
+      Scores.to[Seq].filter(_.matchId === matchId).filter(_.teamId === teamId).result
+    )
+  }
+
+  def prosecutionScores = scoresFor(prosecutionTeamId)
+  def defenseScores = scoresFor(defenseTeamId)
+}
 
 class Matches(tag: Tag) extends Table[Match](tag, "matches") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

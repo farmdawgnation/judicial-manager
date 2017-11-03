@@ -71,7 +71,9 @@ class Boot extends Loggable {
       JudgeList.menu,
       JudgeUpload.menu,
       JudgeForm.createMenu,
-      JudgeForm.editMenu
+      JudgeForm.editMenu,
+
+      ScorecardExport.menu
     ))
 
     // Add the stateful rest api

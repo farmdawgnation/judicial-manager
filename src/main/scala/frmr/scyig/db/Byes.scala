@@ -9,7 +9,7 @@ case class Bye(
   teamId: Int,
   round: Int,
   uuid: UUID = UUID.randomUUID()
-)
+) extends Scheduleable
 
 class Byes(tag: Tag) extends Table[Bye](tag, "byes") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

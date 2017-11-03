@@ -11,6 +11,20 @@ case class Team(
   organization: String,
   uuid: UUID = UUID.randomUUID()
 ) {
+  def teamId = id getOrElse 0
+
+  def byes: Box[Seq[Bye]] = {
+    DB.runAwait(
+      Byes.to[Seq].filter(_.teamId === teamId).result
+    )
+  }
+
+  def matches: Box[Seq[Match]] = {
+    DB.runAwait(
+      Matches.to[Seq].filter(m => m.prosecutionTeamId === id || m.defenseTeamId === id).result
+    )
+  }
+
   def prosecutionOccurrences: Box[Int] =
     Matches.countProsecutionOccurrences(this)
 
