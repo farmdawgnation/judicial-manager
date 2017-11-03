@@ -1,6 +1,7 @@
 package frmr.scyig.db
 
 import slick.jdbc.MySQLProfile.api._
+import net.liftweb.common._
 
 sealed trait CompetitionStatus {
   def value: String
@@ -38,7 +39,13 @@ case class Competition(
   location: String,
   status: CompetitionStatus = NotStarted,
   round: Int = 0
-)
+) {
+  def currentRoundMatches: Box[Seq[Match]] = {
+    DB.runAwait(
+      Matches.to[Seq].filter(_.competitionId === id).filter(_.round === round).result
+    )
+  }
+}
 
 class Competitions(tag: Tag) extends Table[Competition](tag, "competitions") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

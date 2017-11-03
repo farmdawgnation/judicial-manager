@@ -67,6 +67,9 @@ class CompDashboard(competition: Competition) {
     } &
     ".export-scorecard-entry" #> {
       "a [href]" #> ScorecardExport.menu.toLoc.calcHref(competition)
+    } &
+    ".view-schedule-entry" #> {
+      "a [href]" #> CompViewSchedule.menu.toLoc.calcHref(competition)
     }
   }
 }

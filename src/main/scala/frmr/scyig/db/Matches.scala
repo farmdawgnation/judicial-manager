@@ -28,6 +28,12 @@ case class Match(
 
   def prosecutionScores = scoresFor(prosecutionTeamId)
   def defenseScores = scoresFor(defenseTeamId)
+
+  def prosecutionTeam = DB.runAwait(Teams.filter(_.id === prosecutionTeamId).result.head)
+  def defenseTeam = DB.runAwait(Teams.filter(_.id === defenseTeamId).result.head)
+
+  def presidingJudge = DB.runAwait(Judges.filter(_.id === presidingJudgeId).result.head)
+  def scoringJudge = DB.runAwait(Judges.filter(_.id === scoringJudgeId).result.head)
 }
 
 class Matches(tag: Tag) extends Table[Match](tag, "matches") {

@@ -21,23 +21,16 @@ object CompViewSchedule {
 }
 
 class CompViewSchedule(competition: Competition) {
-  /*
-  val competitionId = competition.getOrElse {
-    throw new IllegalStateException("This snippet somehow got a competition without an id")
-  }
-
-  val currentRoundMatches = DB.run(
-    Matches.to[Seq]
-      .filter(_.competitionId == competitionId)
-  )
-
   def render = {
-    "^" #> currentRoundMatches.map { matches =>
+    "^" #> competition.currentRoundMatches.map { matches =>
       ".match-row" #> matches.zipWithIndex.map {
         case (individualMatch, index) =>
           ".match-number *" #> (index + 1) &
-          ".prosecution-name *" #>
+          ".prosecution-name *" #> individualMatch.prosecutionTeam.map(_.name) &
+          ".defense-name *" #> individualMatch.defenseTeam.map(_.name) &
+          ".presiding-name *" #> individualMatch.presidingJudge.map(_.name) &
+          ".scoring-name *" #> individualMatch.scoringJudge.map(_.name)
       }
     }
-  }*/
+  }
 }
