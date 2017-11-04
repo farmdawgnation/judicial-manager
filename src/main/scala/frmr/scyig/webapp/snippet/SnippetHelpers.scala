@@ -50,6 +50,16 @@ object SnippetHelpers {
     }
   }
 
+  def idToSponsor(idStr: String): Box[Sponsor] = {
+    for {
+      id <- (tryo(idStr.toInt) or Empty)
+      query = Sponsors.filter(_.id === id).result.head
+      sponsor <- DB.runAwait(query)
+    } yield {
+      sponsor
+    }
+  }
+
   def hideIfCompetitionIs(competition: Competition, status: CompetitionStatus) = {
     (competition.status == status) ? ClearNodes | PassThru
   }
