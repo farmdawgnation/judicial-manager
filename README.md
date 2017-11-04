@@ -56,6 +56,16 @@ Judicial Manager.
 
 ## Running
 
+During the first run, an admin user will be created. In development mode, the credentials will
+be:
+
+* Email: admin@admin.com
+* Password: admin
+
+In production, the admin account described above will be created, but with a random password that
+is printed to the log when it first runs. Switch to production mode by setting the run.mode
+property.
+
 ## About the Authors
 
 This application was designed by [Liz Shinn][liz] and developed by [Matt Farmer][me].
