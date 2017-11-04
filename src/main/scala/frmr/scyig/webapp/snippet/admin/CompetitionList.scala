@@ -5,6 +5,7 @@ import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import frmr.scyig.webapp.snippet.SnippetHelpers._
 import slick.jdbc.MySQLProfile.api._
+import net.liftweb.common.BoxLogging._
 import net.liftweb.http._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.sitemap._
@@ -22,7 +23,9 @@ object CompetitionList {
 
   def deleteCompetition(competition: Competition)(s: String) = {
     DB.runAwait(Competitions.filter(_.id === competition.id).delete)
-    Reload
+      .map(_ => Reload)
+      .logFailure("Failed to delete competition")
+      .openOr(Alert("Failed to delete competition. Please see log."))
   }
 
   def render = {

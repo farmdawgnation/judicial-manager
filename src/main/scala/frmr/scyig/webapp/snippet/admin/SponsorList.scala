@@ -5,6 +5,7 @@ import frmr.scyig.db._
 import frmr.scyig.webapp.auth.AuthenticationHelpers._
 import frmr.scyig.webapp.snippet.SnippetHelpers._
 import slick.jdbc.MySQLProfile.api._
+import net.liftweb.common.BoxLogging._
 import net.liftweb.http._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.sitemap._
@@ -22,7 +23,9 @@ object SponsorList {
 
   def deleteSponsor(sponsor: Sponsor)(s: String) = {
     DB.runAwait(Sponsors.filter(_.id === sponsor.id).delete)
-    Reload
+      .map(_ => Reload)
+      .logFailure("Failed to delete sponsor")
+      .openOr(Alert("Failed to delete sponsor. Please see log."))
   }
 
   def render = {
