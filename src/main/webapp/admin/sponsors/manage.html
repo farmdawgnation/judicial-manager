@@ -1,0 +1,37 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container">
+    <div data-lift="Msgs">
+      <lift:error_class>notice-errors</lift:error_class>
+      <lift:notice_class>notice-notices</lift:notice_class>
+    </div>
+
+    <a href="#" class="resource-create-link">Add Sponsor</a>
+    <h3 class="resource-name">Sponsors</h3>
+
+    <table class="resource-table">
+      <thead class="resource-fields">
+        <tr>
+          <th class="resource-field">ID</th>
+          <th class="resource-field">Name</th>
+          <th class="resource-field">Location</th>
+          <th class="action-column">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="no-sponsor-rows">
+          <td colspan="4">There are no sponsors.</td>
+        </tr>
+        <tr class="sponsor-row">
+          <td class="sponsor-id">1</td>
+          <td class="sponsor-name">Judicial Manager Testing</td>
+          <td class="sponsor-location">Atlanta, GA</td>
+          <td class="actions">
+            <ul>
+              <a href="#" class="edit-sponsor">Edit</a>
+              <a href="#" class="delete-sponsor">Delete</a>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>
