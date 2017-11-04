@@ -5,10 +5,10 @@
       <lift:notice_class>notice-notices</lift:notice_class>
     </div>
 
-    <a href="#" class="resource-create-link">Add User</a>
+    <a href="#" class="resource-create-link" data-lift="admin.UserList.addLink">Add User</a>
     <h3 class="resource-name">Users</h3>
 
-    <table class="resource-table">
+    <table class="resource-table" data-lift="admin.UserList.render">
       <thead class="resource-fields">
         <tr>
           <th class="resource-field">ID</th>
@@ -26,9 +26,7 @@
           <td class="user-id">1</td>
           <td class="user-name">Shadow Farmer</td>
           <td class="user-email">shadow@farmer.com</td>
-          <td class="user-is-superuser">
-            <a href="#">Yes</a>
-          </td>
+          <td class="user-is-superuser">Yes</td>
           <td class="actions">
             <ul>
               <a href="#" class="edit-user">Edit</a>
