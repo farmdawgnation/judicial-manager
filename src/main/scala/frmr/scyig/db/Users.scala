@@ -10,12 +10,23 @@ case class User(
   name: String,
   superuser: Boolean
 ) {
+  val userId = id.getOrElse(0)
+
   def checkpw(candidatePassword: String): Boolean =
     BCrypt.checkpw(candidatePassword, passwordHash)
 
   lazy val sponsorIds: Seq[Int] = {
     DB.runAwait(Users.filter(_.id === id).join(UsersSponsors).on(_.id === _.userId)
       .map(_._2.sponsorId).result).openOr(Seq())
+  }
+
+  // FIXME: Make atomic
+  def setSponsors(sponsorIds: Seq[Int]) = {
+    DB.runAwait(UsersSponsors.filter(_.userId === id).delete)
+
+    val sponsorInserts = sponsorIds.map { sponsorId =>
+      DB.runAwait(UsersSponsors += ("", userId, sponsorId))
+    }
   }
 }
 

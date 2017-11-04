@@ -2,20 +2,24 @@
   <section class="full-width-container">
     <h3>User</h3>
 
-    <form class="user-form resource-form">
+    <form class="user-form resource-form" data-lift="admin.UserForm.render">
       <div data-lift="Msgs">
         <lift:error_class>notice-errors</lift:error_class>
         <lift:notice_class>notice-notices</lift:notice_class>
       </div>
 
-      <label for="user-name">User Name</label>
+      <label for="user-name">Name</label>
       <input type="text" id="user-name">
 
-      <label for="user-email">User Email</label>
+      <label for="user-email">Email</label>
       <input type="text" id="user-email">
 
       <label for="user-password">New Password</label>
       <input type="password" id="user-new-password">
+      <p class="description">
+        Only provide a value here for new users or if you wish to change
+        the user's password.
+      </p>
 
       <fieldset>
         <legend>Superuser status</legend>
@@ -35,6 +39,12 @@
           </li>
         </ul>
       </fieldset>
+
+      <label for="sponsors">Sponsors</label>
+      <select multiple id="sponsors">
+        <option>Sponsor 1</option>
+        <option>Sponsor 2</option>
+      </select>
 
       <footer>
         <button class="save" type="submit">Save</button>
