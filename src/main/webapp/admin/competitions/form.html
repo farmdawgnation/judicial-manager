@@ -1,0 +1,40 @@
+<div class="page-wrapper" data-lift="surround?with=default&at=content">
+  <section class="full-width-container">
+    <h3>Competition</h3>
+
+    <form class="competition-form resource-form">
+      <div data-lift="Msgs">
+        <lift:error_class>notice-errors</lift:error_class>
+        <lift:notice_class>notice-notices</lift:notice_class>
+      </div>
+
+      <label for="competition-name">Competition Name</label>
+      <input type="text" id="competition-name">
+
+      <label for="sponsor">Sponsor</label>
+      <select id="sponsor">
+        <option>Awesome sponsor 1</option>
+        <option>Awesome sponsor 2</option>
+      </select>
+
+      <label for="competition-dates">Dates</label>
+      <input type="text" id="competition-dates">
+
+      <label for="competition-description">Description</label>
+      <input type="text" id="competition-description">
+
+      <label for="competition-location">Location</label>
+      <input type="text" id="competition-location">
+
+      <label for="competition-status">Status</label>
+      <select id="competition-status">
+        <option>Not Started</option>
+        <option>In Progress</option>
+        <option>Finished</option>
+      </select>
+
+      <footer>
+        <button class="save" type="submit">Save</button>
+      </footer>
+    </form>
+</div>
