@@ -2,16 +2,16 @@
   <section class="full-width-container">
     <h3>Sponsor</h3>
 
-    <form class="sponsor-form resource-form">
+    <form class="sponsor-form resource-form" data-lift="admin.SponsorForm.render">
       <div data-lift="Msgs">
         <lift:error_class>notice-errors</lift:error_class>
         <lift:notice_class>notice-notices</lift:notice_class>
       </div>
 
-      <label for="user-name">Sponsor Name</label>
+      <label for="sponsor-name">Sponsor Name</label>
       <input type="text" id="sponsor-name">
 
-      <label for="user-email">Sponsor Location</label>
+      <label for="sponsor-location">Sponsor Location</label>
       <input type="text" id="sponsor-location">
 
       <footer>
