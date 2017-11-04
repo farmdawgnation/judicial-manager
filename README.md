@@ -4,8 +4,21 @@ This is an application built to assist in running mock trial competitions. This 
 originally designed for South Carolina's Youth in Government Program, but could be applicable
 to other programs as well.
 
-We're still in development, but once things have stabalized we'll include a run-through of the
-available features here.
+This application isn't what I'd consider the best example of quality. There are significant
+rough edges and very little automated testing in the webapp layer. Here be dragons, so please
+be aware.
+
+## features
+
+This application features the following features:
+
+* Ability to populate and manage teams and judges within a competition
+* Ability to schedule matches in a competition
+* Automated suggested scheduling based on one of three algorithms:
+  * Randomized matching: matches are totally random
+  * Opportunity matching: matches with teams whose scores are slightly apart
+  * Challenge matching: matches with teams whose scores are very close together
+* Ensures various scheduling rules are preserved in the automated algorithm
 
 ## Requirements
 
@@ -40,6 +53,8 @@ Judicial Manager.
 [sbt]: http://www.scala-sbt.org
 [sass]: http://sass-lang.com
 [docker]: http://docker.com
+
+## Running
 
 ## About the Authors
 
