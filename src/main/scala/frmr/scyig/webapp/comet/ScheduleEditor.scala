@@ -33,6 +33,19 @@ class ScheduleEditor() extends CometActor with Loggable {
     DB.runAwait(matchesQuery) openOr
     Seq.empty
 
+  /**
+   * When computing the prosecution / defense history summary we display we always
+   * want to display stats for *before* the round we're showing on the schedule.
+   *
+   * When creating a new round, that's done by using the total round count as the limiter.
+   * When editing an existing round, we subtract one from it.
+   */
+  private[this] val historyCountRoundLimiter = if (isCreatingNewRound) {
+    competition.round
+  } else {
+    competition.round - 1
+  }
+
   private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
     val matchInQuestion = currentEditorMatches(index)
     currentEditorMatches = currentEditorMatches.patch(index, updater(matchInQuestion) :: Nil, 1)
@@ -148,16 +161,16 @@ class ScheduleEditor() extends CometActor with Loggable {
             v => ajaxUpdateMatch(idx, _.copy(prosecutionTeamId = v.toInt))
           ).guid &
           ".prosecution-team [value]" #> prosecution.name &
-          ".p-role-prosecution *" #> prosecution.prosecutionOccurrences &
-          ".p-role-defense *" #> prosecution.defenseOccurrences &
+          ".p-role-prosecution *" #> prosecution.prosecutionOccurrences(historyCountRoundLimiter) &
+          ".p-role-defense *" #> prosecution.defenseOccurrences(historyCountRoundLimiter) &
           ".defense-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(defenseTeamId = v.toInt)), m.defenseTeamId.toString) andThen
           ".defense-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
             "",
             v => ajaxUpdateMatch(idx, _.copy(defenseTeamId = v.toInt))
           ).guid &
           ".defense-team [value]" #> defense.name &
-          ".d-role-prosecution *" #> defense.prosecutionOccurrences &
-          ".d-role-defense *" #> defense.defenseOccurrences &
+          ".d-role-prosecution *" #> defense.prosecutionOccurrences(historyCountRoundLimiter) &
+          ".d-role-defense *" #> defense.defenseOccurrences(historyCountRoundLimiter) &
           ".presiding-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(presidingJudgeId = v.toInt)), m.presidingJudgeId.toString) andThen
           ".presiding-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
             "",

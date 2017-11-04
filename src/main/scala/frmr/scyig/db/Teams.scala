@@ -25,11 +25,11 @@ case class Team(
     )
   }
 
-  def prosecutionOccurrences: Box[Int] =
-    Matches.countProsecutionOccurrences(this)
+  def prosecutionOccurrences(roundLimiter: Int): Box[Int] =
+    Matches.countProsecutionOccurrences(this, roundLimiter)
 
-  def defenseOccurrences: Box[Int] =
-    Matches.countDefenseOccurrences(this)
+  def defenseOccurrences(roundLimiter: Int): Box[Int] =
+    Matches.countDefenseOccurrences(this, roundLimiter)
 }
 
 class Teams(tag: Tag) extends Table[Team](tag, "teams") {
