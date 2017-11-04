@@ -5,16 +5,15 @@
       <lift:notice_class>notice-notices</lift:notice_class>
     </div>
 
-    <a href="#" class="resource-create-link">Add Competition</a>
+    <a href="#" class="resource-create-link" data-lift="admin.CompetitionList.addLink">Add Competition</a>
     <h3 class="resource-name">Competitions</h3>
 
-    <table class="resource-table">
+    <table class="resource-table" data-lift="admin.CompetitionList.render">
       <thead class="resource-fields">
         <tr>
           <th class="resource-field">ID</th>
           <th class="resource-field">Name</th>
           <th class="resource-field">Sponsor</th>
-          <th class="resource-field">Status</th>
           <th class="action-column">Actions</th>
         </tr>
       </thead>

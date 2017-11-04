@@ -45,6 +45,10 @@ case class Competition(
       Matches.to[Seq].filter(_.competitionId === id).filter(_.round === round).result
     )
   }
+
+  def sponsor: Box[Sponsor] = {
+    DB.runAwait(Sponsors.filter(_.id === sponsorId).result.head)
+  }
 }
 
 class Competitions(tag: Tag) extends Table[Competition](tag, "competitions") {
