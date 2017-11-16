@@ -127,7 +127,12 @@ class ScheduleEditor() extends CometActor with Loggable {
       Seq(m.prosecutionTeamId, m.defenseTeamId)
     }
 
-    DB.runAwait(Teams.to[List].filterNot(_.id inSet scheduledTeamIds).result) match {
+    val teamsQuery = Teams.to[List]
+      .filter(_.competitionId === competition.id.getOrElse(0))
+      .filterNot(_.id inSet scheduledTeamIds)
+      .result
+
+    DB.runAwait(teamsQuery) match {
       case Full(actualByeTeams) =>
         actualByeTeams
 
