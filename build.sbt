@@ -2,7 +2,7 @@ name := "judicial-manager"
 
 organization := "me.frmr.scyig"
 
-version := "1.0.0"
+version := "1.1.0-SNAPSHOT"
 
 scalaVersion := "2.12.3"
 
