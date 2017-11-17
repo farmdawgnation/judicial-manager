@@ -45,6 +45,10 @@ class Boot extends Loggable {
       currentUserId.is > 0
     })
 
+    // This is lame but we have some DB queries / transforms that execute in the
+    // AJAX cycle that we want to give time to complete
+    LiftRules.ajaxPostTimeout = 60000
+
     // Define our site map
     LiftRules.setSiteMap(SiteMap(
       Menu.i("root") / "index" >>
