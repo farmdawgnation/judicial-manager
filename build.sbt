@@ -4,7 +4,7 @@ organization := "me.frmr.scyig"
 
 version := "1.1.0-SNAPSHOT"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.4"
 
 scalacOptions in Compile ++= Seq("-feature", "-deprecation")
 
