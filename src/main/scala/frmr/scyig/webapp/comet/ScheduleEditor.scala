@@ -3,6 +3,7 @@ package frmr.scyig.webapp.comet
 import frmr.scyig.db._
 import frmr.scyig.webapp.snippet._
 import net.liftweb.common._
+import net.liftweb.common.BoxLogging._
 import net.liftweb.http._
 import net.liftweb.http.js._
 import net.liftweb.http.js.JsCmds._
@@ -104,7 +105,7 @@ class ScheduleEditor() extends CometActor with Loggable {
       DBIO.seq(allQueries: _*).transactionally
     }
 
-    DB.runAwait(actions) match {
+    DB.runAwait(actions).logEmptyBox("Error saving schedule") match {
       case Full(_) if isCreatingNewRound =>
         RedirectTo(
           CompDashboard.menu.toLoc.calcHref(competition),
@@ -117,7 +118,7 @@ class ScheduleEditor() extends CometActor with Loggable {
           () => S.notice(s"The schedule for round ${competition.round} has been updated.")
         )
 
-      case _ =>
+      case Failure(message, Full(ex), _) =>
         S.error("Something went wrong")
     }
   }
