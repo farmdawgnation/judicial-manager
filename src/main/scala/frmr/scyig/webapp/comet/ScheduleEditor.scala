@@ -86,7 +86,7 @@ class ScheduleEditor() extends CometActor with Loggable {
 
       val allQueries = inserts ++ insertByes :+ updateCompetition
 
-      DBIO.seq(allQueries: _*)
+      DBIO.seq(allQueries: _*).transactionally
     } else {
       val clearByes = Byes
         .filter(_.competitionId === competition.id.getOrElse(0))
@@ -101,7 +101,7 @@ class ScheduleEditor() extends CometActor with Loggable {
 
       val allQueries = clearByes +: (inserts ++ insertByes)
 
-      DBIO.seq(allQueries: _*)
+      DBIO.seq(allQueries: _*).transactionally
     }
 
     DB.runAwait(actions) match {
