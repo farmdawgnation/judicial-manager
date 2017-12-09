@@ -68,7 +68,7 @@ class ScheduleEditor() extends CometActor with Loggable {
     } else {
       competition.round
     }
-    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, None, targetRound, 0)
+    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, 0, targetRound, 0)
     reRender()
   }
 
@@ -156,7 +156,7 @@ class ScheduleEditor() extends CometActor with Loggable {
           defense <- DB.runAwait(Teams.filter(_.id === m.defenseTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
 
           presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
-          scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId.getOrElse(-1)).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
+          scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
         } yield {
           ".prosecution-team-id" #> SHtml.hidden(
             v => updateMatch(idx, _.copy(prosecutionTeamId = v.toInt)),
@@ -183,10 +183,10 @@ class ScheduleEditor() extends CometActor with Loggable {
             v => ajaxUpdateMatch(idx, _.copy(presidingJudgeId = v.toInt))
           ).guid &
           ".presiding-judge [value]" #> presidingJudge.name &
-          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt))), m.scoringJudgeId.getOrElse(0).toString) andThen
+          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = v.toInt)), m.scoringJudgeId.toString) andThen
           ".scoring-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
             "",
-            v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = Some(v.toInt)))
+            v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = v.toInt))
           ).guid &
           ".scoring-judge [value]" #> scoringJudge.name &
           ".remove-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxRemoveMatch(idx) )

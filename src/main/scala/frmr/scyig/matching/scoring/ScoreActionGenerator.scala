@@ -53,7 +53,7 @@ class ScoreActionGenerator(getMatches: ()=>Box[Seq[ScheduledRoundMatch]]) {
                   defenseIdentifier = defense.id,
                   defenseScores = dScores,
                   presidingJudgeIdentifier = presidingJudge.id,
-                  scoringJudgeIdentifier = scoringJudge.map(_.id)
+                  scoringJudgeIdentifier = scoringJudge.id
                 ))
 
               case None =>

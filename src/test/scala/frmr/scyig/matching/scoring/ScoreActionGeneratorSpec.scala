@@ -53,7 +53,7 @@ class ScoreActionGeneratorSpec extends WordSpec with GeneratorDrivenPropertyChec
                 case trial @ Trial(p, d, pj, sj, _, _) if p.id == histTrial.prosecutionIdentifier &&
                                                           d.id == histTrial.defenseIdentifier &&
                                                           pj.id == histTrial.presidingJudgeIdentifier &&
-                                                          sj.map(_.id) == histTrial.scoringJudgeIdentifier =>
+                                                          sj.id == histTrial.scoringJudgeIdentifier =>
                   trial
               }
 

@@ -47,9 +47,7 @@ package object pprint {
         println("\tvs")
         println(s"\t${trial.defense.asStr}")
         println(s"\tPresiding Judge: ${trial.presidingJudge.asStr}")
-        if (trial.scoringJudge.isDefined) {
-          println(s"\tScoring Judge: ${trial.scoringJudge.get.asStr}")
-        }
+        println(s"\tScoring Judge: ${trial.scoringJudge.asStr}")
         println("")
       }
 

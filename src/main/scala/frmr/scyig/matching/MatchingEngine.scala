@@ -120,7 +120,7 @@ class MatchingEngine(
           case None =>
             BuildMatch(
               state.copy(
-                fullyMatchedRounds = state.fullyMatchedRounds :+ teamsWithPresiding.withScoringJudge(None),
+                scheduledRounds = state.scheduledRounds ++ teamsWithPresiding.toByes,
                 currentlyBuildingRound = None
               )
             )
@@ -129,7 +129,7 @@ class MatchingEngine(
             BuildMatch(
               state.copy(
                 fullyMatchedRounds = state.fullyMatchedRounds :+ teamsWithPresiding.withScoringJudge(
-                  scoringJudgeOpt.asInstanceOf[Option[Judge]]
+                  scoringJudge
                 ),
                 currentlyBuildingRound = None
               ).withoutParticipant(scoringJudge)

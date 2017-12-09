@@ -77,7 +77,7 @@ object Generators {
     prosecution <- teamGen
     defense <- teamGen
     presidingJudge <- presidingJudgeGen
-    scoringJudge <- Gen.option(scoringJudgeGen)
+    scoringJudge <- scoringJudgeGen
     roomNumber <- Gen.choose(1, 100)
   } yield {
     Trial(

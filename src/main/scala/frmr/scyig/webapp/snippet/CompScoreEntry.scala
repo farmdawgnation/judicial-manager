@@ -140,7 +140,7 @@ class CompScoreEntry(competition: Competition) {
           (v) => asInt(v).map(score => recordScore(
             m.id.getOrElse(0),
             m.prosecutionTeamId,
-            m.scoringJudgeId.getOrElse(0),
+            m.scoringJudgeId,
             score
           ))
         ) &
@@ -149,7 +149,7 @@ class CompScoreEntry(competition: Competition) {
           (v) => asInt(v).map(score => recordScore(
             m.id.getOrElse(0),
             m.defenseTeamId,
-            m.scoringJudgeId.getOrElse(0),
+            m.scoringJudgeId,
             score
           ))
         )

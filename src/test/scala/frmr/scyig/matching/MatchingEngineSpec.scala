@@ -52,7 +52,7 @@ class MatchingEngineSpec extends WordSpec with GeneratorDrivenPropertyChecks wit
 
     val participants = finalState.scheduledRounds.flatMap { round =>
       round match {
-        case Trial(team1, team2, presidingJudge, Some(schedulingJudge), _, _) =>
+        case Trial(team1, team2, presidingJudge, schedulingJudge, _, _) =>
           Seq(team1, team2, presidingJudge, schedulingJudge)
 
         case Trial(team1, team2, presidingJudge, _, _, _) =>

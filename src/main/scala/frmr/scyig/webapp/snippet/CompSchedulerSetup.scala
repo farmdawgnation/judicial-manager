@@ -145,7 +145,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
         Judges.filter(_.id === dbMatch.presidingJudgeId).result.head
       ).map(_.uuid)
       scoringJudgeUUID <- DB.runAwait(
-        Judges.filter(_.id === dbMatch.scoringJudgeId.getOrElse(0)).result.head
+        Judges.filter(_.id === dbMatch.scoringJudgeId).result.head
       ).map(_.uuid)
       prosecutionScores <- DB.runAwait(
         Scores.to[Seq].filter(_.matchId === matchId).filter(_.teamId === dbMatch.prosecutionTeamId).result
@@ -160,7 +160,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
         defenseUUID,
         defenseScores.map(_.score),
         presidingJudgeUUID,
-        Some(scoringJudgeUUID)
+        scoringJudgeUUID
       )
     }
   }
@@ -253,7 +253,7 @@ class CompSchedulerSetup(competition: Competition) extends Loggable {
           prosecutionTeamId = trial.prosecution.webappId,
           defenseTeamId = trial.defense.webappId,
           presidingJudgeId = trial.presidingJudge.webappId,
-          scoringJudgeId = trial.scoringJudge.map(_.webappId),
+          scoringJudgeId = trial.scoringJudge.webappId,
           round = competition.round + 1,
           order = 0
         )

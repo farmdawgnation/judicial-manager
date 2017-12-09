@@ -100,7 +100,7 @@ case class MatchedTeamsWithPresidingJudge(
 ) extends PartialRoundMatch {
   override val teams = Seq(prosecution, defense)
 
-  def withScoringJudge(scoringJudge: Option[Judge]): ScheduleableTrial = {
+  def withScoringJudge(scoringJudge: Judge): ScheduleableTrial = {
     ScheduleableTrial(
       prosecution,
       defense,
@@ -117,7 +117,7 @@ case class ScheduleableTrial(
   prosecution: CompetingTeam,
   defense: CompetingTeam,
   presidingJudge: Judge,
-  scoringJudge: Option[Judge]
+  scoringJudge: Judge
 ) extends CompletedRoundMatch {
   def withRoom(roomNumber: Int): Trial = {
     Trial(
@@ -137,7 +137,7 @@ case class Trial(
   prosecution: CompetingTeam,
   defense: CompetingTeam,
   presidingJudge: Judge,
-  scoringJudge: Option[Judge],
+  scoringJudge: Judge,
   roomNumber: Int,
   id: UUID = UUID.randomUUID()
 ) extends ScheduledRoundMatch

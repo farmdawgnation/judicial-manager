@@ -90,7 +90,7 @@ class MatchingPolicySpec extends WordSpec with Matchers {
       team2Uuid,
       Seq(20, 20),
       presidingJudgeUuid,
-      Some(scoringJudgeUuid)
+      scoringJudgeUuid
     )
 
     val team1 = CompetingTeam(

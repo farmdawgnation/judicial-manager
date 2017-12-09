@@ -14,7 +14,7 @@ case class Match(
   prosecutionTeamId: Int,
   defenseTeamId: Int,
   presidingJudgeId: Int,
-  scoringJudgeId: Option[Int],
+  scoringJudgeId: Int,
   round: Int,
   order: Int,
   uuid: UUID = UUID.randomUUID()
@@ -42,7 +42,7 @@ class Matches(tag: Tag) extends Table[Match](tag, "matches") {
   def prosecutionTeamId = column[Int]("prosecution_team_id")
   def defenseTeamId = column[Int]("defense_team_id")
   def presidingJudgeId = column[Int]("presiding_judge_id")
-  def scoringJudgeId = column[Option[Int]]("scoring_judge_id")
+  def scoringJudgeId = column[Int]("scoring_judge_id")
   def round = column[Int]("round")
   def order = column[Int]("order")
   def uuid = column[UUID]("uuid")
@@ -54,7 +54,7 @@ class Matches(tag: Tag) extends Table[Match](tag, "matches") {
   def ptidFK = foreignKey("m_prosecution_team_id_fk", prosecutionTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
   def dtidFK = foreignKey("m_defense_team_id_fk", defenseTeamId, Teams)(_.id, onDelete = ForeignKeyAction.Restrict)
   def pjidFK = foreignKey("m_presiding_judge_id_fk", presidingJudgeId, Judges)(_.id, onDelete = ForeignKeyAction.Restrict)
-  def sjidFK = foreignKey("m_scoring_judge_id_fk", scoringJudgeId, Judges)(_.id.?, onDelete = ForeignKeyAction.Restrict)
+  def sjidFK = foreignKey("m_scoring_judge_id_fk", scoringJudgeId, Judges)(_.id, onDelete = ForeignKeyAction.Restrict)
 }
 
 object Matches extends TableQuery[Matches](new Matches(_)) {
