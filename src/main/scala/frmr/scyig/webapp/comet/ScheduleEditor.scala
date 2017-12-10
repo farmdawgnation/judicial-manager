@@ -34,44 +34,6 @@ class ScheduleEditor() extends CometActor with Loggable {
     DB.runAwait(matchesQuery) openOr
     Seq.empty
 
-  /**
-   * When computing the prosecution / defense history summary we display we always
-   * want to display stats for *before* the round we're showing on the schedule.
-   *
-   * When creating a new round, that's done by using the total round count as the limiter.
-   * When editing an existing round, we subtract one from it.
-   */
-  private[this] val historyCountRoundLimiter = if (isCreatingNewRound) {
-    competition.round
-  } else {
-    competition.round - 1
-  }
-
-  private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
-    val matchInQuestion = currentEditorMatches(index)
-    currentEditorMatches = currentEditorMatches.patch(index, updater(matchInQuestion) :: Nil, 1)
-  }
-
-  private[this] def ajaxUpdateMatch(index: Int, updater: (Match)=>Match): Unit = {
-    updateMatch(index, updater)
-    reRender()
-  }
-
-  private[this] def ajaxRemoveMatch(index: Int): Unit = {
-    currentEditorMatches = currentEditorMatches.patch(index, Nil, 1);
-    reRender()
-  }
-
-  private[this] def ajaxAddMatch(): Unit = {
-    val targetRound = if (isCreatingNewRound) {
-      competition.round + 1
-    } else {
-      competition.round
-    }
-    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, 0, targetRound, 0)
-    reRender()
-  }
-
   private[this] def saveSchedule(): JsCmd = {
     val inserts = currentEditorMatches.map({ cem => Matches.insertOrUpdate(cem) })
 
@@ -143,59 +105,5 @@ class ScheduleEditor() extends CometActor with Loggable {
     }
   }
 
-  def render = {
-    S.appendJs(Call("window.bindSuggestions").cmd)
-
-    SHtml.makeFormsAjax andThen
-    ClearClearable andThen
-    "^ [data-competition-id]" #> competition.id.getOrElse(0).toString &
-    ".match-row" #> currentEditorMatches.zipWithIndex.flatMap {
-      case (m, idx) =>
-        for {
-          prosecution <- DB.runAwait(Teams.filter(_.id === m.prosecutionTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
-          defense <- DB.runAwait(Teams.filter(_.id === m.defenseTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
-
-          presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
-          scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
-        } yield {
-          ".prosecution-team-id" #> SHtml.hidden(
-            v => updateMatch(idx, _.copy(prosecutionTeamId = v.toInt)),
-            m.prosecutionTeamId.toString
-          ) andThen
-          ".prosecution-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(prosecutionTeamId = v.toInt))
-          ).guid &
-          ".prosecution-team [value]" #> prosecution.name &
-          ".p-role-prosecution *" #> prosecution.prosecutionOccurrences(historyCountRoundLimiter) &
-          ".p-role-defense *" #> prosecution.defenseOccurrences(historyCountRoundLimiter) &
-          ".defense-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(defenseTeamId = v.toInt)), m.defenseTeamId.toString) andThen
-          ".defense-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(defenseTeamId = v.toInt))
-          ).guid &
-          ".defense-team [value]" #> defense.name &
-          ".d-role-prosecution *" #> defense.prosecutionOccurrences(historyCountRoundLimiter) &
-          ".d-role-defense *" #> defense.defenseOccurrences(historyCountRoundLimiter) &
-          ".presiding-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(presidingJudgeId = v.toInt)), m.presidingJudgeId.toString) andThen
-          ".presiding-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(presidingJudgeId = v.toInt))
-          ).guid &
-          ".presiding-judge [value]" #> presidingJudge.name &
-          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = v.toInt)), m.scoringJudgeId.toString) andThen
-          ".scoring-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = v.toInt))
-          ).guid &
-          ".scoring-judge [value]" #> scoringJudge.name &
-          ".remove-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxRemoveMatch(idx) )
-        }
-    } &
-    ".bye-team" #> calculatedByes.map { team =>
-      "^ *" #> team.name
-    } &
-    ".add-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxAddMatch() ) &
-    ".save-schedule" #> SHtml.ajaxOnSubmit( () => saveSchedule() )
-  }
+  def render = PassThru
 }
