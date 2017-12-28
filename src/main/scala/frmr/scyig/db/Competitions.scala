@@ -40,6 +40,8 @@ case class Competition(
   status: CompetitionStatus = NotStarted,
   round: Int = 0
 ) {
+  lazy val competitionId = id.getOrElse(0)
+
   def currentRoundMatches: Box[Seq[Match]] = {
     DB.runAwait(
       Matches.to[Seq].filter(_.competitionId === id).filter(_.round === round).result
