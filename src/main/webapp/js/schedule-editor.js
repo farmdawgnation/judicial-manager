@@ -23,49 +23,72 @@
     }
   };
 
+  var editorViewModel = {
+    'competitionId': $(".schedule-configuration-form").data('competition-id'),
+    'matches': ko.observableArray(),
+    'byes': [],
+  };
+
   window.judicialManager.bindSuggestions = function() {
-    function afterSelect(functionId) {
-      return function(selection) {
-        if (selection) {
-          var data = functionId + "=" + selection.value;
-          console.log("Invoking " + data);
-          var onFail = function () {
-            alert("Rerender of scheduler failed");
-          };
-          lift.ajax(data, null, onFail);
+    function updateMatchIdField(rowElem, fieldName) {
+      return function(suggestion) {
+        var id = undefined;
+
+        if (suggestion != null) {
+          id = suggestion.value;
         }
+
+        var targetIndex = $(rowElem).data('index');
+        var targetObservable = editorViewModel.matches()[targetIndex][fieldName];
+        targetObservable(id);
       }
     }
 
-    $(".match-row").each(function(index, rowElem) {
+    $(".match-row:not(.suggesting)").each(function(index, rowElem) {
       $(rowElem).find(".prosecution-team").elemicaSuggest({
         suggestFunction: suggest(apiUrls.teamSuggestionUrl),
         valueInput: $(rowElem).find(".prosecution-team-id"),
-        afterSelect: afterSelect($(rowElem).find(".prosecution-team-id").data("ajax-update-id"))
+        afterSelect: updateMatchIdField(rowElem, 'prosecutionTeamId')
       });
 
       $(rowElem).find(".defense-team").elemicaSuggest({
         suggestFunction: suggest(apiUrls.teamSuggestionUrl),
         valueInput: $(rowElem).find(".defense-team-id"),
-        afterSelect: afterSelect($(rowElem).find(".defense-team-id").data("ajax-update-id"))
+        afterSelect: updateMatchIdField(rowElem, 'defenseTeamId')
       });
 
       $(rowElem).find(".presiding-judge").elemicaSuggest({
         suggestFunction: suggest(apiUrls.judgeSuggestionUrl),
         valueInput: $(rowElem).find(".presiding-judge-id"),
-        afterSelect: afterSelect($(rowElem).find(".presiding-judge-id").data("ajax-update-id"))
+        afterSelect: updateMatchIdField(rowElem, 'presidingJudgeId')
       });
 
       $(rowElem).find(".scoring-judge").elemicaSuggest({
         suggestFunction: suggest(apiUrls.judgeSuggestionUrl),
         valueInput: $(rowElem).find(".scoring-judge-id"),
-        afterSelect: afterSelect($(rowElem).find(".scoring-judge-id").data("ajax-update-id"))
+        afterSelect: updateMatchIdField(rowElem, 'scoringJudgeId')
       });
+
+      $(rowElem).addClass("suggesting");
     });
   }
 
-  var editorViewModel = {
+  judicialManager.editorViewModel = editorViewModel;
 
+  editorViewModel.addMatch = function() {
+    var newMatch = {
+      prosecutionTeamName: ko.observable(""),
+      prosecutionTeamId: ko.observable(undefined),
+      defenseTeamName: ko.observable(""),
+      defenseTeamId: ko.observable(undefined),
+      presidingJudgeName: ko.observable(""),
+      presidingJudgeId: ko.observable(undefined),
+      scoringJudgeName: ko.observable(""),
+      scoringJudgeId: ko.observable(undefined)
+    }
+
+    editorViewModel.matches.push(newMatch);
+    judicialManager.bindSuggestions();
   };
 
   ko.applyBindings(editorViewModel, document.getElementById('schedule-editor-bindings'));
