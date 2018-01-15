@@ -16,6 +16,31 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import slick._
 import slick.jdbc.MySQLProfile.api._
 
+case class MatchViewModel(
+  prosecutionTeamId: Int,
+  prosecutionTeamName: String,
+  defenseTeamId: Int,
+  defenseTeamName: String,
+  presidingJudgeId: Int,
+  presidingJudgeName: String,
+  scoringJudgeId: Int,
+  scoringJudgeName: String
+)
+object MatchViewModel {
+  def apply(model: Match): MatchViewModel = {
+    MatchViewModel(
+      model.prosecutionTeamId,
+      model.prosecutionTeam.map(_.name).openOr(""),
+      model.defenseTeamId,
+      model.defenseTeam.map(_.name).openOr(""),
+      model.presidingJudgeId,
+      model.presidingJudge.map(_.name).openOr(""),
+      model.defenseTeamId,
+      model.defenseTeam.map(_.name).openOr("")
+    )
+  }
+}
+
 object scheduleEditorPopulatedMatches extends RequestVar[Box[Seq[Match]]](Empty)
 
 class ScheduleEditor() extends CometActor with Loggable {
