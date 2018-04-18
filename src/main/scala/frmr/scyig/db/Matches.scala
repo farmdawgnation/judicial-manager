@@ -58,21 +58,21 @@ class Matches(tag: Tag) extends Table[Match](tag, "matches") {
 }
 
 object Matches extends TableQuery[Matches](new Matches(_)) {
-  def countDefenseOccurrences(team: Team, roundLimiter: Int): Box[Int] = {
+  def countDefenseOccurrences(team: Team): Box[Int] = {
     DB.runAwait(
       Matches
         .filter(_.defenseTeamId === team.id.getOrElse(0))
-        .filter(_.round <= roundLimiter)
+        .filter(_.round < Matches.filter(_.competitionId === team.competitionId).map(_.round).max)
         .length
         .result
     )
   }
 
-  def countProsecutionOccurrences(team: Team, roundLimiter: Int): Box[Int] = {
+  def countProsecutionOccurrences(team: Team): Box[Int] = {
     DB.runAwait(
       Matches
         .filter(_.prosecutionTeamId === team.id.getOrElse(0))
-        .filter(_.round <= roundLimiter)
+        .filter(_.round < Matches.filter(_.competitionId === team.competitionId).map(_.round).max)
         .length
         .result
     )
