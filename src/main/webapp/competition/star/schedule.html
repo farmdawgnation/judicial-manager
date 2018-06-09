@@ -12,24 +12,22 @@
     <form class="schedule-configuration-form" id="schedule-editor-bindings" data-lift="CompSchedule.attachCompetitionId">
       <table>
         <tbody data-bind="foreach: matches">
-          <tr class="match-row" data-bind="attr: {'data-index': $index}">
+          <tr class="match-row" data-bind="attr: {'data-index': $index, 'data-prosecution-team-id': prosecutionTeamId, 'data-defense-team-id': defenseTeamId}">
             <td>
               <div class="teams">
                 <div class="suggestion-box-bound">
                   <input type="text" class="match-team prosecution-team" data-bind="textInput: prosecutionTeamName">
-                  <input type="hidden" class="prosecution-team-id">
                   <span class="field-metadata">
-                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="p-role-prosecution">-1</span> •
-                    <abbr title="Times in defense role">Def:</abbr> <span class="p-role-defense">-1</span>
+                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="p-role-prosecution" data-bind="text: prosecutionTeamData().prosecutionOccurrences">-1</span> •
+                    <abbr title="Times in defense role">Def:</abbr> <span class="p-role-defense" data-bind="text: prosecutionTeamData().defenseOccurrences">-1</span>
                   </span>
                 </div>
                 v.
                 <div class="suggestion-box-bound">
                   <input type="text" class="match-team defense-team" data-bind="textInput: defenseTeamName">
-                  <input type="hidden" class="defense-team-id">
                   <span class="field-metadata">
-                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="d-role-prosecution">-1</span> •
-                    <abbr title="Times in defense role">Def:</abbr> <span class="d-role-defense">-1</span>
+                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="d-role-prosecution" data-bind="text: defenseTeamData().prosecutionOccurrences">-1</span> •
+                    <abbr title="Times in defense role">Def:</abbr> <span class="d-role-defense" data-bind="text: defenseTeamData().defenseOccurrences">-1</span>
                   </span>
                 </div>
               </div>
@@ -38,14 +36,12 @@
                   <span class="judge-type">Presiding:</span>
                   <div class="suggestion-box-bound">
                     <input type="text" class="match-judge presiding-judge" data-bind="textInput: presidingJudgeName">
-                    <input type="hidden" class="presiding-judge-id">
                   </div>
                 </li>
                 <li>
                   <span class="judge-type">Scoring:</span>
                   <div class="suggestion-box-bound">
                     <input type="text" class="match-judge scoring-judge" data-bind="textInput: scoringJudgeName">
-                    <input type="hidden" class="scoring-judge-id">
                   </div>
                 </li>
               </ul>

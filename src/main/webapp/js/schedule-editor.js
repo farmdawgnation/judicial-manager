@@ -106,6 +106,22 @@
       scoringJudgeId: ko.observable(undefined)
     }
 
+    newMatch.prosecutionTeamData = ko.computed(function() {
+      var teamId = newMatch.prosecutionTeamId();
+      var teamData = editorViewModel.allTeams().find(function(item) {
+        return item.id = teamId;
+      });
+      return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
+    });
+
+    newMatch.defenseTeamData = ko.computed(function() {
+      var teamId = newMatch.defenseTeamId();
+      var teamData = editorViewModel.allTeams().find(function(item) {
+        return item.id = teamId;
+      });
+      return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
+    });
+
     editorViewModel.matches.push(newMatch);
     judicialManager.bindSuggestions();
   };
@@ -128,6 +144,22 @@
         scoringJudgeName: ko.observable(match.scoringJudgeName),
         scoringJudgeId: ko.observable(match.scoringJudgeId)
       };
+
+      newMatch.prosecutionTeamData = ko.computed(function() {
+        var teamId = newMatch.prosecutionTeamId();
+        var teamData = editorViewModel.allTeams().find(function(item) {
+          return item.id = teamId;
+        });
+        return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
+      });
+
+      newMatch.defenseTeamData = ko.computed(function() {
+        var teamId = newMatch.defenseTeamId();
+        var teamData = editorViewModel.allTeams().find(function(item) {
+          return item.id = teamId;
+        });
+        return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
+      });
 
       editorViewModel.matches.push(newMatch);
     });

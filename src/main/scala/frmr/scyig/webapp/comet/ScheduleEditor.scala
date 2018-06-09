@@ -57,13 +57,17 @@ object MatchViewModel {
 
 case class TeamViewModel(
   id: Int,
-  name: String
+  name: String,
+  prosecutionOccurrences: Int,
+  defenseOccurrences: Int
 )
 object TeamViewModel {
   def apply(team: Team): TeamViewModel = {
     TeamViewModel(
       team.id.getOrElse(0),
-      team.name
+      team.name,
+      team.prosecutionOccurrences.openOr(0),
+      team.defenseOccurrences.openOr(0)
     )
   }
 }
