@@ -96,7 +96,6 @@
   }
 
   judicialManager.setSchedule = function(schedule) {
-    console.log(schedule);
     editorViewModel.matches.removeAll();
 
     schedule.forEach(function(match) {
