@@ -91,6 +91,32 @@
     judicialManager.bindSuggestions();
   };
 
+  judicialManager.serializeSchedule = function() {
+    return ko.toJSON(editorViewModel.matches);
+  }
+
+  judicialManager.setSchedule = function(schedule) {
+    console.log(schedule);
+    editorViewModel.matches.removeAll();
+
+    schedule.forEach(function(match) {
+      var newMatch = {
+        prosecutionTeamName: ko.observable(match.prosecutionTeamName),
+        prosecutionTeamId: ko.observable(match.prosecutionTeamId),
+        defenseTeamName: ko.observable(match.defenseTeamName),
+        defenseTeamId: ko.observable(match.defenseTeamid),
+        presidingJudgeName: ko.observable(match.presidingJudgeName),
+        presidingJudgeId: ko.observable(match.presidingJudgeId),
+        scoringJudgeName: ko.observable(match.scoringJudgeName),
+        scoringJudgeId: ko.observable(match.scoringJudgeId)
+      };
+
+      editorViewModel.matches.push(newMatch);
+    });
+
+    judicialManager.bindSuggestions();
+  }
+
   ko.applyBindings(editorViewModel, document.getElementById('schedule-editor-bindings'));
   judicialManager.bindSuggestions();
 })();

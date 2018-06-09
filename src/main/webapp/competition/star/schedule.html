@@ -1,5 +1,5 @@
 <div class="page-wrapper" data-lift="surround?with=default&at=content">
-  <section class="full-width-container" id="schedule-configuration-container">
+  <section class="full-width-container" id="schedule-configuration-container" data-lift="comet?type=ScheduleEditor&randomname=true&eager_eval=true">
     <section class="competition-meta" data-lift="embed?what=competition-meta"></section>
 
     <div data-lift="Msgs">
@@ -37,14 +37,14 @@
                 <li>
                   <span class="judge-type">Presiding:</span>
                   <div class="suggestion-box-bound">
-                    <input type="text" class="match-judge presiding-judge">
+                    <input type="text" class="match-judge presiding-judge" data-bind="textInput: presidingJudgeName">
                     <input type="hidden" class="presiding-judge-id">
                   </div>
                 </li>
                 <li>
                   <span class="judge-type">Scoring:</span>
                   <div class="suggestion-box-bound">
-                    <input type="text" class="match-judge scoring-judge">
+                    <input type="text" class="match-judge scoring-judge" data-bind="textInput: scoringJudgeName">
                     <input type="hidden" class="scoring-judge-id">
                   </div>
                 </li>
@@ -73,4 +73,5 @@
     <tail>
       <script src="/js/schedule-editor.js" type="text/javascript"></script>
     </tail>
+  </section>
 </div>

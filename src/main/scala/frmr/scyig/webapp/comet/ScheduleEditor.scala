@@ -9,6 +9,7 @@ import net.liftweb.http.js._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JE._
 import net.liftweb.json._
+import net.liftweb.json.Extraction._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import scala.concurrent.Future
@@ -35,8 +36,8 @@ object MatchViewModel {
       model.defenseTeam.map(_.name).openOr(""),
       model.presidingJudgeId,
       model.presidingJudge.map(_.name).openOr(""),
-      model.defenseTeamId,
-      model.defenseTeam.map(_.name).openOr("")
+      model.scoringJudgeId,
+      model.scoringJudge.map(_.name).openOr("")
     )
   }
 }
@@ -44,6 +45,8 @@ object MatchViewModel {
 object scheduleEditorPopulatedMatches extends RequestVar[Box[Seq[Match]]](Empty)
 
 class ScheduleEditor() extends CometActor with Loggable {
+  implicit val formats = DefaultFormats
+
   private[this] val competition: Competition = S.request.flatMap(_.location).flatMap(_.currentValue).collect {
     case competition: Competition => competition
     case (item1: Competition, _) => item1
@@ -59,7 +62,7 @@ class ScheduleEditor() extends CometActor with Loggable {
     DB.runAwait(matchesQuery) openOr
     Seq.empty
 
-  private[this] def saveSchedule(): JsCmd = {
+  private[this] def saveSchedule(serializedJson: String): JsCmd = {
     val inserts = currentEditorMatches.map({ cem => Matches.insertOrUpdate(cem) })
 
     val actions = if (isCreatingNewRound) {
@@ -130,5 +133,11 @@ class ScheduleEditor() extends CometActor with Loggable {
     }
   }
 
-  def render = PassThru
+  def render = {
+    val viewModelMatches = currentEditorMatches.map(MatchViewModel(_))
+    val viewModelMatchesJson = decompose(viewModelMatches)
+    S.appendJs(JE.Call("judicialManager.setSchedule", viewModelMatchesJson))
+
+    ".save-schedule [onclick]" #> SHtml.ajaxCall(JE.Call("judicialManager.serializeSchedule"), saveSchedule _)
+  }
 }
