@@ -78,11 +78,6 @@ class ScheduleEditor() extends CometActor with Loggable {
     case (item1: Competition, _) => item1
   } openOrThrowException("No competition?")
 
-  private[this] val matchesQuery = Matches.to[Seq]
-    .filter(_.competitionId === competition.id.getOrElse(0))
-    .filter(_.round === competition.round)
-    .result
-
   private[this] val isCreatingNewRound: Boolean = scheduleEditorPopulatedMatches.is.isDefined
 
   private[this] def saveSchedule(serializedJson: String): JsCmd = {
@@ -185,6 +180,11 @@ class ScheduleEditor() extends CometActor with Loggable {
   }
 
   def render = {
+    val matchesQuery = Matches.to[Seq]
+      .filter(_.competitionId === competition.id.getOrElse(0))
+      .filter(_.round === competition.round)
+      .result
+
     val initialMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
       DB.runAwait(matchesQuery) openOr
       Seq.empty
