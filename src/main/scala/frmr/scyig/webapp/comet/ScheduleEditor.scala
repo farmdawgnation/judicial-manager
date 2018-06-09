@@ -84,9 +84,6 @@ class ScheduleEditor() extends CometActor with Loggable {
     .result
 
   private[this] val isCreatingNewRound: Boolean = scheduleEditorPopulatedMatches.is.isDefined
-  private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
-    DB.runAwait(matchesQuery) openOr
-    Seq.empty
 
   private[this] def saveSchedule(serializedJson: String): JsCmd = {
     val viewModelCollection = parse(serializedJson).extract[List[MatchViewModel]]
@@ -188,7 +185,11 @@ class ScheduleEditor() extends CometActor with Loggable {
   }
 
   def render = {
-    val viewModelMatches = currentEditorMatches.map(MatchViewModel(_))
+    val initialMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
+      DB.runAwait(matchesQuery) openOr
+      Seq.empty
+
+    val viewModelMatches = initialMatches.map(MatchViewModel(_))
     val viewModelMatchesJson = decompose(viewModelMatches)
     S.appendJs(JE.Call("judicialManager.setSchedule", viewModelMatchesJson))
 
