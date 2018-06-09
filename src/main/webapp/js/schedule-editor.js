@@ -43,6 +43,11 @@
     return byeTeams;
   }, editorViewModel);
 
+  editorViewModel.deleteMatch = function(currentItem, event) {
+    var index = $(event.target).closest(".match-row").data("index");
+    editorViewModel.matches.splice(index, 1);
+  }
+
   window.judicialManager.bindSuggestions = function() {
     function updateMatchIdField(rowElem, fieldName) {
       return function(suggestion) {
