@@ -193,6 +193,14 @@ class ScheduleEditor() extends CometActor with Loggable {
     val viewModelMatchesJson = decompose(viewModelMatches)
     S.appendJs(JE.Call("judicialManager.setSchedule", viewModelMatchesJson))
 
+    val allTeamsQuery = Teams.to[List]
+      .filter(_.competitionId === competition.id.getOrElse(0))
+      .result
+
+    val allTeams: Seq[Team] = DB.runAwait(allTeamsQuery) openOr Seq.empty
+    val teamsViewModel = allTeams.map(TeamViewModel(_))
+    S.appendJs(JE.Call("judicialManager.setAllTeams", decompose(teamsViewModel)))
+
     ".save-schedule [onclick]" #> SHtml.ajaxCall(JE.Call("judicialManager.serializeSchedule"), saveSchedule _)
   }
 }

@@ -26,8 +26,22 @@
   var editorViewModel = {
     'competitionId': $(".schedule-configuration-form").data('competition-id'),
     'matches': ko.observableArray(),
-    'byes': [],
+    'allTeams': ko.observableArray()
   };
+
+  editorViewModel.byes = ko.computed(function() {
+    var scheduledTeamIds = [];
+    editorViewModel.matches().forEach(function(match) {
+      scheduledTeamIds.push(match.prosecutionTeamId());
+      scheduledTeamIds.push(match.defenseTeamId());
+    });
+
+    var byeTeams = editorViewModel.allTeams().filter(function(possibleByeTeam) {
+      return ! scheduledTeamIds.includes(possibleByeTeam.id);
+    });
+
+    return byeTeams;
+  }, editorViewModel);
 
   window.judicialManager.bindSuggestions = function() {
     function updateMatchIdField(rowElem, fieldName) {
@@ -114,6 +128,13 @@
     });
 
     judicialManager.bindSuggestions();
+  }
+
+  judicialManager.setAllTeams = function(allTeams) {
+    editorViewModel.allTeams.removeAll();
+    allTeams.forEach(function(team) {
+      editorViewModel.allTeams.push(team);
+    });
   }
 
   ko.applyBindings(editorViewModel, document.getElementById('schedule-editor-bindings'));
