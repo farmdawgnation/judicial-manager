@@ -55,6 +55,19 @@ object MatchViewModel {
   }
 }
 
+case class TeamViewModel(
+  id: Int,
+  name: String
+)
+object TeamViewModel {
+  def apply(team: Team): TeamViewModel = {
+    TeamViewModel(
+      team.id.getOrElse(0),
+      team.name
+    )
+  }
+}
+
 object scheduleEditorPopulatedMatches extends RequestVar[Box[Seq[Match]]](Empty)
 
 class ScheduleEditor() extends CometActor with Loggable {
@@ -81,7 +94,7 @@ class ScheduleEditor() extends CometActor with Loggable {
     val actions = if (isCreatingNewRound) {
       val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
 
-      val inserts = for {
+      val matches = for {
         (viewModel, index) <- viewModelCollection.zipWithIndex
         dbModel = viewModel.toModel(
           competition.id.getOrElse(0),
@@ -89,9 +102,10 @@ class ScheduleEditor() extends CometActor with Loggable {
           index
         )
       } yield {
-        Matches.insertOrUpdate(dbModel)
+        dbModel
       }
-      val insertByes = calculatedByes.map({ team => Bye(
+      val inserts = matches.map(Matches.insertOrUpdate)
+      val insertByes = calculatedByes(matches).map({ team => Bye(
         None,
         competition.id.getOrElse(0),
         team.id.getOrElse(0),
@@ -106,7 +120,7 @@ class ScheduleEditor() extends CometActor with Loggable {
         .filter(_.competitionId === competition.id.getOrElse(0))
         .filter(_.round === competition.round)
         .delete
-      val insertMatches = for {
+      val matches = for {
         (viewModel, index) <- viewModelCollection.zipWithIndex
         dbModel = viewModel.toModel(
           competition.id.getOrElse(0),
@@ -114,15 +128,16 @@ class ScheduleEditor() extends CometActor with Loggable {
           index
         )
       } yield {
-        Matches.insertOrUpdate(dbModel)
+        dbModel
       }
+      val insertMatches = matches.map(Matches.insertOrUpdate)
 
 
       val clearByes = Byes
         .filter(_.competitionId === competition.id.getOrElse(0))
         .filter(_.round === competition.round)
         .delete
-      val insertByes = calculatedByes.map({ team => Bye(
+      val insertByes = calculatedByes(matches).map({ team => Bye(
         None,
         competition.id.getOrElse(0),
         team.id.getOrElse(0),
@@ -152,8 +167,8 @@ class ScheduleEditor() extends CometActor with Loggable {
     }
   }
 
-  private[this] def calculatedByes = {
-    val scheduledTeamIds = currentEditorMatches.flatMap { m =>
+  private[this] def calculatedByes(codedMatches: Seq[Match]) = {
+    val scheduledTeamIds = codedMatches.flatMap { m =>
       Seq(m.prosecutionTeamId, m.defenseTeamId)
     }
 
