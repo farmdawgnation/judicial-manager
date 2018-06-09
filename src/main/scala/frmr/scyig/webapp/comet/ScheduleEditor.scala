@@ -26,7 +26,20 @@ case class MatchViewModel(
   presidingJudgeName: String,
   scoringJudgeId: Int,
   scoringJudgeName: String
-)
+) {
+  def toModel(competitionId: Int, round: Int, order: Int): Match = {
+    Match(
+      None,
+      competitionId,
+      prosecutionTeamId,
+      defenseTeamId,
+      presidingJudgeId,
+      scoringJudgeId,
+      round,
+      order
+    )
+  }
+}
 object MatchViewModel {
   def apply(model: Match): MatchViewModel = {
     MatchViewModel(
@@ -63,11 +76,21 @@ class ScheduleEditor() extends CometActor with Loggable {
     Seq.empty
 
   private[this] def saveSchedule(serializedJson: String): JsCmd = {
-    val inserts = currentEditorMatches.map({ cem => Matches.insertOrUpdate(cem) })
+    val viewModelCollection = parse(serializedJson).extract[List[MatchViewModel]]
 
     val actions = if (isCreatingNewRound) {
       val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
 
+      val inserts = for {
+        (viewModel, index) <- viewModelCollection.zipWithIndex
+        dbModel = viewModel.toModel(
+          competition.id.getOrElse(0),
+          competition.round + 1,
+          index
+        )
+      } yield {
+        Matches.insertOrUpdate(dbModel)
+      }
       val insertByes = calculatedByes.map({ team => Bye(
         None,
         competition.id.getOrElse(0),
@@ -79,6 +102,22 @@ class ScheduleEditor() extends CometActor with Loggable {
 
       DBIO.seq(allQueries: _*).transactionally
     } else {
+      val clearMatches = Matches
+        .filter(_.competitionId === competition.id.getOrElse(0))
+        .filter(_.round === competition.round)
+        .delete
+      val insertMatches = for {
+        (viewModel, index) <- viewModelCollection.zipWithIndex
+        dbModel = viewModel.toModel(
+          competition.id.getOrElse(0),
+          competition.round,
+          index
+        )
+      } yield {
+        Matches.insertOrUpdate(dbModel)
+      }
+
+
       val clearByes = Byes
         .filter(_.competitionId === competition.id.getOrElse(0))
         .filter(_.round === competition.round)
@@ -90,7 +129,7 @@ class ScheduleEditor() extends CometActor with Loggable {
         competition.round
       )}).map(Byes += _)
 
-      val allQueries = clearByes +: (inserts ++ insertByes)
+      val allQueries = Seq(clearMatches, clearByes) ++ insertMatches ++ insertByes
 
       DBIO.seq(allQueries: _*).transactionally
     }

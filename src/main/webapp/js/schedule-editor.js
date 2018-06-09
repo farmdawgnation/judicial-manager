@@ -104,7 +104,7 @@
         prosecutionTeamName: ko.observable(match.prosecutionTeamName),
         prosecutionTeamId: ko.observable(match.prosecutionTeamId),
         defenseTeamName: ko.observable(match.defenseTeamName),
-        defenseTeamId: ko.observable(match.defenseTeamid),
+        defenseTeamId: ko.observable(match.defenseTeamId),
         presidingJudgeName: ko.observable(match.presidingJudgeName),
         presidingJudgeId: ko.observable(match.presidingJudgeId),
         scoringJudgeName: ko.observable(match.scoringJudgeName),
