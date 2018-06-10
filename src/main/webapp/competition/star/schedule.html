@@ -17,17 +17,17 @@
               <div class="teams">
                 <div class="suggestion-box-bound">
                   <input type="text" class="match-team prosecution-team" data-bind="textInput: prosecutionTeamName">
-                  <span class="field-metadata">
-                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="p-role-prosecution" data-bind="text: prosecutionTeamData().prosecutionOccurrences">-1</span> •
-                    <abbr title="Times in defense role">Def:</abbr> <span class="p-role-defense" data-bind="text: prosecutionTeamData().defenseOccurrences">-1</span>
+                  <span class="field-metadata" data-bind="with: prosecutionTeamData">
+                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="p-role-prosecution" data-bind="text: prosecutionOccurrences">-1</span> •
+                    <abbr title="Times in defense role">Def:</abbr> <span class="p-role-defense" data-bind="text: defenseOccurrences">-1</span>
                   </span>
                 </div>
                 v.
                 <div class="suggestion-box-bound">
                   <input type="text" class="match-team defense-team" data-bind="textInput: defenseTeamName">
-                  <span class="field-metadata">
-                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="d-role-prosecution" data-bind="text: defenseTeamData().prosecutionOccurrences">-1</span> •
-                    <abbr title="Times in defense role">Def:</abbr> <span class="d-role-defense" data-bind="text: defenseTeamData().defenseOccurrences">-1</span>
+                  <span class="field-metadata" data-bind="with: defenseTeamData">
+                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="d-role-prosecution" data-bind="text: prosecutionOccurrences">-1</span> •
+                    <abbr title="Times in defense role">Def:</abbr> <span class="d-role-defense" data-bind="text: defenseOccurrences">-1</span>
                   </span>
                 </div>
               </div>

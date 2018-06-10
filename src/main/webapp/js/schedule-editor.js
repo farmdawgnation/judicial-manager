@@ -32,8 +32,10 @@
   editorViewModel.byes = ko.computed(function() {
     var scheduledTeamIds = [];
     editorViewModel.matches().forEach(function(match) {
-      scheduledTeamIds.push(match.prosecutionTeamId());
-      scheduledTeamIds.push(match.defenseTeamId());
+      if (match.prosecutionTeamId())
+        scheduledTeamIds.push(match.prosecutionTeamId());
+      if (match.defenseTeamId())
+        scheduledTeamIds.push(match.defenseTeamId());
     });
 
     var byeTeams = editorViewModel.allTeams().filter(function(possibleByeTeam) {
@@ -94,22 +96,22 @@
 
   judicialManager.editorViewModel = editorViewModel;
 
-  editorViewModel.addMatch = function() {
+  function createMatchObservables(match) {
     var newMatch = {
-      prosecutionTeamName: ko.observable(""),
-      prosecutionTeamId: ko.observable(undefined),
-      defenseTeamName: ko.observable(""),
-      defenseTeamId: ko.observable(undefined),
-      presidingJudgeName: ko.observable(""),
-      presidingJudgeId: ko.observable(undefined),
-      scoringJudgeName: ko.observable(""),
-      scoringJudgeId: ko.observable(undefined)
-    }
+      prosecutionTeamName: ko.observable((match||{}).prosecutionTeamName),
+      prosecutionTeamId: ko.observable((match||{}).prosecutionTeamId),
+      defenseTeamName: ko.observable((match||{}).defenseTeamName),
+      defenseTeamId: ko.observable((match||{}).defenseTeamId),
+      presidingJudgeName: ko.observable((match||{}).presidingJudgeName),
+      presidingJudgeId: ko.observable((match||{}).presidingJudgeId),
+      scoringJudgeName: ko.observable((match||{}).scoringJudgeName),
+      scoringJudgeId: ko.observable((match||{}).scoringJudgeId)
+    };
 
     newMatch.prosecutionTeamData = ko.computed(function() {
       var teamId = newMatch.prosecutionTeamId();
       var teamData = editorViewModel.allTeams().find(function(item) {
-        return item.id = teamId;
+        return item.id == teamId;
       });
       return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
     });
@@ -117,12 +119,16 @@
     newMatch.defenseTeamData = ko.computed(function() {
       var teamId = newMatch.defenseTeamId();
       var teamData = editorViewModel.allTeams().find(function(item) {
-        return item.id = teamId;
+        return item.id == teamId;
       });
       return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
     });
 
     editorViewModel.matches.push(newMatch);
+  }
+
+  editorViewModel.addMatch = function() {
+    createMatchObservables();
     judicialManager.bindSuggestions();
   };
 
@@ -134,34 +140,7 @@
     editorViewModel.matches.removeAll();
 
     schedule.forEach(function(match) {
-      var newMatch = {
-        prosecutionTeamName: ko.observable(match.prosecutionTeamName),
-        prosecutionTeamId: ko.observable(match.prosecutionTeamId),
-        defenseTeamName: ko.observable(match.defenseTeamName),
-        defenseTeamId: ko.observable(match.defenseTeamId),
-        presidingJudgeName: ko.observable(match.presidingJudgeName),
-        presidingJudgeId: ko.observable(match.presidingJudgeId),
-        scoringJudgeName: ko.observable(match.scoringJudgeName),
-        scoringJudgeId: ko.observable(match.scoringJudgeId)
-      };
-
-      newMatch.prosecutionTeamData = ko.computed(function() {
-        var teamId = newMatch.prosecutionTeamId();
-        var teamData = editorViewModel.allTeams().find(function(item) {
-          return item.id = teamId;
-        });
-        return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
-      });
-
-      newMatch.defenseTeamData = ko.computed(function() {
-        var teamId = newMatch.defenseTeamId();
-        var teamData = editorViewModel.allTeams().find(function(item) {
-          return item.id = teamId;
-        });
-        return teamData || {id: 0, prosecutionOccurrences: 0, defenseOccurrences: 0};
-      });
-
-      editorViewModel.matches.push(newMatch);
+      createMatchObservables(match);
     });
 
     judicialManager.bindSuggestions();
