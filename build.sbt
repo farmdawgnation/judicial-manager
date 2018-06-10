@@ -4,12 +4,12 @@ organization := "me.frmr.scyig"
 
 version := "1.1.0-SNAPSHOT"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.6"
 
 scalacOptions in Compile ++= Seq("-feature", "-deprecation")
 
 libraryDependencies ++= {
-  val liftVersion = "3.2.0-RC1"
+  val liftVersion = "3.3.0-M3"
 
   Seq(
     "net.liftweb"                   %% "lift-webkit"          % liftVersion,

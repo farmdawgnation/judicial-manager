@@ -1,7 +1,8 @@
 package frmr.scyig.db
 
 import slick.jdbc.MySQLProfile.api._
-import net.liftweb.util._
+import net.liftweb.util.{BCrypt => _, _}
+import org.mindrot.jbcrypt.BCrypt
 
 case class User(
   id: Option[Int],
