@@ -1,5 +1,5 @@
 <div class="page-wrapper" data-lift="surround?with=default&at=content">
-  <section class="full-width-container" id="schedule-configuration-container">
+  <section class="full-width-container" id="schedule-configuration-container" data-lift="comet?type=ScheduleEditor&randomname=true&eager_eval=true">
     <section class="competition-meta" data-lift="embed?what=competition-meta"></section>
 
     <div data-lift="Msgs">
@@ -9,27 +9,25 @@
 
     <h3>Proposed Schedule</h3>
 
-    <form class="schedule-configuration-form" data-lift="comet?type=ScheduleEditor&randomname=true">
+    <form class="schedule-configuration-form" id="schedule-editor-bindings" data-lift="CompSchedule.attachCompetitionId">
       <table>
-        <tbody>
-          <tr class="match-row">
+        <tbody data-bind="foreach: matches">
+          <tr class="match-row" data-bind="attr: {'data-index': $index, 'data-prosecution-team-id': prosecutionTeamId, 'data-defense-team-id': defenseTeamId}">
             <td>
               <div class="teams">
                 <div class="suggestion-box-bound">
-                  <input type="text" class="match-team prosecution-team">
-                  <input type="hidden" class="prosecution-team-id">
-                  <span class="field-metadata">
-                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="p-role-prosecution">-1</span> •
-                    <abbr title="Times in defense role">Def:</abbr> <span class="p-role-defense">-1</span>
+                  <input type="text" class="match-team prosecution-team" data-bind="textInput: prosecutionTeamName">
+                  <span class="field-metadata" data-bind="with: prosecutionTeamData">
+                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="p-role-prosecution" data-bind="text: prosecutionOccurrences">-1</span> •
+                    <abbr title="Times in defense role">Def:</abbr> <span class="p-role-defense" data-bind="text: defenseOccurrences">-1</span>
                   </span>
                 </div>
                 v.
                 <div class="suggestion-box-bound">
-                  <input type="text" class="match-team defense-team">
-                  <input type="hidden" class="defense-team-id">
-                  <span class="field-metadata">
-                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="d-role-prosecution">-1</span> •
-                    <abbr title="Times in defense role">Def:</abbr> <span class="d-role-defense">-1</span>
+                  <input type="text" class="match-team defense-team" data-bind="textInput: defenseTeamName">
+                  <span class="field-metadata" data-bind="with: defenseTeamData">
+                    <abbr title="Times in prosecution role">Pro:</abbr> <span class="d-role-prosecution" data-bind="text: prosecutionOccurrences">-1</span> •
+                    <abbr title="Times in defense role">Def:</abbr> <span class="d-role-defense" data-bind="text: defenseOccurrences">-1</span>
                   </span>
                 </div>
               </div>
@@ -37,21 +35,19 @@
                 <li>
                   <span class="judge-type">Presiding:</span>
                   <div class="suggestion-box-bound">
-                    <input type="text" class="match-judge presiding-judge">
-                    <input type="hidden" class="presiding-judge-id">
+                    <input type="text" class="match-judge presiding-judge" data-bind="textInput: presidingJudgeName">
                   </div>
                 </li>
                 <li>
                   <span class="judge-type">Scoring:</span>
                   <div class="suggestion-box-bound">
-                    <input type="text" class="match-judge scoring-judge">
-                    <input type="hidden" class="scoring-judge-id">
+                    <input type="text" class="match-judge scoring-judge" data-bind="textInput: scoringJudgeName">
                   </div>
                 </li>
               </ul>
             </td>
             <td class="schedule-actions">
-              <button class="remove-match">Remove Match</button>
+              <button class="remove-match" data-bind="click: $parent.deleteMatch">Remove Match</button>
             </td>
           </tr>
         </tbody>
@@ -59,15 +55,18 @@
 
       <h4>Byes</h4>
 
-      <ul class="bye-teams">
-        <li class="bye-team">Team 1</li>
-        <li class="clearable">Team 2</li>
+      <ul class="bye-teams" data-bind="foreach: byes">
+        <li class="bye-team" data-bind="text: name">Team 1</li>
       </ul>
 
       <footer>
-        <button type="button" class="add-match">Add Match</button>
+        <button type="button" class="add-match" data-bind="click: addMatch">Add Match</button>
         <button type="submit" class="save-schedule">Save Schedule</button>
       </footer>
     </form>
 
+    <tail>
+      <script src="/js/schedule-editor.js" type="text/javascript"></script>
+    </tail>
+  </section>
 </div>

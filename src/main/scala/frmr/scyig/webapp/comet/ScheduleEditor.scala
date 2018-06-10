@@ -9,6 +9,7 @@ import net.liftweb.http.js._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JE._
 import net.liftweb.json._
+import net.liftweb.json.Extraction._
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import scala.concurrent.Future
@@ -16,69 +17,101 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import slick._
 import slick.jdbc.MySQLProfile.api._
 
+case class MatchViewModel(
+  prosecutionTeamId: Int,
+  prosecutionTeamName: String,
+  defenseTeamId: Int,
+  defenseTeamName: String,
+  presidingJudgeId: Int,
+  presidingJudgeName: String,
+  scoringJudgeId: Int,
+  scoringJudgeName: String
+) {
+  def toModel(competitionId: Int, round: Int, order: Int): Match = {
+    Match(
+      None,
+      competitionId,
+      prosecutionTeamId,
+      defenseTeamId,
+      presidingJudgeId,
+      scoringJudgeId,
+      round,
+      order
+    )
+  }
+}
+object MatchViewModel {
+  def apply(model: Match): MatchViewModel = {
+    MatchViewModel(
+      model.prosecutionTeamId,
+      model.prosecutionTeam.map(_.name).openOr(""),
+      model.defenseTeamId,
+      model.defenseTeam.map(_.name).openOr(""),
+      model.presidingJudgeId,
+      model.presidingJudge.map(_.name).openOr(""),
+      model.scoringJudgeId,
+      model.scoringJudge.map(_.name).openOr("")
+    )
+  }
+}
+
+case class TeamViewModel(
+  id: Int,
+  name: String,
+  prosecutionOccurrences: Int,
+  defenseOccurrences: Int
+)
+object TeamViewModel {
+  def apply(team: Team): TeamViewModel = {
+    TeamViewModel(
+      team.id.getOrElse(0),
+      team.name,
+      team.prosecutionOccurrences.openOr(0),
+      team.defenseOccurrences.openOr(0)
+    )
+  }
+}
+
 object scheduleEditorPopulatedMatches extends RequestVar[Box[Seq[Match]]](Empty)
 
 class ScheduleEditor() extends CometActor with Loggable {
+  implicit val formats = DefaultFormats
+
   private[this] val competition: Competition = S.request.flatMap(_.location).flatMap(_.currentValue).collect {
     case competition: Competition => competition
     case (item1: Competition, _) => item1
   } openOrThrowException("No competition?")
 
-  private[this] val matchesQuery = Matches.to[Seq]
+  private[this] val isCreatingNewRound: Boolean = scheduleEditorPopulatedMatches.is.isDefined
+
+  val matchesQuery = Matches.to[Seq]
     .filter(_.competitionId === competition.id.getOrElse(0))
     .filter(_.round === competition.round)
     .result
 
-  private[this] val isCreatingNewRound: Boolean = scheduleEditorPopulatedMatches.is.isDefined
-  private[this] var currentEditorMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
+  val initialMatches: Seq[Match] = scheduleEditorPopulatedMatches.is or
     DB.runAwait(matchesQuery) openOr
     Seq.empty
 
-  /**
-   * When computing the prosecution / defense history summary we display we always
-   * want to display stats for *before* the round we're showing on the schedule.
-   *
-   * When creating a new round, that's done by using the total round count as the limiter.
-   * When editing an existing round, we subtract one from it.
-   */
-  private[this] val historyCountRoundLimiter = if (isCreatingNewRound) {
-    competition.round
-  } else {
-    competition.round - 1
-  }
 
-  private[this] def updateMatch(index: Int, updater: (Match)=>Match): Unit = {
-    val matchInQuestion = currentEditorMatches(index)
-    currentEditorMatches = currentEditorMatches.patch(index, updater(matchInQuestion) :: Nil, 1)
-  }
-
-  private[this] def ajaxUpdateMatch(index: Int, updater: (Match)=>Match): Unit = {
-    updateMatch(index, updater)
-    reRender()
-  }
-
-  private[this] def ajaxRemoveMatch(index: Int): Unit = {
-    currentEditorMatches = currentEditorMatches.patch(index, Nil, 1);
-    reRender()
-  }
-
-  private[this] def ajaxAddMatch(): Unit = {
-    val targetRound = if (isCreatingNewRound) {
-      competition.round + 1
-    } else {
-      competition.round
-    }
-    currentEditorMatches = currentEditorMatches :+ Match(None, competition.id.getOrElse(0), 0, 0, 0, 0, targetRound, 0)
-    reRender()
-  }
-
-  private[this] def saveSchedule(): JsCmd = {
-    val inserts = currentEditorMatches.map({ cem => Matches.insertOrUpdate(cem) })
+  private[this] def saveSchedule(serializedJson: String): JsCmd = {
+    val viewModelCollection = parse(serializedJson).extract[List[MatchViewModel]]
 
     val actions = if (isCreatingNewRound) {
       val updateCompetition = Competitions.insertOrUpdate(competition.copy(round = competition.round+1, status = InProgress))
 
-      val insertByes = calculatedByes.map({ team => Bye(
+      val matches = for {
+        (viewModel, index) <- viewModelCollection.zipWithIndex
+        dbModel = viewModel.toModel(
+          competition.id.getOrElse(0),
+          competition.round + 1,
+          index
+        )
+      } yield {
+        dbModel
+      }
+      val inserts = matches.map(Matches.insertOrUpdate)
+      val insertByes = calculatedByes(matches).map({ team => Bye(
         None,
         competition.id.getOrElse(0),
         team.id.getOrElse(0),
@@ -89,18 +122,35 @@ class ScheduleEditor() extends CometActor with Loggable {
 
       DBIO.seq(allQueries: _*).transactionally
     } else {
+      val clearMatches = Matches
+        .filter(_.competitionId === competition.id.getOrElse(0))
+        .filter(_.round === competition.round)
+        .delete
+      val matches = for {
+        (viewModel, index) <- viewModelCollection.zipWithIndex
+        dbModel = viewModel.toModel(
+          competition.id.getOrElse(0),
+          competition.round,
+          index
+        )
+      } yield {
+        dbModel
+      }
+      val insertMatches = matches.map(Matches.insertOrUpdate)
+
+
       val clearByes = Byes
         .filter(_.competitionId === competition.id.getOrElse(0))
         .filter(_.round === competition.round)
         .delete
-      val insertByes = calculatedByes.map({ team => Bye(
+      val insertByes = calculatedByes(matches).map({ team => Bye(
         None,
         competition.id.getOrElse(0),
         team.id.getOrElse(0),
         competition.round
       )}).map(Byes += _)
 
-      val allQueries = clearByes +: (inserts ++ insertByes)
+      val allQueries = Seq(clearMatches, clearByes) ++ insertMatches ++ insertByes
 
       DBIO.seq(allQueries: _*).transactionally
     }
@@ -123,8 +173,8 @@ class ScheduleEditor() extends CometActor with Loggable {
     }
   }
 
-  private[this] def calculatedByes = {
-    val scheduledTeamIds = currentEditorMatches.flatMap { m =>
+  private[this] def calculatedByes(codedMatches: Seq[Match]) = {
+    val scheduledTeamIds = codedMatches.flatMap { m =>
       Seq(m.prosecutionTeamId, m.defenseTeamId)
     }
 
@@ -144,58 +194,18 @@ class ScheduleEditor() extends CometActor with Loggable {
   }
 
   def render = {
-    S.appendJs(Call("window.bindSuggestions").cmd)
+    val viewModelMatches = initialMatches.map(MatchViewModel(_))
+    val viewModelMatchesJson = decompose(viewModelMatches)
+    S.appendJs(JE.Call("judicialManager.setSchedule", viewModelMatchesJson))
 
-    SHtml.makeFormsAjax andThen
-    ClearClearable andThen
-    "^ [data-competition-id]" #> competition.id.getOrElse(0).toString &
-    ".match-row" #> currentEditorMatches.zipWithIndex.flatMap {
-      case (m, idx) =>
-        for {
-          prosecution <- DB.runAwait(Teams.filter(_.id === m.prosecutionTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
-          defense <- DB.runAwait(Teams.filter(_.id === m.defenseTeamId).result.head) or Full(Team(None, competition.id.getOrElse(0), "", ""))
+    val allTeamsQuery = Teams.to[List]
+      .filter(_.competitionId === competition.id.getOrElse(0))
+      .result
 
-          presidingJudge <- DB.runAwait(Judges.filter(_.id === m.presidingJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
-          scoringJudge <- DB.runAwait(Judges.filter(_.id === m.scoringJudgeId).result.head) or Full(Judge(None, competition.id.getOrElse(0), "", ""))
-        } yield {
-          ".prosecution-team-id" #> SHtml.hidden(
-            v => updateMatch(idx, _.copy(prosecutionTeamId = v.toInt)),
-            m.prosecutionTeamId.toString
-          ) andThen
-          ".prosecution-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(prosecutionTeamId = v.toInt))
-          ).guid &
-          ".prosecution-team [value]" #> prosecution.name &
-          ".p-role-prosecution *" #> prosecution.prosecutionOccurrences(historyCountRoundLimiter) &
-          ".p-role-defense *" #> prosecution.defenseOccurrences(historyCountRoundLimiter) &
-          ".defense-team-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(defenseTeamId = v.toInt)), m.defenseTeamId.toString) andThen
-          ".defense-team-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(defenseTeamId = v.toInt))
-          ).guid &
-          ".defense-team [value]" #> defense.name &
-          ".d-role-prosecution *" #> defense.prosecutionOccurrences(historyCountRoundLimiter) &
-          ".d-role-defense *" #> defense.defenseOccurrences(historyCountRoundLimiter) &
-          ".presiding-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(presidingJudgeId = v.toInt)), m.presidingJudgeId.toString) andThen
-          ".presiding-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(presidingJudgeId = v.toInt))
-          ).guid &
-          ".presiding-judge [value]" #> presidingJudge.name &
-          ".scoring-judge-id" #> SHtml.hidden(v => updateMatch(idx, _.copy(scoringJudgeId = v.toInt)), m.scoringJudgeId.toString) andThen
-          ".scoring-judge-id [data-ajax-update-id]" #> SHtml.ajaxCall(
-            "",
-            v => ajaxUpdateMatch(idx, _.copy(scoringJudgeId = v.toInt))
-          ).guid &
-          ".scoring-judge [value]" #> scoringJudge.name &
-          ".remove-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxRemoveMatch(idx) )
-        }
-    } &
-    ".bye-team" #> calculatedByes.map { team =>
-      "^ *" #> team.name
-    } &
-    ".add-match [onclick]" #> SHtml.ajaxInvoke( () => ajaxAddMatch() ) &
-    ".save-schedule" #> SHtml.ajaxOnSubmit( () => saveSchedule() )
+    val allTeams: Seq[Team] = DB.runAwait(allTeamsQuery) openOr Seq.empty
+    val teamsViewModel = allTeams.map(TeamViewModel(_))
+    S.appendJs(JE.Call("judicialManager.setAllTeams", decompose(teamsViewModel)))
+
+    ".save-schedule [onclick]" #> SHtml.ajaxCall(JE.Call("judicialManager.serializeSchedule"), saveSchedule _)
   }
 }

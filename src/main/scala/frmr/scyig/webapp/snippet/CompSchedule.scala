@@ -18,3 +18,7 @@ object CompSchedule {
     _.id.getOrElse("").toString
   ) / "competition" / * / "schedule" >> validateCompetitionAccess
 }
+class CompSchedule(competition: Competition) {
+  def attachCompetitionId =
+    "^ [data-competition-id]" #> competition.competitionId
+}
